@@ -5,13 +5,21 @@
 <?rfc symrefs="yes"?>
 <?rfc compact="yes"?>
 <?rfc strict="yes"?>
-<rfc category='info' docName='draft-saintandre-sip-xmpp-core-01' ipr='pre5378Trust200902'>
+<rfc category='info' docName='draft-saintandre-sip-xmpp-core-02' ipr='pre5378Trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Core">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Core</title>
     <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
-      <organization>Cisco</organization>
+      <organization>Cisco Systems, Inc.</organization>
       <address>
+        <postal>
+          <street>1899 Wynkoop Street, Suite 600</street>
+          <city>Denver</city>
+          <region>CO</region>
+          <code>80202</code>
+          <country>USA</country>
+        </postal>
+        <phone>+1-303-308-3282</phone>
         <email>psaintan@cisco.com</email>
       </address>
     </author>
@@ -28,13 +36,20 @@
       </address>
     </author>
     <author initials="J." surname="Hildebrand" fullname="Joe Hildebrand">
-      <organization>Cisco</organization>
+      <organization>Cisco Systems, Inc.</organization>
       <address>
+        <postal>
+          <street>1899 Wynkoop Street, Suite 600</street>
+          <city>Denver</city>
+          <region>CO</region>
+          <code>80202</code>
+          <country>USA</country>
+        </postal>
         <email>jhildebr@cisco.com</email>
       </address>
     </author>
-    <date year="2009" month="March" day="8"/>
-    <area>Applications</area>
+    <date year="2012" month="October" day="15"/>
+    <area>RAI</area>
     <keyword>XMPP</keyword>
     <keyword>SIP</keyword>
     <abstract>
@@ -48,12 +63,15 @@
       <t>The IETF has worked on two signalling technologies that can be used for multimedia session negotiation, messaging, presence, capabilities discovery, notifications, and other application-level functionality:</t>
       <t>
         <list style='symbols'>
-          <t>The Session Initiation Protocol <xref target="SIP"/>, along with various SIP extensions developed within the SIP for Instant Messaging and Presence Leveraging Extensions (SIMPLE) Working Group.</t>
-          <t>The Extensible Messaging and Presence Protocol <xref target='XMPP'/>, along with various XMPP extensions developed by the IETF as well as by the XMPP Standards Foundation.</t>
+          <t>The Session Initiation Protocol <xref target="RFC3261"/>, along with various SIP extensions developed within the SIP for Instant Messaging and Presence Leveraging Extensions (SIMPLE) Working Group.</t>
+          <t>The Extensible Messaging and Presence Protocol <xref target='RFC6120'/>, along with various XMPP extensions developed by the IETF as well as by the XMPP Standards Foundation.</t>
         </list>
       </t>
       <t>Because these technologies are widely deployed, it is important to clearly define mappings between them for the sake of interworking.  This document inaugurates a series of SIP-XMPP interworking specifications by defining the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t>
-      <t>Note:  The capitalized key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target="TERMS">RFC 2119</xref>.</t>
+    </section>
+
+    <section title="Terminology" anchor="terms">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
     </section>
 
     <section title="Architectural Assumptions" anchor="intro-arch">
@@ -89,11 +107,11 @@
 
     <section title="Address Mapping" anchor="addr">
       <section title="Overview" anchor="addr-over">
-        <t>The basic SIP address format is a "sip:" or "sips:" URI as specified in <xref target='SIP'/>.  When a SIP entity supports extensions for instant messageing it may be identified by an 'im:' URI as specified in <xref target="CPIM"/> (see <xref target="SIP-IM"/>) and when a SIP entity spports extensions for presence it may be identified by a 'pres:' URI as specified in <xref target="CPP"/> (see <xref target="SIP-PRES"/>).</t>
-        <t>The XMPP address format is specified in <xref target="XMPP"/>; as specified in <xref target="XMPP-IM"/>, instant messaging and presence applications of XMPP must also support 'im:' and 'pres:' URIs as specified in <xref target="CPIM"/> and <xref target="CPP"/> respectively, although such support may simply involve leaving resolution of such addresses up to an XMPP server.</t>
-        <t>In this document we describe mappings for addresses of the form &lt;user@domain&gt; only, ignoring (for the purpose of address mapping) any protocol-specific extensions such as SIP telephone numbers and passwords or XMPP resource identifiers.  In addition, we have ruled the mapping of domain names as out of scope for now since that is a matter for the Domain Name System; specifically, the issue for interworking between SIP and XMPP relates to the translation of fully internationalized domain names (which the SIP address format does not allow, but which the XMPP address format does allow via <xref target="IDNA"/>) into non-internationalized domain names.  Therefore, in the following sections we discuss local-part addresses only (these are called variously "usernames", "instant inboxes", "presentities", and "node identifiers" in the protocols at issue).</t>
+        <t>The basic SIP address format is a "sip:" or "sips:" URI as specified in <xref target='RFC3261'/>.  When a SIP entity supports extensions for instant messageing it may be identified by an 'im:' URI as specified in the Common Profile for Instant Messaging <xref target="RFC3860"/> (see <xref target="RFC3428"/>) and when a SIP entity spports extensions for presence it may be identified by a 'pres:' URI as specified in the Common Profile for Presence <xref target="RFC3859"/> (see <xref target="RFC3856"/>).</t>
+        <t>The XMPP address format is specified in <xref target="RFC6122"/>; as specified in <xref target="RFC6121"/>, instant messaging and presence applications of XMPP must also support 'im:' and 'pres:' URIs as specified in <xref target="RFC3860"/> and <xref target="RFC3859"/> respectively, although such support may simply involve leaving resolution of such addresses up to an XMPP server.</t>
+        <t>In this document we describe mappings for addresses of the form &lt;user@domain&gt; only, ignoring (for the purpose of address mapping) any protocol-specific extensions such as SIP telephone numbers and passwords or XMPP resource identifiers.  In addition, we have ruled the mapping of domain names as out of scope for now since that is a matter for the Domain Name System; specifically, the issue for interworking between SIP and XMPP relates to the translation of fully internationalized domain names (which the SIP address format does not allow, but which the XMPP address format does allow via Internationalized Domain Names in Applications, see <xref target="RFC6122"/> and <xref target='I-D.ietf-xmpp-6122bis'/>) into non-internationalized domain names.  Therefore, in the following sections we discuss local-part addresses only (these are called variously "usernames", "instant inboxes", "presentities", and "node identifiers" in the protocols at issue).</t>
         <t>The sip:/sips:, im:/pres:, and XMPP address schemes allow different sets of characters (although all three allow alphanumeric characters and disallow both spaces and control characters).  In some cases, characters allowed in one scheme are disallowed in others; these characters must be mapped appropriately in order to ensure interworking across systems.</t>
-        <t>The local-part address in sip:/sips: URIs inherits from the "userinfo" rule in <xref target="URI"/> with several changes; here we discuss the SIP "user" rule only:</t>
+        <t>The local-part address in sip:/sips: URIs inherits from the "userinfo" rule in <xref target="RFC3986"/> with several changes; here we discuss the SIP "user" rule only:</t>
         <figure>
           <artwork><![CDATA[
    user             =  1*( unreserved / escaped / user-unreserved )
@@ -103,7 +121,7 @@
                        / "(" / ")"
           ]]></artwork>
         </figure>
-        <t>Here we make the simplifying assumption that the local-part address in im:/pres: URIs inherits from the "dot-atom-text" rule in <xref target="RFC2822"/> rather than the more complicated "local-part" rule:</t>
+        <t>Here we make the simplifying assumption that the local-part address in im:/pres: URIs inherits from the "dot-atom-text" rule in <xref target="RFC5322"/> rather than the more complicated "local-part" rule:</t>
         <figure>
           <artwork><![CDATA[
    dot-atom-text =  1*atext *("." 1*atext)
@@ -150,7 +168,7 @@
             <t>Leave unmodified any characters that are allowed in the destination scheme.</t>
             <t>Escape any characters that are allowed in the source scheme but reserved in the destination scheme, as escaping is defined for the destination scheme.  In particular:
               <list style='symbols'>
-                <t>Where the destination scheme is a URI (i.e., an im:, pres:, sip:, or sips: URI), each reserved character MUST be percent-encoded to "%hexhex" as specified in Section 2.6 of <xref target='URL-GUIDE'/> (e.g., when transforming from XMPP to SIP, encode "/" as "%2F").</t>
+                <t>Where the destination scheme is a URI (i.e., an im:, pres:, sip:, or sips: URI), each reserved character MUST be percent-encoded to "%hexhex" as specified in Section 2.6 of <xref target='RFC4395'/> (e.g., when transforming from XMPP to SIP, encode "/" as "%2F").</t>
                 <t>Where the destination scheme is a native XMPP address, each reserved character MUST be encoded to "\hexhex" as specified in <xref target='XEP-0106'/> (e.g., when transforming from SIP to XMPP, encode "'" as "\27").</t>
               </list>
             </t>
@@ -166,7 +184,7 @@
             <t>Translate %hexhex to equivalent octets.</t>
             <t>Treat result as a UTF-8 string.</t>
             <t>Translate "&amp;" to "\26", "'" to "\27", and "/" to "\2f" respectively in order to properly handle the characters disallowed in XMPP addresses but allowed in sip:/sips: URIs and im:/pres: URIs as shown in Column 3 of Table 3 above (this is consistent with <xref target="XEP-0106"/>).</t>
-            <t>Apply Nodeprep profile of <xref target="STRINGPREP"/> (as specified in <xref target="XMPP"/>) for canonicalization (OPTIONAL).</t>
+            <t>Apply Nodeprep profile of Stringprep <xref target="RFC3454"/> or its replacement (see <xref target="RFC6122"/> and <xref target='I-D.ietf-xmpp-6122bis'/>) for canonicalization (OPTIONAL).</t>
             <t>Recombine local-part with mapped hostname to form local@domain address.</t>
           </list>
         </t>
@@ -176,9 +194,9 @@
         <t>
           <list style='numbers'>
             <t>Split XMPP address into node identifier (local-part; mapping described in remaining steps), domain identifier (hostname; mapping is out of scope), and resource identifier (specifier for particular device or connection; discard this for cross-system interworking).</t>
-            <t>Apply Nodeprep profile of <xref target="STRINGPREP"/> (as specified in <xref target="XMPP"/>) for canonicalization (OPTIONAL).</t>
+            <t>Apply Nodeprep profile of <xref target="RFC3454"/> or its replacement (see <xref target="RFC6122"/> and <xref target='I-D.ietf-xmpp-6122bis'/>) for canonicalization (OPTIONAL).</t>
             <t>Translate "\26" to "&amp;", "\27" to "'", and "\2f" to "/" respectively (this is consistent with <xref target="XEP-0106"/>).</t>
-            <t>Determine if the foreign domain supports im: and pres: URIs (discovered via <xref target="SRV"/> lookup as specified in <xref target="XMPP-IM"/>), else assume that the foreign domain supports sip:/sips: URIs.</t>
+            <t>Determine if the foreign domain supports im: and pres: URIs (discovered via <xref target="RFC2782"/> lookup as specified in <xref target="RFC6121"/>), else assume that the foreign domain supports sip:/sips: URIs.</t>
             <t>If converting into im: or pres: URI, for each byte, if the byte is in the set (),.;[\] (i.e., the partial complement from Row 3, Column 2 of Table 3 above) or is a UTF-8 character outside the US-ASCII range then transform that byte to %hexhex.  If converting into sip: or sips: URI, for each byte, if the byte is in the set #%[\]^`{|} (i.e., the partial complement from Row 3, Column 1 of Table 3 above) or is a UTF-8 character outside the US-ASCII range then transform that byte to %hexhex.</t>
             <t>Combine resulting local-part with mapped hostname to form local@domain address.</t>
             <t>Prepend with 'im:' scheme (for XMPP &lt;message/&gt; stanzas) or 'pres:' scheme (for XMPP &lt;presence/&gt; stanzas) if foreign domain supports these, else prepend with 'sip:' or 'sips:' scheme according to local service policy.</t>
@@ -188,7 +206,7 @@
     </section>
 
     <section title='Error Condition Mapping' anchor="errors">
-      <t>SIP response codes are specified in <xref target='SIP'/> and XMPP error conditions are specified in <xref target='XMPP'/>.</t>
+      <t>SIP response codes are specified in <xref target='RFC3261'/> and XMPP error conditions are specified in <xref target='RFC6120'/>.</t>
       <section title="XMPP to SIP" anchor="errors-xmpp">
         <figure>
           <preamble>Table 8: Mapping of XMPP error conditions to SIP response codes</preamble>
@@ -280,7 +298,11 @@
       </section>
     </section>
     <section title='Security Considerations' anchor="sec">
-      <t>Detailed security considerations for SIP are given in <xref target="SIP"/> and for XMPP in <xref target="XMPP"/>.</t>
+      <t>Detailed security considerations for SIP are given in <xref target="RFC3261"/> and for XMPP in <xref target="RFC6120"/>.</t>
+    </section>
+
+    <section title="IANA Considerations" anchor="iana">
+      <t>This document requests no actions of IANA.</t>
     </section>
 
   </middle>
@@ -289,31 +311,7 @@
 
     <references title="Normative References">
 
-<reference anchor='SIP'>
-<front>
-<title>SIP: Session Initiation Protocol</title>
-<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
-<organization /></author>
-<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
-<organization /></author>
-<author initials='G.' surname='Camarillo' fullname='G. Camarillo'>
-<organization /></author>
-<author initials='A.' surname='Johnston' fullname='A. Johnston'>
-<organization /></author>
-<author initials='J.' surname='Peterson' fullname='J. Peterson'>
-<organization /></author>
-<author initials='R.' surname='Sparks' fullname='R. Sparks'>
-<organization /></author>
-<author initials='M.' surname='Handley' fullname='M. Handley'>
-<organization /></author>
-<author initials='E.' surname='Schooler' fullname='E. Schooler'>
-<organization /></author>
-<date month='June' year='2002' /></front>
-<seriesInfo name='RFC' value='3261' />
-<format type='TXT' octets='647976' target='ftp://ftp.isi.edu/in-notes/rfc3261.txt' />
-</reference>
-
-<reference anchor='TERMS'>
+<reference anchor='RFC2119'>
   <front>
     <title abbrev='RFC Key Words'>Key words for use in RFCs to Indicate Requirement Levels</title>
     <author initials='S.' surname='Bradner' fullname='Scott Bradner'>
@@ -344,7 +342,31 @@
   <seriesInfo name='RFC' value='2119' />
 </reference>
 
-<reference anchor='URI'>
+<reference anchor='RFC3261'>
+<front>
+<title>SIP: Session Initiation Protocol</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='G.' surname='Camarillo' fullname='G. Camarillo'>
+<organization /></author>
+<author initials='A.' surname='Johnston' fullname='A. Johnston'>
+<organization /></author>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'>
+<organization /></author>
+<author initials='R.' surname='Sparks' fullname='R. Sparks'>
+<organization /></author>
+<author initials='M.' surname='Handley' fullname='M. Handley'>
+<organization /></author>
+<author initials='E.' surname='Schooler' fullname='E. Schooler'>
+<organization /></author>
+<date month='June' year='2002' /></front>
+<seriesInfo name='RFC' value='3261' />
+<format type='TXT' octets='647976' target='ftp://ftp.isi.edu/in-notes/rfc3261.txt' />
+</reference>
+
+<reference anchor='RFC3986'>
 <front>
 <title abbrev='URI Generic Syntax'>Uniform Resource Identifier (URI): Generic Syntax</title>
 <author initials='T.' surname='Berners-Lee' fullname='Tim Berners-Lee'>
@@ -415,7 +437,7 @@ specifications of each URI scheme.
 <format type='XML' octets='165759' target='http://xml.resource.org/public/rfc/xml/rfc3986.xml' />
 </reference>
 
-<reference anchor='URL-GUIDE'>
+<reference anchor='RFC4395'>
 <front>
 <title>Guidelines and Registration Procedures for New URI Schemes</title>
 <author initials='T.' surname='Hansen' fullname='Tony Hansen'>
@@ -454,97 +476,35 @@ specifications of each URI scheme.
 <format type='TXT' octets='31933' target='ftp://ftp.isi.edu/in-notes/rfc4395.txt' />
 </reference>
 
-<reference anchor="XMPP">
-  <front>
-    <title>Extensible Messaging and Presence Protocol (XMPP): Core</title>
-    <author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
-      <organization>Jabber Software Foundation</organization>
-    </author>
-    <date year='2004' month='October' />
-  </front>
-  <seriesInfo name='RFC' value='3920' />
-  <format type='TXT' octets='194313' target='ftp://ftp.isi.edu/in-notes/rfc3920.txt' />
+<reference anchor='RFC6120'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Core</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>The Extensible Messaging and Presence Protocol (XMPP) is an application profile of the Extensible Markup Language (XML) that enables the near-real-time exchange of structured yet extensible data between any two or more network entities.  This document defines XMPP's core protocol methods: setup and teardown of XML streams, channel encryption, authentication, error handling, and communication primitives for messaging, network availability ("presence"), and request-response interactions.  This document obsoletes RFC 3920. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6120' />
+<format type='TXT' octets='451942' target='http://www.rfc-editor.org/rfc/rfc6120.txt' />
+</reference>
+
+<reference anchor='RFC6122'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Address Format</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>This document defines the format for addresses used in the Extensible Messaging and Presence Protocol (XMPP), including support for non-ASCII characters.  This document updates RFC 3920. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6122' />
+<format type='TXT' octets='50646' target='http://www.rfc-editor.org/rfc/rfc6122.txt' />
 </reference>
 
     </references>
 
     <references title="Informative References">
 
-<reference anchor="CPIM">
-<front>
-<title>Common Profile for Instant Messaging (CPIM)</title>
-<author initials='J.' surname='Peterson' fullname='J. Peterson'>
-<organization /></author>
-<date year='2004' month='August' /></front>
-<seriesInfo name='RFC' value='3860' />
-<format type='TXT' octets='26486' target='ftp://ftp.isi.edu/in-notes/rfc3860.txt' />
-</reference>
-
-<reference anchor="CPP">
-<front>
-<title>Common Profile for Presence (CPP)</title>
-<author initials='J.' surname='Peterson' fullname='J. Peterson'>
-<organization /></author>
-<date year='2004' month='August' /></front>
-<seriesInfo name='RFC' value='3859' />
-<format type='TXT' octets='30537' target='ftp://ftp.isi.edu/in-notes/rfc3859.txt' />
-</reference>
-
-<reference anchor='IDNA'>
-<front>
-<title>Internationalizing Domain Names in Applications (IDNA)</title>
-<author initials='P.' surname='Faltstrom' fullname='P. Faltstrom'>
-<organization /></author>
-<author initials='P.' surname='Hoffman' fullname='P. Hoffman'>
-<organization /></author>
-<author initials='A.' surname='Costello' fullname='A. Costello'>
-<organization /></author>
-<date month='March' year='2003' /></front>
-<seriesInfo name='RFC' value='3490' />
-<format type='TXT' octets='51943' target='ftp://ftp.isi.edu/in-notes/rfc3490.txt' />
-</reference>
-
-<reference anchor='RFC2822'>
-<front>
-<title>Internet Message Format</title>
-<author initials='P.' surname='Resnick' fullname='P. Resnick'>
-<organization /></author>
-<date year='2001' month='April' />
-<abstract>
-<t>This document specifies a syntax for text messages that are sent between computer users, within the framework of "electronic mail" messages. [STANDARDS TRACK] </t></abstract></front>
-<seriesInfo name='RFC' value='2822' />
-<format type='TXT' octets='110695' target='ftp://ftp.isi.edu/in-notes/rfc2822.txt' />
-</reference>
-
-<reference anchor="SIP-IM">
-<front>
-<title>Session Initiation Protocol (SIP) Extension for Instant Messaging</title>
-<author initials='B.' surname='Campbell' fullname='B. Campbell'>
-<organization /></author>
-<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
-<organization /></author>
-<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
-<organization /></author>
-<author initials='C.' surname='Huitema' fullname='C. Huitema'>
-<organization /></author>
-<author initials='D.' surname='Gurle' fullname='D. Gurle'>
-<organization /></author>
-<date month='December' year='2002' /></front>
-<seriesInfo name='RFC' value='3428' />
-<format type='TXT' octets='41475' target='ftp://ftp.isi.edu/in-notes/rfc3428.txt' />
-</reference>
-
-<reference anchor="SIP-PRES">
-<front>
-<title>A Presence Event Package for the Session Initiation Protocol (SIP)</title>
-<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
-<organization /></author>
-<date year='2004' month='August' /></front>
-<seriesInfo name='RFC' value='3856' />
-<format type='TXT' octets='62956' target='ftp://ftp.isi.edu/in-notes/rfc3856.txt' />
-</reference>
-
-<reference anchor='SRV'>
+<reference anchor='RFC2782'>
 <front>
 <title abbrev='DNS SRV RR'>A DNS RR for specifying the location of services (DNS SRV)</title>
 <author initials='A.' surname='Gulbrandsen' fullname='Arnt Gulbrandsen'>
@@ -587,7 +547,25 @@ specifications of each URI scheme.
 <format type='TXT' octets='24013' target='ftp://ftp.isi.edu/in-notes/rfc2782.txt' />
 </reference>
 
-<reference anchor="STRINGPREP">
+<reference anchor="RFC3428">
+<front>
+<title>Session Initiation Protocol (SIP) Extension for Instant Messaging</title>
+<author initials='B.' surname='Campbell' fullname='B. Campbell'>
+<organization /></author>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='C.' surname='Huitema' fullname='C. Huitema'>
+<organization /></author>
+<author initials='D.' surname='Gurle' fullname='D. Gurle'>
+<organization /></author>
+<date month='December' year='2002' /></front>
+<seriesInfo name='RFC' value='3428' />
+<format type='TXT' octets='41475' target='ftp://ftp.isi.edu/in-notes/rfc3428.txt' />
+</reference>
+
+<reference anchor="RFC3454">
 <front>
 <title>Preparation of Internationalized Strings ("STRINGPREP")</title>
 <author initials='P.' surname='Hoffman' fullname='P.  Hoffman'>
@@ -597,6 +575,99 @@ specifications of each URI scheme.
 <date month='December' year='2002' /></front>
 <seriesInfo name='RFC' value='3454' />
 <format type='TXT' octets='138684' target='ftp://ftp.isi.edu/in-notes/rfc3454.txt' />
+</reference>
+
+<reference anchor="RFC3856">
+<front>
+<title>A Presence Event Package for the Session Initiation Protocol (SIP)</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<date year='2004' month='August' /></front>
+<seriesInfo name='RFC' value='3856' />
+<format type='TXT' octets='62956' target='ftp://ftp.isi.edu/in-notes/rfc3856.txt' />
+</reference>
+
+<reference anchor="RFC3859">
+<front>
+<title>Common Profile for Presence (CPP)</title>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'>
+<organization /></author>
+<date year='2004' month='August' /></front>
+<seriesInfo name='RFC' value='3859' />
+<format type='TXT' octets='30537' target='ftp://ftp.isi.edu/in-notes/rfc3859.txt' />
+</reference>
+
+<reference anchor="RFC3860">
+<front>
+<title>Common Profile for Instant Messaging (CPIM)</title>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'>
+<organization /></author>
+<date year='2004' month='August' /></front>
+<seriesInfo name='RFC' value='3860' />
+<format type='TXT' octets='26486' target='ftp://ftp.isi.edu/in-notes/rfc3860.txt' />
+</reference>
+
+<reference anchor='RFC5322'>
+<front>
+<title>Internet Message Format</title>
+<author initials='P.' surname='Resnick' fullname='Peter W. 
+Resnick' role='editor'>
+<organization>Qualcomm Incorporated</organization>
+<address>
+<postal>
+<street>5775 Morehouse Drive</street>
+<city>San Diego</city>
+<region>CA</region>
+<code>92121-1714</code>
+<country>US</country></postal>
+<phone>+1 858 651 4478</phone>
+<email>presnick@qualcomm.com</email>
+<uri>http://www.qualcomm.com/~presnick/</uri></address></author>
+<date year='2008' month='October' />
+<abstract>
+<t>This document specifies the Internet 
+Message Format (IMF), a syntax for text messages
+			that are sent between computer users, within 
+the framework of "electronic mail"
+			messages. This specification is a revision of 
+Request For Comments (RFC) 2822, which
+			itself superseded Request For Comments (RFC) 
+822, "Standard for the Format of ARPA
+			Internet Text Messages", updating it to 
+reflect current practice and incorporating
+			incremental changes that were specified in 
+other RFCs.</t></abstract></front>
+
+<seriesInfo name='RFC' value='5322' />
+<format type='TXT' octets='122322' target='http://www.rfc-editor.org/rfc/rfc5322.txt' />
+<format type='HTML' octets='213342' target='http://xml.resource.org/public/rfc/html/rfc5322.html' />
+<format type='XML' octets='174183' target='http://xml.resource.org/public/rfc/xml/rfc5322.xml' />
+</reference>
+
+<reference anchor='RFC6121'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Instant Messaging and Presence</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>This document defines extensions to core features of the Extensible Messaging and Presence Protocol (XMPP) that provide basic instant messaging (IM) and presence functionality in conformance with the requirements in RFC 2779.  This document obsoletes RFC 3921. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6121' />
+<format type='TXT' octets='244800' target='http://www.rfc-editor.org/rfc/rfc6121.txt' />
+</reference>
+
+<reference anchor='I-D.ietf-xmpp-6122bis'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Address Format</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<date month='September' day='23' year='2012' />
+<abstract><t>This document defines the address format for the Extensible Messaging and Presence Protocol (XMPP), including support for code points outside the US-ASCII range.  This document obsoletes RFC 6122.</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ietf-xmpp-6122bis-04' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-xmpp-6122bis-04.txt' />
 </reference>
 
 <reference anchor="XEP-0106">
@@ -618,18 +689,6 @@ specifications of each URI scheme.
   </front>
   <seriesInfo name="XSF XEP" value="0106"/>
   <format type="HTML" target="http://www.xmpp.org/extensions/xep-0106.html"/>
-</reference>
-
-<reference anchor="XMPP-IM">
-  <front>
-    <title>Extensible Messaging and Presence Protocol (XMPP): Instant Messaging and Presence</title>
-    <author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
-      <organization>Jabber Software Foundation</organization>
-    </author>
-    <date year='2004' month='October' />
-  </front>
-  <seriesInfo name='RFC' value='3921' />
-  <format type='TXT' octets='217527' target='ftp://ftp.isi.edu/in-notes/rfc3921.txt' />
 </reference>
 
     </references>

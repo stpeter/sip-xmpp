@@ -6,13 +6,21 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="4"?>
-<rfc category="info" docName="draft-saintandre-sip-xmpp-groupchat-01" ipr="pre5378Trust200902">
+<rfc category="info" docName="draft-saintandre-sip-xmpp-groupchat-02" ipr="pre5378Trust200902">
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Chat">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Multi-Party Text Chat</title>
     <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
-      <organization>Cisco</organization>
+      <organization>Cisco Systems, Inc.</organization>
       <address>
+        <postal>
+          <street>1899 Wynkoop Street, Suite 600</street>
+          <city>Denver</city>
+          <region>CO</region>
+          <code>80202</code>
+          <country>USA</country>
+        </postal>
+        <phone>+1-303-308-3282</phone>
         <email>psaintan@cisco.com</email>
       </address>
     </author>
@@ -29,18 +37,18 @@
       </address>
     </author>
     <author initials="F." surname="Forno" fullname="Fabio Forno">
-     <organization>Bluendo srl</organization>
-     <address>
-       <postal>
-         <street>Via Morosini 10</street>
-         <code>10128</code> 
-         <city>Torino</city> 
-         <country>Italy</country>
-        </postal>
-       <email>fabio@bluendo.com</email>
-     </address>
-   </author>
-    <date year="2009" month="March" day="8"/>
+      <organization>Bluendo srl</organization>
+      <address>
+        <postal>
+          <street>Via Morosini 10</street>
+          <code>10128</code> 
+          <city>Torino</city> 
+          <country>Italy</country>
+         </postal>
+        <email>fabio@bluendo.com</email>
+      </address>
+    </author>
+    <date year="2012" month="October" day="15"/>
     <area>RAI</area>
     <keyword>Text Chat</keyword>
     <keyword>Instant Messaging</keyword>
@@ -60,36 +68,37 @@
     <section title="Introduction" anchor="intro">
 
       <section title="Overview" anchor="intro-overview">
-        <t>Both the Session Initiation Protocol <xref target="SIP"/> and the Extensible Messaging and Presence Protocol <xref target="XMPP"/> can be used for the purpose of many-to-many text chat over the Internet. To ensure interworking between these technologies, it is important to define bi-directional protocol mappings.</t>
-        <t>The architectural assumptions underlying such protocol mappings are provided in <xref target="SIP-XMPP"/>, including mapping of addresses and error conditions. Mappings for single instant messages (sometimes called "pager-mode" messaging) are provided in <xref target="SIP-XMPP-IM"/>. Mappings for one-to-one text chat sessions are provided in <xref target="SIP-XMPP-CHAT"/>. </t>
-
-<t>This document specifies mappings for many-to-many text chat sessions (sometimes called "groupchat"); in particular, this document specifies mappings between XMPP and the Message Session Relay Protocol <xref target="MSRP"/>.</t>
-        <t>Note: The capitalized key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target="TERMS">RFC 2119</xref>.</t>
+        <t>Both the Session Initiation Protocol <xref target="RFC3261"/> and the Extensible Messaging and Presence Protocol <xref target="RFC6120"/> can be used for the purpose of many-to-many text chat over the Internet. To ensure interworking between these technologies, it is important to define bi-directional protocol mappings.</t>
+        <t>The architectural assumptions underlying such protocol mappings are provided in <xref target="I-D.saintandre-sip-xmpp-core"/>, including mapping of addresses and error conditions. Mappings for single instant messages (sometimes called "pager-mode" messaging) are provided in <xref target="I-D.saintandre-sip-xmpp-im"/>. Mappings for one-to-one text chat sessions are provided in <xref target="I-D.saintandre-sip-xmpp-chat"/>. </t>
+        <t>This document specifies mappings for many-to-many text chat sessions (sometimes called "groupchat"); in particular, this document specifies mappings between XMPP and the Message Session Relay Protocol <xref target="RFC4975"/>.</t>
       </section>
 
+      <section title="Terminology" anchor="terms">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
+      </section>
 
       <section title="Scope" anchor="intro-scope">
         <t>Both XMPP and SIP/SIMPLE technologies enable multi-user text chat, whereby users can exchange messages in the context of a room. The term "room" usually is a synonym for a virtual environment where people enter and exchange messages.</t>
 <!--SAL-->
 
-            <t>Groupchat messages are messages which are sent from a sender to multiple recipients (i.e., two or more) in the context of a "multi-user chat session", "text conference", or "chatroom".  In XMPP a groupchat message is a &lt;message/&gt; stanza of type "groupchat" that is reflected from the sender to multiple recipients by a multi-user chat service, as defined in <xref target="MUC"/>.  In SIP/SIMPLE a groupchat message is reflected from the sender to multiple recipients by a conference server that uses MSRP to handle groupchat sessions, as defined in <xref target="MSRP-MULTI"/>.</t>
+            <t>Groupchat messages are messages which are sent from a sender to multiple recipients (i.e., two or more) in the context of a "multi-user chat session", "text conference", or "chatroom".  In XMPP a groupchat message is a &lt;message/&gt; stanza of type "groupchat" that is reflected from the sender to multiple recipients by a multi-user chat service, as defined in <xref target="XEP-0045"/>.  In SIP/SIMPLE a groupchat message is reflected from the sender to multiple recipients by a conference server that uses MSRP to handle groupchat sessions, as defined in <xref target="I-D.ietf-simple-chat"/>.</t>
     
 
-        <t>As in <xref target="SIP-XMPP-IM"/> and related documents, the approach taken here is to directly map syntax and semantics from one protocol to another.  The mapping described herein depends on the protocols defined in the following specifications:</t>
+        <t>As in <xref target="I-D.saintandre-sip-xmpp-im"/> and related documents, the approach taken here is to directly map syntax and semantics from one protocol to another.  The mapping described herein depends on the protocols defined in the following specifications:</t>
         <t>
           <list style="symbols">
-            <t>XMPP chat sessions using message stanzas of type "groupchat" are specified in <xref target="MUC"/>.</t>
-            <t>SIP-based chat room sessions using the SIP INVITE and SEND request types are specified in <xref target="MSRP-MULTI"/>.</t>
+            <t>XMPP chat sessions using message stanzas of type "groupchat" are specified in <xref target="XEP-0045"/>.</t>
+            <t>SIP-based chat room sessions using the SIP INVITE and SEND request types are specified in <xref target="I-D.ietf-simple-chat"/>.</t>
           </list>
         </t>
       </section>
 
       <section title="Formal and Informal Sessions" anchor="intro-sessions">
-        <t>[TBD] Does XMPP use Formal and Informal session also for group-chat?</t>
+        <t>TBD: Does XMPP use Formal and Informal session also for group-chat?</t>
       </section>
                 
       <section title="Gateway Heuristics" anchor="intro-heuristics">
-        <t>[TBD]</t>
+        <t>TBD</t>
         <!--t>after the initial join the gw must learn than verona@shakespeare.net is a conference service</t-->
 
 
@@ -97,7 +106,7 @@
 
 
       <section title="Acknowledgements" anchor="intro-ack">
-        <t>Some text in this document was borrowed from <xref target="SIP-XMPP"/> and from <xref target="MUC"/>.</t>
+        <t>Some text in this document was borrowed from <xref target="I-D.saintandre-sip-xmpp-core"/> and from <xref target="XEP-0045"/>.</t>
       </section>
 
       <section title="Discussion Venue" anchor="intro-discuss">
@@ -176,7 +185,7 @@ XMPP User                      GW                       server
         </figure>
         <t>Upon receiving such a presence stanza, the XMPP server to which Juliet has authenticated attempts to deliver the stanza to a local domain or attempts to route the presence stanza to the remote domain that services the hostname in the 'to' attribute. Naturally, in this document we assume that the hostname in the 'to' attribute is an Chat Room-aware SIP service hosted by a separate server.</t>
 
-        <t>As specified in <xref target="XMPP-IM"/>, the XMPP server needs to determine the identity of the remote domain, which it does by performing one or more <xref target="DNS-SRV"/> lookups. For presence stanzas, the order of lookups recommended by <xref target="XMPP-IM"/> is to first try the "_xmpp-server" service as specified in <xref target="XMPP"/> and to then try the "_im" service as specified in <xref target="IMP-SRV"/>.  Here we assume that the first lookup will fail but that the second lookup will succeed and return a resolution "_im._simple.shakespeare.net", since we have already assumed that the shakespeare.net hostname is running a SIP instant messaging service.  (Note: The XMPP server may have previously determined that the remote domain is a SIMPLE server, in which case it would not need to perform the SRV lookups; the caching of such information is a matter of implementation and local service policy, and is therefore out of scope for this document.)</t>
+        <t>As specified in <xref target="RFC6121"/>, the XMPP server needs to determine the identity of the remote domain, which it does by performing one or more DNS SRV lookups <xref target="RFC2782"/>. For presence stanzas, the order of lookups recommended by <xref target="RFC6121"/> is to first try the "_xmpp-server" service as specified in <xref target="RFC6120"/> and to then try the "_im" service as specified in <xref target="RFC3861"/>.  Here we assume that the first lookup will fail but that the second lookup will succeed and return a resolution "_im._simple.shakespeare.net", since we have already assumed that the shakespeare.net hostname is running a SIP instant messaging service.  (Note: The XMPP server may have previously determined that the remote domain is a SIMPLE server, in which case it would not need to perform the SRV lookups; the caching of such information is a matter of implementation and local service policy, and is therefore out of scope for this document.)</t>
         <t>Once the XMPP server (example.com) has determined that the remote domain is serviced by a SIMPLE server, it hands the XMPP presence stanza off to its local XMPP-to-SIP gateway (x2s.example.com), which transforms the presence stanza into SIP syntax and routes it to the remote conference server (shakespeare.net).</t>
 	<t>As a compliant multi-user chat services MUST accept the presence stanza containing an empty &lt;x/&gt; element qualified by the
 'http://jabber.org/protocol/muc' namespace as a request to enter a room; the XMPP-to-SIP gateway MUST transform it in a SIP INVITE request.
@@ -200,7 +209,7 @@ XMPP User                      GW                       server
         </figure>
         <t>Here the Session Description Protocol offer specifies the MSRP-aware XMPP-to-SIP gateway on the XMPP side as well as other particulars of the session.</t>
         <t><list style="empty"><t>There is no direct mapping for the MSRP URIs.  In fact MSRP URIs identify a session of instant messages at a particular device; they are ephemeral and have no meaning outside the scope of that session.  The authority component of the MSRP URI MUST contain the XMPP-to-SIP gateway hostname or numeric IP address and an explicit port number.</t></list></t>
-        <t>As specified in <xref target="SIP-XMPP"/>, the mapping of XMPP syntax elements to SIP and <xref target='SDP'/> syntax elements SHOULD be as shown in the following table.  (Mappings for elements not mentioned are undefined.)</t>
+        <t>As specified in <xref target="I-D.saintandre-sip-xmpp-core"/>, the mapping of XMPP syntax elements to SIP and <xref target='RFC4566'/> syntax elements SHOULD be as shown in the following table.  (Mappings for elements not mentioned are undefined.)</t>
         <figure>
           <preamble>Table 1: Message syntax mapping from XMPP to SIP/SDP</preamble>
           <artwork><![CDATA[
@@ -213,7 +222,7 @@ XMPP User                      GW                       server
           ]]></artwork>
         </figure>
 
-        <t>Here we assume that the chat room server accepts the session establishment. It includes the 'isfocus' and other relevant feature tags in the Contact header field of the response. The chat room server also includes an answer session description that acknowledges the choice of media and contains the extensions specified in <xref target="MSRP-MULTI"/>.</t>
+        <t>Here we assume that the chat room server accepts the session establishment. It includes the 'isfocus' and other relevant feature tags in the Contact header field of the response. The chat room server also includes an answer session description that acknowledges the choice of media and contains the extensions specified in <xref target="I-D.ietf-simple-chat"/>.</t>
         <figure>
           <preamble>Example: (F3) the chat room accepts the session establishment</preamble>
           <artwork><![CDATA[
@@ -250,7 +259,7 @@ XMPP User                      GW                       server
       <section title="Setting up a nickname" anchor="xmpp-nicksetup">
 
 
-        <t>If the chat room server accepted the session, the SIMPLE server or associated SIP-to-XMPP gateway MUST set up the nickname as received in the presence stanza. The nickname is set up using the extension specified in <xref target="MSRP-MULTI"/></t>
+        <t>If the chat room server accepted the session, the SIMPLE server or associated SIP-to-XMPP gateway MUST set up the nickname as received in the presence stanza. The nickname is set up using the extension specified in <xref target="I-D.ietf-simple-chat"/></t>
 
         <figure>
           <preamble>Example: (F5) the Gateway set up the nickname</preamble>
@@ -323,7 +332,7 @@ XMPP User                      GW                       server
 	<t><list style="format [NOTE: %d]">
         <t> a full mapping of RFC 4575 will be defined later on.</t>
         <t> the &lt;nickname-text/&gt; attribute is an extension to the conference package
-        explained but not defined in <xref target="MSRP-MULTI"/> </t>
+        explained but not defined in <xref target="I-D.ietf-simple-chat"/> </t>
         <t>the subject (if present in the NOTIFY) must be sent with a separate &lt;message/&gt; stanza;
         so after F11 there should be another &lt;message/&gt; stanza from the gw to the joining party</t>
         </list></t>
@@ -442,7 +451,7 @@ XMPP User                      GW                       server
         </figure>
 
         <t>Since the XMPP room could be moderated and an XMPP User can not be sure whether his message has been accepted
-        or not, without an echo from the server, the <xref target="MUC"/> states that the sender have to receive back the
+        or not, without an echo from the server, the <xref target="XEP-0045"/> states that the sender have to receive back the
         same message it has generated. So in this scenario the XMPP-to-SIP gateway has to generate the echo message.</t>
         </section>
 
@@ -704,17 +713,17 @@ SIP User                     GW                       room
         </figure>
 
         <t><list style="format [OPEN ISSUE: %d]">
-           <t><xref target="MSRP-MULTI"/> does not say anything abouth the inclusion of the SDP "chatroom" attribute in the INVITE
+           <t><xref target="I-D.ietf-simple-chat"/> does not say anything abouth the inclusion of the SDP "chatroom" attribute in the INVITE
               however that is the only way for a GW to understand the the INVITE is establishing a group-chat session</t>
         </list></t>
 
         <t>Upon receiving the INVITE, the SIP-to-XMPP gateway needs to determine the identity of the remote domain, which it does by 
-        performing one or more DNS SRV lookups <xref target="DNS-SRV"/>. The SIP-to-XMPP gateway SHOULD resolve the address present in the
-       To header of the INVITE to an im URI, then follow the rules in <xref target="IMP-SRV"/> regarding the "_im" SRV service for the
+        performing one or more DNS SRV lookups <xref target="RFC2782"/>. The SIP-to-XMPP gateway SHOULD resolve the address present in the
+       To header of the INVITE to an im URI, then follow the rules in <xref target="RFC3861"/> regarding the "_im" SRV service for the
        target domain contained in the To header. If SRV address resolution fails for the "_im" service, the SIP-to-XMPP gateway MAY attempt
-       a lookup for the "_xmpp-server" service as specified in <xref target="XMPP"/> or MAY return an error to the sender (i.e.  502 Bad
+       a lookup for the "_xmpp-server" service as specified in <xref target="RFC6120"/> or MAY return an error to the sender (i.e.  502 Bad
        Gateway).</t>
-        <t>If SRV address resolution succeeds, the SIP-to-XMPP gateway SHOULD answer successfuly with a SIP 200 OK (F2), but it MUST not
+        <t>If SRV address resolution succeeds, the SIP-to-XMPP gateway SHOULD answer successfuly with a SIP 200 OK (F2), but it MUST NOT
         yet translate the request into an XMPP presece stanza before the MSRP user set up the nickname.</t>
 
         <figure>
@@ -1074,80 +1083,15 @@ SIP User                      GW                       server
       <t>To follow.</t>
     </section>
 
+    <section title="IANA Considerations" anchor="iana">
+      <t>This document requests no actions of IANA.</t>
+    </section>
+
   </middle>
   <back>
     <references title="Normative References">
 
-<reference anchor="MSRP">
-<front>
-<title>The Message Session Relay Protocol (MSRP)</title>
-<author initials="B." surname="Campbell" fullname="B.  Campbell">
-<organization/></author>
-<author initials="R." surname="Mahy" fullname="R.  Mahy">
-<organization/></author>
-<author initials="C." surname="Jennings" fullname="C.  Jennings">
-<organization/></author>
-<date year="2007" month="September"/>
-<abstract>
-<t>This document describes the Message Session Relay Protocol, a protocol for transmitting a series of related instant messages in the context of a session.  Message sessions are treated like any other media stream when set up via a rendezvous or session creation protocol such as the Session Initiation Protocol.  [STANDARDS TRACK]</t></abstract></front>
-<seriesInfo name="RFC" value="4975"/>
-<format type="TXT" octets="144254" target="ftp://ftp.isi.edu/in-notes/rfc4975.txt"/>
-</reference>
-
-<reference anchor="IMP-SRV">
-<front>
-<title>Address Resolution for Instant Messaging and Presence</title>
-<author initials="J." surname="Peterson" fullname="J.  Peterson">
-<organization/></author>
-<date year="2004" month="August"/>
-<abstract>
-<t>Presence and instant messaging are defined in RFC 2778.  The Common Profiles for Presence and Instant Messaging define two Universal Resource Identifier (URI) schemes: 'im' for INSTANT INBOXes and 'pres' for PRESENTITIES.  This document provides guidance for locating the resources associated with URIs that employ these schemes.  [STANDARDS TRACK] </t></abstract></front>
-<seriesInfo name="RFC" value="3861"/>
-<format type="TXT" octets="15764" target="ftp://ftp.isi.edu/in-notes/rfc3861.txt"/>
-</reference>
-
-<reference anchor="SIP">
-<front>
-<title>SIP: Session Initiation Protocol</title>
-<author initials="J." surname="Rosenberg" fullname="J.  Rosenberg">
-<organization/></author>
-<author initials="H." surname="Schulzrinne" fullname="H.  Schulzrinne">
-<organization/></author>
-<author initials="G." surname="Camarillo" fullname="G.  Camarillo">
-<organization/></author>
-<author initials="A." surname="Johnston" fullname="A.  Johnston">
-<organization/></author>
-<author initials="J." surname="Peterson" fullname="J.  Peterson">
-<organization/></author>
-<author initials="R." surname="Sparks" fullname="R.  Sparks">
-<organization/></author>
-<author initials="M." surname="Handley" fullname="M.  Handley">
-<organization/></author>
-<author initials="E." surname="Schooler" fullname="E.  Schooler">
-<organization/></author>
-<date year="2002" month="June"/>
-<abstract>
-<t>This document describes Session Initiation Protocol (SIP), an application-layer control (signaling) protocol for creating, modifying, and terminating sessions with one or more participants.  These sessions include Internet telephone calls, multimedia distribution, and multimedia conferences.  [STANDARDS TRACK] </t></abstract></front>
-<seriesInfo name="RFC" value="3261"/>
-<format type="TXT" octets="647976" target="ftp://ftp.isi.edu/in-notes/rfc3261.txt"/>
-</reference>
-
-<reference anchor="MUC">
-  <front>
-    <title>Multi-User Chat</title>
-    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
-      <organization/>
-      <address>
-        <email>stpeter@jabber.org</email>
-      </address>
-    </author>
-    <date day="16" month="July" year="2008"/>
-  </front>
-  <seriesInfo name="XSF XEP" value="0045"/>
-  <format type="HTML" target="http://www.xmpp.org/extensions/xep-0045.html"/>
-</reference>
-
-<reference anchor="TERMS">
+<reference anchor="RFC2119">
 <front>
 <title abbrev="RFC Key Words">Key words for use in RFCs to Indicate Requirement Levels</title>
 <author initials="S." surname="Bradner" fullname="Scott Bradner">
@@ -1188,114 +1132,104 @@ SIP User                      GW                       server
 <format type="XML" octets="5777" target="http://xml.resource.org/public/rfc/xml/rfc2119.xml"/>
 </reference>
 
-<reference anchor="XMPP">
+<reference anchor="RFC3261">
 <front>
-<title abbrev="XMPP Core">Extensible Messaging and Presence Protocol (XMPP): Core</title>
-<author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre" role="editor">
-<organization>Jabber Software Foundation</organization>
-<address>
-<email>stpeter@jabber.org</email></address></author>
-<date year="2004" month="October"/>
-<area>Applications</area>
-<workgroup>XMPP Working Group</workgroup>
-<keyword>RFC</keyword>
-<keyword>Request for Comments</keyword>
-<keyword>I-D</keyword>
-<keyword>Internet-Draft</keyword>
-<keyword>XMPP</keyword>
-<keyword>Extensible Messaging and Presence Protocol</keyword>
-<keyword>Jabber</keyword>
-<keyword>IM</keyword>
-<keyword>Instant Messaging</keyword>
-<keyword>Presence</keyword>
-<keyword>XML</keyword>
-<keyword>Extensible Markup Language</keyword>
+<title>SIP: Session Initiation Protocol</title>
+<author initials="J." surname="Rosenberg" fullname="J.  Rosenberg">
+<organization/></author>
+<author initials="H." surname="Schulzrinne" fullname="H.  Schulzrinne">
+<organization/></author>
+<author initials="G." surname="Camarillo" fullname="G.  Camarillo">
+<organization/></author>
+<author initials="A." surname="Johnston" fullname="A.  Johnston">
+<organization/></author>
+<author initials="J." surname="Peterson" fullname="J.  Peterson">
+<organization/></author>
+<author initials="R." surname="Sparks" fullname="R.  Sparks">
+<organization/></author>
+<author initials="M." surname="Handley" fullname="M.  Handley">
+<organization/></author>
+<author initials="E." surname="Schooler" fullname="E.  Schooler">
+<organization/></author>
+<date year="2002" month="June"/>
 <abstract>
-<t>This memo defines the core features of the Extensible Messaging and Presence Protocol (XMPP), a protocol for streaming Extensible Markup Language (XML) elements in order to exchange structured information in close to real time between any two network endpoints.  While XMPP provides a generalized, extensible framework for exchanging XML data, it is used mainly for the purpose of building instant messaging and presence applications that meet the requirements of RFC 2779.</t></abstract></front>
-<seriesInfo name="RFC" value="3920"/>
-<format type="TXT" octets="194313" target="ftp://ftp.isi.edu/in-notes/rfc3920.txt"/>
-<format type="HTML" octets="279912" target="http://xml.resource.org/public/rfc/html/rfc3920.html"/>
-<format type="XML" octets="234610" target="http://xml.resource.org/public/rfc/xml/rfc3920.xml"/>
+<t>This document describes Session Initiation Protocol (SIP), an application-layer control (signaling) protocol for creating, modifying, and terminating sessions with one or more participants.  These sessions include Internet telephone calls, multimedia distribution, and multimedia conferences.  [STANDARDS TRACK] </t></abstract></front>
+<seriesInfo name="RFC" value="3261"/>
+<format type="TXT" octets="647976" target="ftp://ftp.isi.edu/in-notes/rfc3261.txt"/>
 </reference>
 
-<reference anchor="XMPP-IM">
+<reference anchor="RFC3861">
 <front>
-<title abbrev="XMPP IM">Extensible Messaging and Presence Protocol (XMPP): Instant Messaging and Presence</title>
-<author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre" role="editor">
-<organization>Jabber Software Foundation</organization>
-<address>
-<email>stpeter@jabber.org</email></address></author>
-<date year="2004" month="October"/>
-<area>Applications</area>
-<workgroup>XMPP Working Group</workgroup>
-<keyword>RFC</keyword>
-<keyword>Request for Comments</keyword>
-<keyword>I-D</keyword>
-<keyword>Internet-Draft</keyword>
-<keyword>XMPP</keyword>
-<keyword>Extensible Messaging and Presence Protocol</keyword>
-<keyword>Jabber</keyword>
-<keyword>IM</keyword>
-<keyword>Instant Messaging</keyword>
-<keyword>Presence</keyword>
-<keyword>XML</keyword>
-<keyword>Extensible Markup Language</keyword>
+<title>Address Resolution for Instant Messaging and Presence</title>
+<author initials="J." surname="Peterson" fullname="J.  Peterson">
+<organization/></author>
+<date year="2004" month="August"/>
 <abstract>
-<t>This memo describes extensions to and applications of the core features of the Extensible Messaging and Presence Protocol (XMPP) that provide the basic instant messaging (IM) and presence functionality defined in RFC 2779.</t></abstract></front>
-<seriesInfo name="RFC" value="3921"/>
-<format type="TXT" octets="217527" target="ftp://ftp.isi.edu/in-notes/rfc3921.txt"/>
-<format type="HTML" octets="274538" target="http://xml.resource.org/public/rfc/html/rfc3921.html"/>
-<format type="XML" octets="234468" target="http://xml.resource.org/public/rfc/xml/rfc3921.xml"/>
+<t>Presence and instant messaging are defined in RFC 2778.  The Common Profiles for Presence and Instant Messaging define two Universal Resource Identifier (URI) schemes: 'im' for INSTANT INBOXes and 'pres' for PRESENTITIES.  This document provides guidance for locating the resources associated with URIs that employ these schemes.  [STANDARDS TRACK] </t></abstract></front>
+<seriesInfo name="RFC" value="3861"/>
+<format type="TXT" octets="15764" target="ftp://ftp.isi.edu/in-notes/rfc3861.txt"/>
+</reference>
+
+<reference anchor="RFC4975">
+<front>
+<title>The Message Session Relay Protocol (MSRP)</title>
+<author initials="B." surname="Campbell" fullname="B.  Campbell">
+<organization/></author>
+<author initials="R." surname="Mahy" fullname="R.  Mahy">
+<organization/></author>
+<author initials="C." surname="Jennings" fullname="C.  Jennings">
+<organization/></author>
+<date year="2007" month="September"/>
+<abstract>
+<t>This document describes the Message Session Relay Protocol, a protocol for transmitting a series of related instant messages in the context of a session.  Message sessions are treated like any other media stream when set up via a rendezvous or session creation protocol such as the Session Initiation Protocol.  [STANDARDS TRACK]</t></abstract></front>
+<seriesInfo name="RFC" value="4975"/>
+<format type="TXT" octets="144254" target="ftp://ftp.isi.edu/in-notes/rfc4975.txt"/>
+</reference>
+
+<reference anchor='RFC6120'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Core</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>The Extensible Messaging and Presence Protocol (XMPP) is an application profile of the Extensible Markup Language (XML) that enables the near-real-time exchange of structured yet extensible data between any two or more network entities.  This document defines XMPP's core protocol methods: setup and teardown of XML streams, channel encryption, authentication, error handling, and communication primitives for messaging, network availability ("presence"), and request-response interactions.  This document obsoletes RFC 3920. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6120' />
+<format type='TXT' octets='451942' target='http://www.rfc-editor.org/rfc/rfc6120.txt' />
+</reference>
+
+<reference anchor='RFC6121'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Instant Messaging and Presence</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>This document defines extensions to core features of the Extensible Messaging and Presence Protocol (XMPP) that provide basic instant messaging (IM) and presence functionality in conformance with the requirements in RFC 2779.  This document obsoletes RFC 3921. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6121' />
+<format type='TXT' octets='244800' target='http://www.rfc-editor.org/rfc/rfc6121.txt' />
+</reference>
+
+<reference anchor="XEP-0045">
+  <front>
+    <title>Multi-User Chat</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <date day="16" month="July" year="2008"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0045"/>
+  <format type="HTML" target="http://www.xmpp.org/extensions/xep-0045.html"/>
 </reference>
 
     </references>
 
     <references title="Informative References">
 
-<reference anchor="DNS-SRV">
-<front>
-<title abbrev="DNS SRV RR">A DNS RR for specifying the location of services (DNS SRV)</title>
-<author initials="A." surname="Gulbrandsen" fullname="Arnt Gulbrandsen">
-<organization>Troll Tech</organization>
-<address>
-<postal>
-<street>Waldemar Thranes gate 98B</street>
-<city>Oslo</city>
-<region/>
-<code>N-0175</code>
-<country>NO</country></postal>
-<phone>+47 22 806390</phone>
-<facsimile>+47 22 806380</facsimile>
-<email>arnt@troll.no</email></address></author>
-<author initials="P." surname="Vixie" fullname="Paul Vixie">
-<organization>Internet Software Consortium</organization>
-<address>
-<postal>
-<street>950 Charter Street</street>
-<city>Redwood City</city>
-<region>CA</region>
-<code>94063</code>
-<country>US</country></postal>
-<phone>+1 650 779 7001</phone></address></author>
-<author initials="L." surname="Esibov" fullname="Levon Esibov">
-<organization>Microsoft Corporation</organization>
-<address>
-<postal>
-<street>One Microsoft Way</street>
-<city>Redmond</city>
-<region>WA</region>
-<code>98052</code>
-<country>US</country></postal>
-<email>levone@microsoft.com</email></address></author>
-<date year="2000" month="February"/>
-<abstract>
-<t>This document describes a DNS RR which specifies the location of the
-   server(s) for a specific protocol and domain.</t></abstract></front>
-<seriesInfo name="RFC" value="2782"/>
-<format type="TXT" octets="24013" target="ftp://ftp.isi.edu/in-notes/rfc2782.txt"/>
-</reference>
-
-<reference anchor="MSRP-MULTI">
+<reference anchor="I-D.ietf-simple-chat">
 <front>
 <title>Multi-party Instant Message (IM) Sessions Using the Message Session Relay  Protocol (MSRP)</title>
 <author initials="A" surname="Niemi" fullname="Aki Niemi">
@@ -1307,49 +1241,14 @@ SIP User                      GW                       server
 <author initials="G" surname="Sandbakken" fullname="Geir Arne Sandbakken">
     <organization/>
 </author>
-<date month="October" day="30" year="2009"/>
+<date month="August" day="16" year="2012"/>
 <abstract><t>The Message Session Relay Protocol (MSRP) defines a mechanism for sending instant messages within a peer-to-peer session, negotiated using the Session Initiation Protocol (SIP) and the Session Description Protocol (SDP).  This document defines the necessary tools for establishing multi-party instant messaging (IM) sessions, or chat rooms, with MSRP.</t></abstract>
 </front>
-<seriesInfo name="Internet-Draft" value="draft-ietf-simple-chat-03"/>
-<format type="TXT" target="http://www.ietf.org/internet-drafts/draft-ietf-simple-chat-03.txt"/>
+<seriesInfo name="Internet-Draft" value="draft-ietf-simple-chat-16"/>
+<format type="TXT" target="http://www.ietf.org/internet-drafts/draft-ietf-simple-chat-16.txt"/>
 </reference>
 
-<reference anchor="SDP">
-<front>
-<title>SDP: Session Description Protocol</title>
-<author initials="M." surname="Handley" fullname="M.  Handley">
-<organization/></author>
-<author initials="V." surname="Jacobson" fullname="V.  Jacobson">
-<organization/></author>
-<author initials="C." surname="Perkins" fullname="C.  Perkins">
-<organization/></author>
-<date year="2006" month="July"/>
-<abstract>
-<t>This memo defines the Session Description Protocol (SDP).  SDP is intended for describing multimedia sessions for the purposes of session announcement, session invitation, and other forms of multimedia session initiation.  [STANDARDS TRACK]</t></abstract></front>
-<seriesInfo name="RFC" value="4566"/>
-<format type="TXT" octets="108820" target="ftp://ftp.isi.edu/in-notes/rfc4566.txt"/>
-</reference>
-
-<reference anchor="SIP-XMPP">
-<front>
-<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Core</title>
-<author initials="P" surname="Saint-Andre" fullname="Peter Saint-Andre">
-    <organization/>
-</author>
-<author initials="A" surname="Houri" fullname="Avshalom Houri">
-    <organization/>
-</author>
-<author initials="J" surname="Hildebrand" fullname="Joe Hildebrand">
-    <organization/>
-</author>
-<date month="March" day="8" year="2009"/>
-<abstract><t>As a foundation for the definition of application-specific, bi-directional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t></abstract>
-</front>
-<seriesInfo name="Internet-Draft" value="draft-saintandre-sip-xmpp-core-01"/>
-<format type="TXT" target="http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-core-01.txt"/>
-</reference>
-
-<reference anchor='SIP-XMPP-CHAT'>
+<reference anchor='I-D.saintandre-sip-xmpp-chat'>
 <front>
 <title>Interworking between the Session Initiation Protocol (SIP) and the  Extensible Messaging and Presence Protocol (XMPP): One-to-One Text Chat</title>
 <author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
@@ -1364,15 +1263,34 @@ SIP User                      GW                       server
 <author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
     <organization />
 </author>
-<date month='March' day='8' year='2009' />
+<date month='October' day='15' year='2012' />
 <abstract><t>This document defines a bi-directional protocol mapping for the exchange of instant messages in the context of a one-to-one chat session between a user of the Session Initiation Protocol (SIP) and a user of the Extensible Messaging and Presence Protocol (XMPP). Specifically for SIP text chat, this document specifies a mapping to the Message Session Relay Protocol (MSRP).</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-chat-03' />
+<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-chat-04' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-chat-03.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-chat-04.txt' />
 </reference>
 
-<reference anchor="SIP-XMPP-IM">
+<reference anchor="I-D.saintandre-sip-xmpp-core">
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Core</title>
+<author initials="P" surname="Saint-Andre" fullname="Peter Saint-Andre">
+    <organization/>
+</author>
+<author initials="A" surname="Houri" fullname="Avshalom Houri">
+    <organization/>
+</author>
+<author initials="J" surname="Hildebrand" fullname="Joe Hildebrand">
+    <organization/>
+</author>
+<date month="October" day="15" year="2012"/>
+<abstract><t>As a foundation for the definition of application-specific, bi-directional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t></abstract>
+</front>
+<seriesInfo name="Internet-Draft" value="draft-saintandre-sip-xmpp-core-02"/>
+<format type="TXT" target="http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-core-02.txt"/>
+</reference>
+
+<reference anchor="I-D.saintandre-sip-xmpp-im">
 <front>
 <title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Instant Messaging</title>
 <author initials="P" surname="Saint-Andre" fullname="Peter Saint-Andre">
@@ -1384,11 +1302,70 @@ SIP User                      GW                       server
 <author initials="J" surname="Hildebrand" fullname="Joe Hildebrand">
     <organization/>
 </author>
-<date month="March" day="8" year="2009"/>
+<date month="October" day="15" year="2012"/>
 <abstract><t>This document defines a bi-directional protocol mapping for the exchange of single instant messages between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t></abstract>
 </front>
-<seriesInfo name="Internet-Draft" value="draft-saintandre-sip-xmpp-im-01"/>
-<format type="TXT" target="http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-im-01.txt"/>
+<seriesInfo name="Internet-Draft" value="draft-saintandre-sip-xmpp-im-02"/>
+<format type="TXT" target="http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-im-02.txt"/>
+</reference>
+
+<reference anchor='RFC2782'>
+<front>
+<title abbrev='DNS SRV RR'>A DNS RR for specifying the location of services (DNS SRV)</title>
+<author initials='A.' surname='Gulbrandsen' fullname='Arnt Gulbrandsen'>
+<organization>Troll Tech</organization>
+<address>
+<postal>
+<street>Waldemar Thranes gate 98B</street>
+<city>Oslo</city>
+<region />
+<code>N-0175</code>
+<country>NO</country></postal>
+<phone>+47 22 806390</phone>
+<facsimile>+47 22 806380</facsimile>
+<email>arnt@troll.no</email></address></author>
+<author initials='P.' surname='Vixie' fullname='Paul Vixie'>
+<organization>Internet Software Consortium</organization>
+<address>
+<postal>
+<street>950 Charter Street</street>
+<city>Redwood City</city>
+<region>CA</region>
+<code>94063</code>
+<country>US</country></postal>
+<phone>+1 650 779 7001</phone></address></author>
+<author initials='L.' surname='Esibov' fullname='Levon Esibov'>
+<organization>Microsoft Corporation</organization>
+<address>
+<postal>
+<street>One Microsoft Way</street>
+<city>Redmond</city>
+<region>WA</region>
+<code>98052</code>
+<country>US</country></postal>
+<email>levone@microsoft.com</email></address></author>
+<date month='February' year='2000' />
+<abstract>
+<t>This document describes a DNS RR which specifies the location of the
+   server(s) for a specific protocol and domain.</t></abstract></front>
+<seriesInfo name='RFC' value='2782' />
+<format type='TXT' octets='24013' target='ftp://ftp.isi.edu/in-notes/rfc2782.txt' />
+</reference>
+
+<reference anchor="RFC4566">
+<front>
+<title>SDP: Session Description Protocol</title>
+<author initials="M." surname="Handley" fullname="M.  Handley">
+<organization/></author>
+<author initials="V." surname="Jacobson" fullname="V.  Jacobson">
+<organization/></author>
+<author initials="C." surname="Perkins" fullname="C.  Perkins">
+<organization/></author>
+<date year="2006" month="July"/>
+<abstract>
+<t>This memo defines the Session Description Protocol (SDP).  SDP is intended for describing multimedia sessions for the purposes of session announcement, session invitation, and other forms of multimedia session initiation.  [STANDARDS TRACK]</t></abstract></front>
+<seriesInfo name="RFC" value="4566"/>
+<format type="TXT" octets="108820" target="ftp://ftp.isi.edu/in-notes/rfc4566.txt"/>
 </reference>
 
 <reference anchor='RFC4575'>
