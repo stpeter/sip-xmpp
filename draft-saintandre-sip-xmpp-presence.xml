@@ -5,7 +5,7 @@
 <?rfc symrefs="yes"?>
 <?rfc compact="yes"?>
 <?rfc strict="yes"?>
-<rfc category='info' docName='draft-saintandre-sip-xmpp-presence-03' ipr='pre5378Trust200902'>
+<rfc category='info' docName='draft-saintandre-sip-xmpp-presence-04' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Presence">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Presence</title>
@@ -48,7 +48,7 @@
         <email>jhildebr@cisco.com</email>
       </address>
     </author>
-    <date year="2012" month="October" day="15"/>
+    <date year="2013" month="February" day="5"/>
     <area>RAI</area>
     <keyword>XMPP</keyword>
     <keyword>Jabber</keyword>
@@ -69,16 +69,20 @@
       <t>In order to help ensure interworking between presence systems that conform to the instant message / presence requirements <xref target="RFC2779"/>, it is important to clearly define protocol mappings between such systems.  Within the IETF, work has proceeded on two presence technologies:</t>
       <t>
         <list style='symbols'>
-          <t>Various extensions to the Session Initiation Protocol (<xref target="RFC3261"/>) for instant messaging, as developed within the SIP for Instant Messaging and Presence Leveraging Extensions (SIMPLE) Working Group; the relevant specification for presence is <xref target='RFC3856'/></t>
+          <t>Various extensions to the Session Initiation Protocol (<xref target="RFC3261"/>) for instant messaging, as developed within the SIP for Instant Messaging and Presence Leveraging Extensions (SIMPLE) Working Group; the relevant specification for presence is <xref target='RFC3856'/><vspace blankLines='1'/></t>
           <t>The Extensible Messaging and Presence Protocol (XMPP), which consists of a formalization of the core XML streaming protocols developed originally by the Jabber open-source community; the relevant specifications are <xref target='RFC6120'/> for the XML streaming layer and <xref target='RFC6121'/> for basic presence and instant messaging extensions</t>
         </list>
       </t>
       <t>One approach to helping ensure interworking between these protocols is to map each protocol to the abstract semantics described in <xref target="RFC3860"/>; that is the approach taken by <xref target="I-D.ietf-simple-cpim-mapping"/> and <xref target="RFC3922"/>.  The approach taken in this document is to directly map semantics from one protocol to another (i.e., from SIP/SIMPLE to XMPP and vice-versa).</t>
-      <t>The architectural assumptions underlying such direct mappings are provided in <xref target='I-D.saintandre-sip-xmpp-core'/>, including mapping of addresses and error condisions.  The mappings specified in this document cover basic presence functionality.  Mapping of more advanced functionality is out of scope for this document, but other documents in this "series" cover such topics.</t>
+      <t>The architectural assumptions underlying such direct mappings are provided in <xref target='I-D.saintandre-sip-xmpp-core'/>, including mapping of addresses and error condisions.  The mappings specified in this document cover basic presence functionality.  Mapping of more advanced functionality is out of scope for this document, but other documents in this series cover such topics.</t>
     </section>
 
     <section title="Terminology" anchor="terms">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
+    </section>
+
+    <section title="Discussion Venue" anchor="venue">
+      <t>The discussion venue for this document is the mailing list of the DISPATCH WG; visit <eref target='https://www.ietf.org/mailman/listinfo/dispatch'/> for subscription and archive information.</t>
     </section>
 
     <section title="Presence Subscriptions" anchor="sub">
@@ -154,9 +158,10 @@
 |  <?xml version='1.0' encoding='UTF-8'?>
 |  <presence xmlns='urn:ietf:params:xml:ns:pidf'
 |            entity='pres:romeo@example.net'>
-|    <tuple id='orchard'>
+|    <tuple id='ID-orchard'>
 |      <status>
 |        <basic>open</basic>
+|        <show xmlns='jabber:client'>away</show>
 |      </status>
 |    </tuple>
 |  </presence>
@@ -289,7 +294,7 @@
 |  <?xml version='1.0' encoding='UTF-8'?>
 |  <presence xmlns='urn:ietf:params:xml:ns:pidf'
 |            entity='pres:juliet@example.com'>
-|    <tuple id='balcony'>
+|    <tuple id='ID-balcony'>
 |      <status>
 |        <basic>closed</basic>
 |      </status>
@@ -339,6 +344,7 @@
         <t><xref target="RFC6121"/> defines how XMPP presence stanzas can indicate availability (via absence of a 'type' attribute) or lack of availability (via a 'type' attribute with a value of "unavailable").  SIP presence using a SIP event package for presence is specified in <xref target="RFC3856"/>.</t>
         <t>As described in <xref target="RFC6121"/>, presence information about an entity is communicated by means of an XML &lt;presence/&gt; stanza sent over an XML stream.  In this document we will assume that such a presence stanza is sent from an XMPP client to an XMPP server over an XML stream negotiated between the client and the server, and that the client is controlled by a human user (again, this is a simplifying assumption introduced for explanatory purposes only).  In general, XMPP presence is sent by the user to the user's server and then broadcasted to all entities who are subscribed to the user's presence information.</t>
         <t>As described in <xref target="RFC3856"/>, presence information about an entity is communicated by means of a SIP NOTIFY event sent from a SIP user agent to an intended recipient who is most generally referenced by an Instant Message URI of the form &lt;pres:user@domain&gt; but who may be referenced by a SIP or SIPS URI of the form &lt;sip:user@domain&gt; or &lt;sips:user@domain&gt;.  Here again we introduce the simplifying assumption that the user agent is controlled by a human user.</t>
+        <t>This document addresses basic presence or network availability only, not the various extensions to SIP and XMPP for "rich presence", such as <xref target='RFC4480'/>, <xref target='XEP-0107'/>, and <xref target='XEP-0108'/>.</t>
       </section>
       <section title="XMPP to SIP" anchor="pres-xmpp">
         <t>When Juliet interacts with her XMPP client to modify her presence information (or when her client automatically updates her presence information, e.g. via an "auto-away" feature), her client generates an XMPP &lt;presence/&gt; stanza.  The syntax of the &lt;presence/&gt; stanza, including required and optional elements and attributes, is defined in <xref target="RFC6121"/>.  The following is an example of such a stanza:</t>
@@ -370,9 +376,10 @@
 |  <?xml version='1.0' encoding='UTF-8'?>
 |  <presence xmlns='urn:ietf:params:xml:ns:pidf'
 |            entity='pres:juliet@example.com'>
-|    <tuple id='balcony'>
+|    <tuple id='ID-balcony'>
 |      <status>
 |        <basic>open</basic>
+|        <show xmlns='jabber:client'>away</show>
 |      </status>
 |    </tuple>
 |  </presence>
@@ -386,25 +393,29 @@
    |  XMPP Element or Attribute  |  SIP Header or PIDF Data  |
    +-----------------------------+---------------------------+
    |  <presence/> stanza         |  "Event: presence" [1]    |
-   |  XMPP resource identifer    |  tuple 'id' attribute     |
+   |  XMPP resource identifer    |  tuple 'id' attribute [2] |
    |  from                       |  From                     |
    |  id                         |  Call-ID                  |
    |  to                         |  To                       |
-   |  type                       |  basic status [2][3]      |
+   |  type                       |  basic status [3] [4]     |
    |  xml:lang                   |  Content-Language         |
    |  <priority/>                |  PIDF priority for tuple  |
-   |  <show/>                    |  (no mapping)             |
-   |  <status/>                  |  note [4]                 |
+   |  <show/>                    |  no mapping [5]           |
+   |  <status/>                  |  see note [6]             |
    +-----------------------------+---------------------------+
           ]]></artwork>
         </figure>
         <t>Note the following regarding these mappings:</t>
-        <t><list style='numbers'>
-          <t>Only a presence stanza that lacks a 'type' attribute or whose 'type' attribute has a value of "unavailable" should be mapped by an XMPP-SIMPLE gateway to a SIP NOTIFY request, since those are the only presence stanzas that represent notifications.</t>
-          <t>Because the lack of a 'type' attribute indicates that an XMPP entity is available for communications, the gateway SHOULD map that information to a PIDF &lt;basic/&gt; status of "open".  Because a 'type' attribute with a value of "unavailable" indicates that an XMPP entity is not available for communications, the gateway SHOULD map that information to a PIDF &lt;basic/&gt; status of "closed".</t>
-          <t>When the XMPP-SIMPLE gateway receives XMPP presence of type "unavailable" from the XMPP contact, it SHOULD (1) send a SIP NOTIFY request to the SIP user containing a PIDF document specifying that the XMPP contact now has a basic status of "closed" and (2) send a SIP SUBSCRIBE request to the SIP user with an "Expires" header set to a value of "0" (zero).</t>
-          <t>The character data of the XMPP &lt;status/&gt; element MAY be mapped to the character data of the PIDF &lt;note/&gt; element.</t>
-        </list></t>
+        <t>
+          <list style='numbers'>
+            <t>Only a presence stanza that lacks a 'type' attribute or whose 'type' attribute has a value of "unavailable" should be mapped by an XMPP-SIMPLE gateway to a SIP NOTIFY request, since those are the only presence stanzas that represent notifications.</t>
+            <t>The PIDF schema defines the tuple 'id' attribute as having a datatype of "xs:ID"; because this datatype is more restrictive than the "xs:string" datatype for XMPP resourceparts (in particular, a number is not allowed as the first character of an ID), it is RECOMMENDED to prepend the resourcepart with "ID-" or some other alphabetic string when mapping from XMPP to SIP.</t>
+            <t>Because the lack of a 'type' attribute indicates that an XMPP entity is available for communications, the gateway SHOULD map that information to a PIDF &lt;basic/&gt; status of "open".  Because a 'type' attribute with a value of "unavailable" indicates that an XMPP entity is not available for communications, the gateway SHOULD map that information to a PIDF &lt;basic/&gt; status of "closed".</t>
+            <t>When the XMPP-SIMPLE gateway receives XMPP presence of type "unavailable" from the XMPP contact, it SHOULD (1) send a SIP NOTIFY request to the SIP user containing a PIDF document specifying that the XMPP contact now has a basic status of "closed" and (2) send a SIP SUBSCRIBE request to the SIP user with an "Expires" header set to a value of "0" (zero).</t>
+            <t>Some implementations support custom extensions to encapsulate this information; however, there is no need to standardize a PIDF extension for this purpose, since PIDF is already extensible and thus the &lt;show/&gt; element can be included directly, qualified by the 'jabber:client' namespace in the PIDF XML.  The examples in this document illustrate this usage.</t>
+            <t>The XML character data of the XMPP &lt;status/&gt; element MAY be mapped to the character data of the PIDF &lt;note/&gt; element.</t>
+          </list>
+        </t>
       </section>
       <section title="SIP to XMPP" anchor="pres-sip">
         <t>When Romeo changes his presence, his SIP user agent generates a SIP NOTIFY request for any active subscriptions.  The syntax of the NOTIFY request is defined in <xref target="RFC3856"/>.  The following is an example of such a request:</t>
@@ -484,6 +495,7 @@
     <tuple id='orchard'>
       <status>
         <basic>open</basic>
+        <show xmlns='jabber:client'>dnd</show>
         <note>Wooing Juliet</note>
       </status>
     </tuple>
@@ -845,7 +857,71 @@
   <format type='TXT' octets='70790' target='ftp://ftp.isi.edu/in-notes/rfc3922.txt' />
 </reference>
 
+<reference anchor='RFC4480'>
+<front>
+<title>RPID: Rich Presence Extensions to the Presence Information Data Format (PIDF)</title>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='V.' surname='Gurbani' fullname='V. Gurbani'>
+<organization /></author>
+<author initials='P.' surname='Kyzivat' fullname='P. Kyzivat'>
+<organization /></author>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<date year='2006' month='July' />
+<abstract>
+<t>The Presence Information Data Format (PIDF) defines a basic format for representing presence information for a presentity. This format defines a textual note, an indication of availability (open or closed) and a Uniform Resource Identifier (URI) for communication. The Rich Presence Information Data format (RPID) described here is an extension that adds optional elements to the Presence Information Data Format (PIDF). These extensions provide additional information about the presentity and its contacts. The information is designed so that much of it can be derived automatically, e.g., from calendar files or user activity.&lt;/t>&lt;t> This extension includes information about what the person is doing, a grouping identifier for a tuple, when a service or device was last used, the type of place a person is in, what media communications might remain private, the relationship of a service tuple to another presentity, the person's mood, the time zone it is located in, the type of service it offers, an icon reflecting the presentity's status, and the overall role of the presentity.&lt;/t>&lt;t> These extensions include presence information for persons, services (tuples), and devices. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='4480' />
+<format type='TXT' octets='74026' target='http://www.rfc-editor.org/rfc/rfc4480.txt' />
+</reference>
+
+<reference anchor="XEP-0107">
+  <front>
+    <title>User Mood</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <author initials="R." surname="Meijer" fullname="Ralph Meijer">
+      <organization/>
+      <address>
+        <email>ralphm@ik.nu</email>
+      </address>
+    </author>
+    <date day="29" month="October" year="2008"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0107"/>
+  <format type="HTML" target="http://xmpp.org/extensions/xep-0107.html"/>
+</reference>
+
+<reference anchor="XEP-0108">
+  <front>
+    <title>User Activity</title>
+    <author initials="R." surname="Meijer" fullname="Ralph Meijer">
+      <organization/>
+      <address>
+        <email>ralphm@ik.nu</email>
+      </address>
+    </author>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <date day="29" month="October" year="2008"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0108"/>
+  <format type="HTML" target="http://xmpp.org/extensions/xep-0108.html"/>
+</reference>
+
     </references>
+
+    <section title="Acknowledgements" anchor="ack">
+      <t>The authors wish to thank the following individuals for their feedback: Fabio Forno, Adrian Georgescu, Saul Ibarra, Salvatore Loreto, Daniel-Constantin Mierla, and Tory Patnoe.</t>
+    </section>
 
   </back>
 
