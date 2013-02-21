@@ -398,6 +398,10 @@ Content-Length: 0
       <t>Detailed security considerations for session management are given for SIP in <xref target='RFC3261'/> and for XMPP in <xref target='XEP-0166'/> (see also <xref target='RFC6120'/>).</t>
     </section>
 
+    <section title='IANA Considerations' anchor="iana">
+      <t>This document has no actions for the IANA.</t>
+    </section>
+
   </middle>
 
   <back>
@@ -514,16 +518,14 @@ Content-Length: 0
 
 <reference anchor='RFC5245'>
 <front>
-<title>Interactive Connectivity Establishment (ICE): A Protocol for Network Address  Translator (NAT) Traversal for Offer/Answer Protocols</title>
-<author initials='J' surname='Rosenberg' fullname='Jonathan Rosenberg'>
-    <organization />
-</author>
-<date month='October' day='29' year='2007' />
-<abstract><t>This document describes a protocol for Network Address Translator (NAT) traversal for UDP-based multimedia sessions established with the offer/answer model. This protocol is called Interactive Connectivity Establishment (ICE). ICE makes use of the Session Traversal Utilities for NAT (STUN) protocol and its extension, Traversal Using Relay NAT (TURN). ICE can be used by any protocol utilizing the offer/answer model, such as the Session Initiation Protocol (SIP).</t></abstract>
-</front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-mmusic-ice-19' />
-<format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-mmusic-ice-19.txt' />
+<title>Interactive Connectivity Establishment (ICE): A Protocol for Network Address Translator (NAT) Traversal for Offer/Answer Protocols</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<date year='2010' month='April' />
+<abstract>
+<t>This document describes a protocol for Network Address Translator (NAT) traversal for UDP-based multimedia sessions established with the offer/answer model.  This protocol is called Interactive Connectivity Establishment (ICE).  ICE makes use of the Session Traversal Utilities for NAT (STUN) protocol and its extension, Traversal Using Relay NAT (TURN).  ICE can be used by any protocol utilizing the offer/answer model, such as the Session Initiation Protocol (SIP). [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='5245' />
+<format type='TXT' octets='285120' target='http://www.rfc-editor.org/rfc/rfc5245.txt' />
 </reference>
 
 <reference anchor='RFC6120'>
