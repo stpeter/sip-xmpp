@@ -5,17 +5,26 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="2"?>
-<rfc category='info' docName='draft-saintandre-sip-xmpp-media-01' ipr='trust200902'>
+<rfc category='info' docName='draft-saintandre-sip-xmpp-media-02' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Media Sessions">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Media Sessions</title>
-    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
-      <organization>Cisco</organization>
+    <author initials='P.' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+      <organization>Cisco Systems, Inc.</organization>
       <address>
+        <postal>
+          <street>1899 Wynkoop Street, Suite 600</street>
+          <city>Denver</city>
+          <region>CO</region>
+          <code>80202</code>
+          <country>USA</country>
+        </postal>
+        <phone>+1-303-308-3282</phone>
         <email>psaintan@cisco.com</email>
       </address>
     </author>
-    <date year="2009" month="March" day="8"/>
+
+    <date year="2013" month="February" day="20"/>
     <area>Applications</area>
     <keyword>SIP</keyword>
     <keyword>XMPP</keyword>
@@ -29,10 +38,10 @@
   <middle>
 
     <section title="Introduction" anchor="intro">
-      <t>The Session Initiation Protocol <xref target="SIP"/> is a widely-deployed technology for the management of media sessions (such as voice calls) over the Internet.  SIP itself provides a signalling channel (typically via the User Datagram Protocol <xref target='UDP'/>), over which two or more parties can exchange messages for the purpose of negotiating a media session that uses a dedicated media channel such as the Real-time Transport Protocol <xref target='RTP'/>.</t>
-      <t>The Extensible Messaging and Presence Protocol <xref target='XMPP'/> also provides a signalling channel, typically via the Transmission Control Protocol <xref target='TCP'/>.  Given the significant differences between XMPP and SIP, it is difficult to combine the two technologies in a single user agent.  Therefore, developers wishing to add media session capabilities to XMPP clients have defined an XMPP-specific negotiation protocol called Jingle <xref target='JINGLE'/>.</t>
-      <t>However, Jingle has been designed to easily map to SIP for communication through gateways or other transformation mechanisms.  Therefore, consistent with existing specifications for mapping between SIP and XMPP (see <xref target='SIP-XMPP'/> and other specifications in that "series"), this document describes a bi-directional protocol mapping for use by gateways that enable the exchange of media signalling messages between systems that implement SIP and those that implement the XMPP Jingle extensions.</t>
-      <t>Note: The capitalized key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target="TERMS">RFC 2119</xref>.</t>
+      <t>The Session Initiation Protocol <xref target="RFC3261"/> is a widely-deployed technology for the management of media sessions (such as voice calls) over the Internet.  SIP itself provides a signalling channel (typically via the User Datagram Protocol <xref target='RFC768'/>), over which two or more parties can exchange messages for the purpose of negotiating a media session that uses a dedicated media channel such as the Real-time Transport Protocol <xref target='RFC3550'/>.</t>
+      <t>The Extensible Messaging and Presence Protocol <xref target='RFC6120'/> also provides a signalling channel, typically via the Transmission Control Protocol <xref target='RFC793'/>.  Given the significant differences between XMPP and SIP, it is difficult to combine the two technologies in a single user agent.  Therefore, developers wishing to add media session capabilities to XMPP clients have defined an XMPP-specific negotiation protocol called Jingle <xref target='XEP-0166'/>.</t>
+      <t>However, Jingle has been designed to easily map to SIP for communication through gateways or other transformation mechanisms.  Therefore, consistent with existing specifications for mapping between SIP and XMPP (see <xref target='I-D.saintandre-sip-xmpp-core'/> and other specifications in that "series"), this document describes a bi-directional protocol mapping for use by gateways that enable the exchange of media signalling messages between systems that implement SIP and those that implement the XMPP Jingle extensions.</t>
+      <t>Note: The capitalized key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target="RFC2119"/>.</t>
     </section>
 
     <section title="Jingle to SIP" anchor="jingle">
@@ -41,8 +50,8 @@
         <t>As mentioned, Jingle was designed in part to enable straightforward protocol mapping between XMPP and SIP.  However, given the significantly different technology assumptions underlying XMPP and SIP, Jingle is naturally different from SIP in several important respects:</t>
         <t>
           <list style='symbols'>
-            <t>Base SIP messages and headers use a plaintext format similar in some ways to the Hypertext Transport Protocol <xref target='HTTP'/>, whereas Jingle messages are pure XML.  Mappings between SIP headers and Jingle message syntax are provided below.</t>
-            <t>The SIP payloads defining session semantics use the Session Description Protocol <xref target='SDP'/>, whereas the equivalent Jingle payloads are defined as XML child elements of the Jingle &lt;content/&gt; element.  However, the Jingle specifications defining such child elements specify mappings to SDP for all Jingle syntax, making the mapping relatively straightforward.</t>
+            <t>Base SIP messages and headers use a plaintext format similar in some ways to the Hypertext Transport Protocol <xref target='RFC2616'/>, whereas Jingle messages are pure XML.  Mappings between SIP headers and Jingle message syntax are provided below.</t>
+            <t>The SIP payloads defining session semantics use the Session Description Protocol <xref target='RFC4566'/>, whereas the equivalent Jingle payloads are defined as XML child elements of the Jingle &lt;content/&gt; element.  However, the Jingle specifications defining such child elements specify mappings to SDP for all Jingle syntax, making the mapping relatively straightforward.</t>
             <t>The SIP signalling channel is transported over UDP, whereas the signalling channel for Jingle is XMPP over TCP.  Mapping between the transport layers typically happens within a gateway using techniques below the application level, and therefore is not addressed in this specification.</t>
           </list>
         </t>
@@ -83,7 +92,7 @@
 </iq>
             ]]></artwork>
           </figure>
-          <t>In the foregoing example, the syntax and semantics of the &lt;jingle/&gt; and &lt;content/&gt; elements are defined in <xref target='JINGLE'/>, the syntax and semantics of the &lt;description/&gt; element are defined in <xref target='JINGLE-RTP'/>, and the syntax and semantics of the &lt;transport/&gt; element are defined in <xref target='JINGLE-UDP'/>.  Other &lt;description/&gt; elements are defined in specifications for the appropriate application types (see for example <xref target='JINGLE-RTP'/>) and other &lt;transport/&gt; elements are defined in the specifications for appropriate transport methods (see for example <xref target='JINGLE-ICE'/>, which defines an XMPP profile of <xref target='ICE'/>).</t>
+          <t>In the foregoing example, the syntax and semantics of the &lt;jingle/&gt; and &lt;content/&gt; elements are defined in <xref target='XEP-0166'/>, the syntax and semantics of the &lt;description/&gt; element are defined in <xref target='XEP-0167'/>, and the syntax and semantics of the &lt;transport/&gt; element are defined in <xref target='XEP-0177'/>.  Other &lt;description/&gt; elements are defined in specifications for the appropriate application types (see for example <xref target='XEP-0167'/>) and other &lt;transport/&gt; elements are defined in the specifications for appropriate transport methods (see for example <xref target='XEP-0176'/>, which defines an XMPP profile of <xref target='RFC5245'/>).</t>
           <t>At the core Jingle layer, the following mappings are defined.</t>
           <figure>
             <artwork><![CDATA[
@@ -142,19 +151,19 @@
         </section>
 
         <section title="Audio Application Format" anchor="jingle-syntax-audio">
-          <t>A Jingle application format for audio exchange via RTP is specified in <xref target='JINGLE-RTP'/>.  This application format effectively maps to the "RTP/AVP" profile specified in <xref target='RTP-AVP'/>, where the media type is "audio" and the specific mappings to SDP syntax are provided in <xref target='JINGLE-RTP'/>.</t>
+          <t>A Jingle application format for audio exchange via RTP is specified in <xref target='XEP-0167'/>.  This application format effectively maps to the "RTP/AVP" profile specified in <xref target='RFC3551'/>, where the media type is "audio" and the specific mappings to SDP syntax are provided in <xref target='XEP-0167'/>.</t>
         </section>
 
         <section title="Video Application Format" anchor="jingle-syntax-video">
-          <t>A Jingle application format for video exchange via RTP is specified in <xref target='JINGLE-RTP'/>.  This application format effectively maps to the "RTP/AVP" profile specified in <xref target='RTP-AVP'/>, where the media type is "audio" and the specific mappings to SDP syntax are provided in <xref target='JINGLE-RTP'/>.</t>
+          <t>A Jingle application format for video exchange via RTP is specified in <xref target='XEP-0167'/>.  This application format effectively maps to the "RTP/AVP" profile specified in <xref target='RFC3551'/>, where the media type is "audio" and the specific mappings to SDP syntax are provided in <xref target='XEP-0167'/>.</t>
         </section>
 
         <section title="Raw UDP Transport Method" anchor="jingle-syntax-udp">
-          <t>A basic Jingle transport method for exchanging media over UDP is specified in <xref target='JINGLE-UDP'/>.  This transport method involves the negotiation of an IP address and port only, and does not provide NAT traversal.  The Jingle 'ip' attribute maps to the connection-address parameter of the SDP c= line and the 'port' attribute maps to the port parameter of the SDP m= line.</t>
+          <t>A basic Jingle transport method for exchanging media over UDP is specified in <xref target='XEP-0177'/>.  This transport method involves the negotiation of an IP address and port only, and does not provide NAT traversal.  The Jingle 'ip' attribute maps to the connection-address parameter of the SDP c= line and the 'port' attribute maps to the port parameter of the SDP m= line.</t>
         </section>
 
         <section title="ICE-UDP Transport Method" anchor="jingle-syntax-ice">
-          <t>A more advanced Jingle transport method for exchanging media over UDP is specified in <xref target='JINGLE-ICE'/>.  Under ideal conditions this transport method provides NAT traversal by following the Interactive Connectivity Exchange methodology specified in <xref target='ICE'/>.  The relevant SDP mappings are provided in <xref target='JINGLE-ICE'/>.</t>
+          <t>A more advanced Jingle transport method for exchanging media over UDP is specified in <xref target='XEP-0176'/>.  Under ideal conditions this transport method provides NAT traversal by following the Interactive Connectivity Exchange methodology specified in <xref target='RFC5245'/>.  The relevant SDP mappings are provided in <xref target='XEP-0176'/>.</t>
         </section>
       </section>
 
@@ -162,7 +171,7 @@
         <t>The following sections provide sample scenarios (or "call flows") that illustrate the principles of interworking from Jingle to SIP.  These scenarios are not exhaustive.</t>
 
         <section title="Basic Voice Chat" anchor="jingle-scenarios-basic">
-          <t>The protocol flow for a basic voice chat for which an XMPP user (juliet@example.com) is the iniator and a SIP user (romeo@example.net) is the responder.  The voice chat is consummated through a gateway.  To simplify the example, the transport method negotiated is "raw user datagram protocol" as specified in <xref target='JINGLE-UDP'/>.</t>
+          <t>The protocol flow for a basic voice chat for which an XMPP user (juliet@example.com) is the iniator and a SIP user (romeo@example.net) is the responder.  The voice chat is consummated through a gateway.  To simplify the example, the transport method negotiated is "raw user datagram protocol" as specified in <xref target='XEP-0177'/>.</t>
           <figure>
             <artwork><![CDATA[
 INITIATOR  ...XMPP...   GATEWAY   ...SIP...    RESPONDER
@@ -386,7 +395,7 @@ Content-Length: 0
     </section>
 
     <section title='Security Considerations' anchor="sec">
-      <t>Detailed security considerations for session management are given for SIP in <xref target='SIP'/> and for XMPP in <xref target='JINGLE'/> (see also <xref target='XMPP'/>).</t>
+      <t>Detailed security considerations for session management are given for SIP in <xref target='RFC3261'/> and for XMPP in <xref target='XEP-0166'/> (see also <xref target='RFC6120'/>).</t>
     </section>
 
   </middle>
@@ -395,7 +404,115 @@ Content-Length: 0
 
     <references title="Normative References">
 
-<reference anchor='ICE'>
+<reference anchor='I-D.saintandre-sip-xmpp-core'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Core</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<author initials='A' surname='Houri' fullname='Avshalom Houri'>
+    <organization />
+</author>
+<author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
+    <organization />
+</author>
+<date month='February' day='5' year='2013' />
+<abstract><t>As a foundation for the definition of application-specific, bi-directional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-core-03' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-core-03.txt' />
+</reference>
+
+<reference anchor='RFC2119'>
+  <front>
+    <title abbrev='RFC Key Words'>Key words for use in RFCs to Indicate Requirement Levels</title>
+    <author initials='S.' surname='Bradner' fullname='Scott Bradner'>
+      <organization>Harvard University</organization>
+      <address>
+        <postal>
+          <street>1350 Mass. Ave.</street>
+          <street>Cambridge</street>
+          <street>MA 02138</street>
+        </postal>
+        <phone>- +1 617 495 3864</phone>
+        <email>-</email>
+      </address>
+    </author>
+    <date month='March' year='1997'></date>
+    <area>General</area>
+    <keyword>keyword</keyword>
+    <abstract>
+      <t>In many standards track documents several words are used to signify the requirements in the specification.  These words are often capitalized.  This document defines these words as they should be interpreted in IETF documents.  Authors who follow these guidelines should incorporate this phrase near the beginning of their document:
+        <list>
+          <t>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in RFC 2119.</t>
+        </list>
+      </t>
+      <t>Note that the force of these words is modified by the requirement level of the document in which they are used.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='BCP' value='14' />
+  <seriesInfo name='RFC' value='2119' />
+</reference>
+
+<reference anchor='RFC3261'>
+<front>
+<title>SIP: Session Initiation Protocol</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='G.' surname='Camarillo' fullname='G. Camarillo'>
+<organization /></author>
+<author initials='A.' surname='Johnston' fullname='A. Johnston'>
+<organization /></author>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'>
+<organization /></author>
+<author initials='R.' surname='Sparks' fullname='R. Sparks'>
+<organization /></author>
+<author initials='M.' surname='Handley' fullname='M. Handley'>
+<organization /></author>
+<author initials='E.' surname='Schooler' fullname='E. Schooler'>
+<organization /></author>
+<date month='June' year='2002' /></front>
+<seriesInfo name='RFC' value='3261' />
+<format type='TXT' octets='647976' target='ftp://ftp.isi.edu/in-notes/rfc3261.txt' />
+</reference>
+
+<reference anchor='RFC3551'>
+<front>
+<title>RTP Profile for Audio and Video Conferences with Minimal Control</title>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='S.' surname='Casner' fullname='S. Casner'>
+<organization /></author>
+<date year='2003' month='July' />
+<abstract>
+<t>This document describes a profile called "RTP/AVP" for the use of the real-time transport protocol (RTP), version 2, and the associated control protocol, RTCP, within audio and video multiparticipant conferences with minimal control.  It provides interpretations of generic fields within the RTP specification suitable for audio and video conferences.  In particular, this document defines a set of default mappings from payload type numbers to encodings.  This document also describes how audio and video data may be carried within RTP.  It defines a set of standard encodings and their names when used within RTP.  The descriptions provide pointers to reference implementations and the detailed standards.  This document is meant as an aid for implementors of audio, video and other real-time multimedia applications.  This memorandum obsoletes RFC 1890.  It is mostly backwards-compatible except for functions removed because two interoperable implementations were not found.  The additions to RFC 1890 codify existing practice in the use of payload formats under this profile and include new payload formats defined since RFC 1890 was published. [STANDARDS TRACK]</t></abstract></front>
+<seriesInfo name='STD' value='65' />
+<seriesInfo name='RFC' value='3551' />
+<format type='TXT' octets='106621' target='ftp://ftp.isi.edu/in-notes/rfc3551.txt' />
+<format type='PS' octets='317286' target='ftp://ftp.isi.edu/in-notes/rfc3551.ps' />
+<format type='PDF' octets='237831' target='ftp://ftp.isi.edu/in-notes/rfc3551.pdf' />
+</reference>
+
+<reference anchor='RFC4566'>
+<front>
+<title>SDP: Session Description Protocol</title>
+<author initials='M.' surname='Handley' fullname='M. Handley'>
+<organization /></author>
+<author initials='V.' surname='Jacobson' fullname='V. Jacobson'>
+<organization /></author>
+<author initials='C.' surname='Perkins' fullname='C. Perkins'>
+<organization /></author>
+<date year='2006' month='July' />
+<abstract>
+<t>This memo defines the Session Description Protocol (SDP).  SDP is intended for describing multimedia sessions for the purposes of session announcement, session invitation, and other forms of multimedia session initiation. [STANDARDS TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='4566' />
+<format type='TXT' octets='108820' target='ftp://ftp.isi.edu/in-notes/rfc4566.txt' />
+</reference>
+
+<reference anchor='RFC5245'>
 <front>
 <title>Interactive Connectivity Establishment (ICE): A Protocol for Network Address  Translator (NAT) Traversal for Offer/Answer Protocols</title>
 <author initials='J' surname='Rosenberg' fullname='Jonathan Rosenberg'>
@@ -409,7 +526,19 @@ Content-Length: 0
         target='http://www.ietf.org/internet-drafts/draft-ietf-mmusic-ice-19.txt' />
 </reference>
 
-<reference anchor="JINGLE">
+<reference anchor='RFC6120'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Core</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>The Extensible Messaging and Presence Protocol (XMPP) is an application profile of the Extensible Markup Language (XML) that enables the near-real-time exchange of structured yet extensible data between any two or more network entities.  This document defines XMPP's core protocol methods: setup and teardown of XML streams, channel encryption, authentication, error handling, and communication primitives for messaging, network availability ("presence"), and request-response interactions.  This document obsoletes RFC 3920. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6120' />
+<format type='TXT' octets='451942' target='http://www.rfc-editor.org/rfc/rfc6120.txt' />
+</reference>
+
+<reference anchor="XEP-0166">
   <front>
     <title>Jingle</title>
     <author initials="S." surname="Ludwig" fullname="Scott Ludwig">
@@ -454,7 +583,7 @@ Content-Length: 0
   <format type="HTML" target="http://xmpp.org/extensions/xep-0166.html"/>
 </reference>
 
-<reference anchor="JINGLE-RTP">
+<reference anchor="XEP-0167">
   <front>
     <title>Jingle RTP Sessions</title>
     <author initials="S." surname="Ludwig" fullname="Scott Ludwig">
@@ -487,7 +616,7 @@ Content-Length: 0
   <format type="HTML" target="http://xmpp.org/extensions/xep-0167.html"/>
 </reference>
 
-<reference anchor="JINGLE-ICE">
+<reference anchor="XEP-0176">
   <front>
     <title>Jingle ICE-UDP Transport Method</title>
     <author initials="J." surname="Beda" fullname="Joe Beda">
@@ -526,7 +655,7 @@ Content-Length: 0
   <format type="HTML" target="http://xmpp.org/extensions/xep-0176.html"/>
 </reference>
 
-<reference anchor="JINGLE-UDP">
+<reference anchor="XEP-0177">
   <front>
     <title>Jingle Raw UDP Transport</title>
     <author initials="J." surname="Beda" fullname="Joe Beda">
@@ -565,131 +694,48 @@ Content-Length: 0
   <format type="HTML" target="http://xmpp.org/extensions/xep-0177.html"/>
 </reference>
 
-<reference anchor='RTP-AVP'>
-<front>
-<title>RTP Profile for Audio and Video Conferences with Minimal Control</title>
-<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
-<organization /></author>
-<author initials='S.' surname='Casner' fullname='S. Casner'>
-<organization /></author>
-<date year='2003' month='July' />
-<abstract>
-<t>This document describes a profile called "RTP/AVP" for the use of the real-time transport protocol (RTP), version 2, and the associated control protocol, RTCP, within audio and video multiparticipant conferences with minimal control.  It provides interpretations of generic fields within the RTP specification suitable for audio and video conferences.  In particular, this document defines a set of default mappings from payload type numbers to encodings.  This document also describes how audio and video data may be carried within RTP.  It defines a set of standard encodings and their names when used within RTP.  The descriptions provide pointers to reference implementations and the detailed standards.  This document is meant as an aid for implementors of audio, video and other real-time multimedia applications.  This memorandum obsoletes RFC 1890.  It is mostly backwards-compatible except for functions removed because two interoperable implementations were not found.  The additions to RFC 1890 codify existing practice in the use of payload formats under this profile and include new payload formats defined since RFC 1890 was published. [STANDARDS TRACK]</t></abstract></front>
-<seriesInfo name='STD' value='65' />
-<seriesInfo name='RFC' value='3551' />
-<format type='TXT' octets='106621' target='ftp://ftp.isi.edu/in-notes/rfc3551.txt' />
-<format type='PS' octets='317286' target='ftp://ftp.isi.edu/in-notes/rfc3551.ps' />
-<format type='PDF' octets='237831' target='ftp://ftp.isi.edu/in-notes/rfc3551.pdf' />
-</reference>
-
-<reference anchor='SDP'>
-<front>
-<title>SDP: Session Description Protocol</title>
-<author initials='M.' surname='Handley' fullname='M. Handley'>
-<organization /></author>
-<author initials='V.' surname='Jacobson' fullname='V. Jacobson'>
-<organization /></author>
-<author initials='C.' surname='Perkins' fullname='C. Perkins'>
-<organization /></author>
-<date year='2006' month='July' />
-<abstract>
-<t>This memo defines the Session Description Protocol (SDP).  SDP is intended for describing multimedia sessions for the purposes of session announcement, session invitation, and other forms of multimedia session initiation. [STANDARDS TRACK]</t></abstract></front>
-<seriesInfo name='RFC' value='4566' />
-<format type='TXT' octets='108820' target='ftp://ftp.isi.edu/in-notes/rfc4566.txt' />
-</reference>
-
-<reference anchor='SIP'>
-<front>
-<title>SIP: Session Initiation Protocol</title>
-<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
-<organization /></author>
-<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
-<organization /></author>
-<author initials='G.' surname='Camarillo' fullname='G. Camarillo'>
-<organization /></author>
-<author initials='A.' surname='Johnston' fullname='A. Johnston'>
-<organization /></author>
-<author initials='J.' surname='Peterson' fullname='J. Peterson'>
-<organization /></author>
-<author initials='R.' surname='Sparks' fullname='R. Sparks'>
-<organization /></author>
-<author initials='M.' surname='Handley' fullname='M. Handley'>
-<organization /></author>
-<author initials='E.' surname='Schooler' fullname='E. Schooler'>
-<organization /></author>
-<date month='June' year='2002' /></front>
-<seriesInfo name='RFC' value='3261' />
-<format type='TXT' octets='647976' target='ftp://ftp.isi.edu/in-notes/rfc3261.txt' />
-</reference>
-
-<reference anchor='SIP-XMPP'>
-<front>
-<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Core</title>
-<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
-    <organization />
-</author>
-<author initials='A' surname='Houri' fullname='Avshalom Houri'>
-    <organization />
-</author>
-<author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
-    <organization />
-</author>
-<date month='March' day='8' year='2009' />
-<abstract><t>As a foundation for the definition of application-specific, bi-directional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t></abstract>
-</front>
-<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-core-01' />
-<format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-core-01.txt' />
-</reference>
-
-<reference anchor='TERMS'>
-  <front>
-    <title abbrev='RFC Key Words'>Key words for use in RFCs to Indicate Requirement Levels</title>
-    <author initials='S.' surname='Bradner' fullname='Scott Bradner'>
-      <organization>Harvard University</organization>
-      <address>
-        <postal>
-          <street>1350 Mass. Ave.</street>
-          <street>Cambridge</street>
-          <street>MA 02138</street>
-        </postal>
-        <phone>- +1 617 495 3864</phone>
-        <email>-</email>
-      </address>
-    </author>
-    <date month='March' year='1997'></date>
-    <area>General</area>
-    <keyword>keyword</keyword>
-    <abstract>
-      <t>In many standards track documents several words are used to signify the requirements in the specification.  These words are often capitalized.  This document defines these words as they should be interpreted in IETF documents.  Authors who follow these guidelines should incorporate this phrase near the beginning of their document:
-        <list>
-          <t>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in RFC 2119.</t>
-        </list>
-      </t>
-      <t>Note that the force of these words is modified by the requirement level of the document in which they are used.</t>
-    </abstract>
-  </front>
-  <seriesInfo name='BCP' value='14' />
-  <seriesInfo name='RFC' value='2119' />
-</reference>
-
-<reference anchor="XMPP">
-  <front>
-    <title>Extensible Messaging and Presence Protocol (XMPP): Core</title>
-    <author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
-      <organization>Jabber Software Foundation</organization>
-    </author>
-    <date year='2004' month='October' />
-  </front>
-  <seriesInfo name='RFC' value='3920' />
-  <format type='TXT' octets='194313' target='ftp://ftp.isi.edu/in-notes/rfc3920.txt' />
-</reference>
-
     </references>
 
     <references title="Informative References">
 
-<reference anchor='HTTP'>
+<reference anchor='RFC768'>
+<front>
+<title>User Datagram Protocol</title>
+<author initials='J.' surname='Postel' fullname='J. Postel'>
+<organization>University of Southern California (USC)/Information Sciences Institute</organization>
+<address>
+<postal>
+<street>4676 Admiralty Way</street>
+<city>Marina del Rey</city>
+<region>CA</region>
+<code>90291</code>
+<country>US</country></postal>
+<phone>+1 213 822 1511</phone></address></author>
+<date year='1980' day='28' month='August' /></front>
+<seriesInfo name='STD' value='6' />
+<seriesInfo name='RFC' value='768' />
+<format type='TXT' octets='5896' target='ftp://ftp.isi.edu/in-notes/rfc768.txt' />
+</reference>
+
+<reference anchor='RFC793'>
+<front>
+<title abbrev='Transmission Control Protocol'>Transmission Control Protocol</title>
+<author initials='J.' surname='Postel' fullname='Jon Postel'>
+<organization>University of Southern California (USC)/Information Sciences Institute</organization>
+<address>
+<postal>
+<street>4676 Admiralty Way</street>
+<city>Marina del Rey</city>
+<region>CA</region>
+<code>90291</code>
+<country>US</country></postal></address></author>
+<date year='1981' day='1' month='September' /></front>
+<seriesInfo name='STD' value='7' />
+<seriesInfo name='RFC' value='793' />
+<format type='TXT' octets='172710' target='ftp://ftp.isi.edu/in-notes/rfc793.txt' />
+</reference>
+
+<reference anchor='RFC2616'>
 <front>
 <title abbrev='HTTP/1.1'>Hypertext Transfer Protocol -- HTTP/1.1</title>
 <author initials='R.' surname='Fielding' fullname='Roy T.  Fielding'>
@@ -789,7 +835,7 @@ Content-Length: 0
 <format type='XML' octets='471630' target='http://xml.resource.org/public/rfc/xml/rfc2616.xml' />
 </reference>
 
-<reference anchor='RTP'>
+<reference anchor='RFC3550'>
 <front>
 <title>RTP: A Transport Protocol for Real-Time Applications</title>
 <author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
@@ -808,43 +854,6 @@ Content-Length: 0
 <format type='TXT' octets='259985' target='ftp://ftp.isi.edu/in-notes/rfc3550.txt' />
 <format type='PS' octets='630740' target='ftp://ftp.isi.edu/in-notes/rfc3550.ps' />
 <format type='PDF' octets='504117' target='ftp://ftp.isi.edu/in-notes/rfc3550.pdf' />
-</reference>
-
-<reference anchor='TCP'>
-<front>
-<title abbrev='Transmission Control Protocol'>Transmission Control Protocol</title>
-<author initials='J.' surname='Postel' fullname='Jon Postel'>
-<organization>University of Southern California (USC)/Information Sciences Institute</organization>
-<address>
-<postal>
-<street>4676 Admiralty Way</street>
-<city>Marina del Rey</city>
-<region>CA</region>
-<code>90291</code>
-<country>US</country></postal></address></author>
-<date year='1981' day='1' month='September' /></front>
-<seriesInfo name='STD' value='7' />
-<seriesInfo name='RFC' value='793' />
-<format type='TXT' octets='172710' target='ftp://ftp.isi.edu/in-notes/rfc793.txt' />
-</reference>
-
-<reference anchor='UDP'>
-<front>
-<title>User Datagram Protocol</title>
-<author initials='J.' surname='Postel' fullname='J. Postel'>
-<organization>University of Southern California (USC)/Information Sciences Institute</organization>
-<address>
-<postal>
-<street>4676 Admiralty Way</street>
-<city>Marina del Rey</city>
-<region>CA</region>
-<code>90291</code>
-<country>US</country></postal>
-<phone>+1 213 822 1511</phone></address></author>
-<date year='1980' day='28' month='August' /></front>
-<seriesInfo name='STD' value='6' />
-<seriesInfo name='RFC' value='768' />
-<format type='TXT' octets='5896' target='ftp://ftp.isi.edu/in-notes/rfc768.txt' />
 </reference>
 
     </references>
