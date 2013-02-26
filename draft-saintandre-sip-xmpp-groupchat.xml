@@ -88,7 +88,7 @@
         <t>
           <list style="symbols">
             <t>XMPP chat sessions using message stanzas of type "groupchat" are specified in <xref target="XEP-0045"/>.</t>
-            <t>SIP-based chat room sessions using the SIP INVITE and SEND request types are specified in <xref target="I-D.ietf-simple-chat"/>.</t>
+            <t>SIP-based chat room sessions using the SIP INVITE and MSRP SEND request types are specified in <xref target="I-D.ietf-simple-chat"/>.</t>
           </list>
         </t>
       </section>
@@ -158,7 +158,7 @@ XMPP User                      GW                       server
     |                          |<-------------------------|
     |                          |                          |
     |(F15) (XMPP) echo chat message                       |
-    |--------------------------|                          |
+    |<-------------------------|                          |
     .                          .                          .
     .                          .                          .
     |(F16) (XMPP) Exiting a room                          |
@@ -202,9 +202,10 @@ XMPP User                      GW                       server
 
     c=IN IP4 x2s.shakespeare.net
     m=message 7654 TCP/MSRP *
-    a=accept-types:text/cpim text/plain text/html
+    a=accept-types:text/cpim
+    a=accept-wrapped-types:text/plain text/html
     a=path:msrp://x2s.example.com:7654/jshA7weztas;tcp
-    a=chatroom:nickname private-message
+    a=chatroom:nickname private-messages
           ]]></artwork>
         </figure>
         <t>Here the Session Description Protocol offer specifies the MSRP-aware XMPP-to-SIP gateway on the XMPP side as well as other particulars of the session.</t>
@@ -238,6 +239,7 @@ XMPP User                      GW                       server
 
   c=IN IP4 shakespeare.net
   m=message 12763 TCP/MSRP *
+  a=chatroom:nickname private-messages
   a=accept-types:message/cpim
   a=accept-wrapped-types:text/plain text/html *
   a=path:msrp://s2x.shakespeare.net:12763/kjhd37s2s20w2a;tcp
@@ -291,7 +293,7 @@ XMPP User                      GW                       server
       <t>If the multi-user chat service accepts the request to enter a room, the xmpp user expects to receive back presence 
       information from all the existing occupants' room. So the XMPP-to-SIP gateway MUST SUBSCRIBE to the Conference Event
       package <xref target="RFC4575"/> on the MSRP conference server. When the subscription is completed the MSRP conference
-      server send back to the XMPP-to-SIP gateway a NOTIFY with the presence information from all the existing occupants' room</t>
+      server will send a NOTIFY with the presence information from all the existing occupants' in the room back to the XMPP-to-SIP gateway </t>
 
         <figure>
           <preamble>Example: (F9) the chat room notifies the presence information</preamble>
@@ -318,7 +320,7 @@ XMPP User                      GW                       server
      </conference-description>
      <users>
       <user entity="sip:romeo@example.com" state="full">
-       <nickname-text>romeo</nickname-text>
+       <display-text>romeo</display-text>
         <roles>
          <entry>participant</entry>
         </roles>
@@ -331,8 +333,6 @@ XMPP User                      GW                       server
 	
 	<t><list style="format [NOTE: %d]">
         <t> a full mapping of RFC 4575 will be defined later on.</t>
-        <t> the &lt;nickname-text/&gt; attribute is an extension to the conference package
-        explained but not defined in <xref target="I-D.ietf-simple-chat"/> </t>
         <t>the subject (if present in the NOTIFY) must be sent with a separate &lt;message/&gt; stanza;
         so after F11 there should be another &lt;message/&gt; stanza from the gw to the joining party</t>
         </list></t>
@@ -460,6 +460,15 @@ XMPP User                      GW                       server
         service by sending a message to the occupant's room JID. The message type SHOULD be "chat" and MUST NOT be
         "groupchat", but MAY be left unspecified.</t>
 
+        <t>If the XMPP-to-SIP gateway has support for private messaging it MUSR advertise so by adding a "private-messages" value to the
+        a=chatroom SDP attribute as stated by <xref target="I-D.ietf-simple-chat"/></t>
+
+        <figure>
+          <artwork><![CDATA[
+    a=chatroom:nickname private-messages
+          ]]></artwork>
+        </figure>
+
         <t>The following examples show an exchange of a private message.</t>
         <figure>
           <preamble>Example: (F12) Juliet sends a private message</preamble>
@@ -524,7 +533,7 @@ XMPP User                      GW                       server
           ]]></artwork>
         </figure>
 
-        <t>Upon receiving such stanza exiting the multi-user chat room, the XMPP-to-SIP gateway MUST before delivering the message and then, after the message is successfully delivered, it terminates the SIP session by sending a SIP BYE to MSRP conference server. The MSRP conference server then responds with a 200 OK.</t>
+        <t>Upon receiving such stanza exiting the multi-user chat room, the XMPP-to-SIP gateway MUST deliver the message and then, after the message is successfully delivered, terminate the SIP session by sending a SIP BYE to the MSRP conference server. The MSRP conference server then responds with a 200 OK.</t>
 
         </section>
 
@@ -649,10 +658,6 @@ SIP User                     GW                       room
    |<------------------------|                          |
    |                         |(F7)(XMPP) (XMPP) Presence|
    |                         |<-------------------------|
-   |(ISSUE)how to handle F7  |                          |
-   |    if the user has not  |                          |
-   |    yet SUBSCRIBE to     |                          |
-   |    Event: conference    |                          |
    |                         |                          |
    |(F8)(SIP) SUBSCRIBE      |                          |
    |------------------------>|                          |
@@ -688,6 +693,9 @@ SIP User                     GW                       room
         ]]></artwork>
       </figure>
 
+      <t>If the XMPP presence stanza is received before the SIP SUBSCRIBE dialog is established for the "conference" event the server SHOULD cache
+      the participants list until the subscription is established and it's delivered in a SIP NOTIFY request.</t>
+
       <section title="Entering a Room" anchor="mrsp-init">
      <t>When the MSRP user ("Romeo") wants to join a multi-user chat room ("Verona"), he first has to start the SIP session by sending out
       a SIP INVITE request containing an offered session description that includes an MSRP media line accompanied by a mandatory "path" and
@@ -708,7 +716,7 @@ SIP User                     GW                       room
     m=message 7313 TCP/MSRP *
     a=accept-types:message/cpim text/plain text/html
     a=path:msrp://s2x.example.net:7313/ansp71weztas;tcp
-    a=chatroom:nickname private-message
+    a=chatroom:nickname private-messages
           ]]></artwork>
         </figure>
 
@@ -834,7 +842,7 @@ SIP User                     GW                       room
      </conference-description>
      <users>
       <user entity="sip:juliet@example.com" state="full">
-       <nickname-text>juliet</nickname-text>
+       <display-text>juliet</display-text>
         <roles>
          <entry>participant</entry>
         </roles>
