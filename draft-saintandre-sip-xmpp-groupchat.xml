@@ -330,7 +330,22 @@ XMPP User                      GW                       server
 
           ]]></artwork>
         </figure>
-	
+
+        <figure>
+          <preamble>Table 2: Syntax mapping from RFC4575 payload to XMPP participants list</preamble>
+          <artwork><![CDATA[
+    +-----------------------------+-----------------------------+
+    |  RFC 4575 Element           |XMPP Element or Attribute    |
+    +-----------------------------+-----------------------------+
+    |  conference-ifno entity     |  room JID                   |
+    |  conference subject         |  room subject               |
+    |  user entity                |  participant bare JID       |
+    |  endpoint entity            |  participant full JID       |
+    |  endpoint display-text      |  participant nickname       |
+    +-----------------------------+-----------------------------+
+          ]]></artwork>
+        </figure>
+
 	<t><list style="format [NOTE: %d]">
         <t> a full mapping of RFC 4575 will be defined later on.</t>
         <t>the subject (if present in the NOTIFY) must be sent with a separate &lt;message/&gt; stanza;
@@ -340,6 +355,7 @@ XMPP User                      GW                       server
 	<t><list style="format [OPEN ISSUE: %d]">
         <t> how to send to the room jid with the subject child set: do we need to send it in a different presence stanza
         that the F11?</t>
+        <t>how to deal with nickname conflicts between SIP display name and a nickname? use only display-txt?</t>
         </list></t>
 
 	<t> Upon receiving such a response, the SIP-to-XMPP gateway MUST send a 200 OK to the MSRP conference server and
