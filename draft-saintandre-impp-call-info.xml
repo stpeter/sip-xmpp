@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?rfc compact="yes"?>
+<?rfc iprnotified="no" ?>
+<?rfc sortrefs="yes"?>
+<?rfc strict="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+
+<rfc category="std" ipr="trust200902" docName="draft-saintandre-impp-call-info-00">
+
+  <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+
+  <front>
+
+    <title abbrev="Call-Info Purpose: IMPP">Instant Messaging and Presence Purpose for the Call-Info Header in the Session Initiation Protocol (SIP)</title>
+
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization>Cisco Systems, Inc.</organization>
+      <address>
+        <postal>
+          <street>1899 Wynkoop Street, Suite 600</street>
+          <city>Denver</city>
+          <region>CO</region>
+          <code>80202</code>
+          <country>USA</country>
+        </postal>
+        <phone>+1-303-308-3282</phone>
+        <email>psaintan@cisco.com</email>
+      </address>
+    </author>
+
+    <date day="10" month="March" year="2013"/>
+
+    <keyword>SIP</keyword>
+    <keyword>Call-Info</keyword>
+    <keyword>Instant Messaging</keyword>
+    <keyword>Presence</keyword>
+    
+    <abstract>
+      <t>This document defines and registers a value of "impp" ("instant messaging and presence protocol") for the "purpose" header field parameter of the Call-Info header field in the Session Initiation Protocol (SIP).</t>
+    </abstract>
+
+  </front>
+
+  <middle>
+
+    <section title="Definition" anchor="def">
+      <t>Developers of real-time communication endpoints that implement both the Session Initiation Protocol (SIP) <xref target='RFC3261'/> and the Extensible Messaging and Presence Protocol (XMPP) <xref target='RFC6120'/> sometimes wish to communicate the endpoint's SIP address over XMPP and communicate the endpoint's XMPP address over SIP.  The former feature is enabled by an XMPP extension protocol called Reachability Addresses <xref target='XEP-0152'/>.  As to the latter feature, discussion in the SIP community led to the conclusion of using the Call-Info header <xref target='RFC3261'/>, with a predefined value of "impp" ("instant messaging and presence protocol") for the "purpose" header.  Therefore this document defines and registers the "impp" value for the "purpose" parameter.</t>
+      <t>(Although the primary use case for the "impp" purpose is dual-stack SIP/XMPP endpoints <xref target='I-D.ivov-xmpp-cusax'/>, a Uniform Resource Identifier (URI) <xref target='RFC3986'/> for instant messaging and presence protocols other than XMPP could be included in the Call-Info header.)</t>
+    </section>
+
+    <section title="Security Considerations" anchor="security">
+      <t>Advertising an endpoint's XMPP address over SIP could inform malicious entities about an alternative attack vector.</t>
+    </section>
+
+    <section title="IANA Considerations" anchor="iana">
+      <t>The IANA is requested to add a new predefined value "impp" for the "purpose" header field parameter of the Call-Info header field, by adding this RFC as a reference to the line for the header field "Call-Info" and parameter name "purpose":</t>
+      <figure>
+        <artwork><![CDATA[
+  Header Field: Call-Info
+  Parameter Name: purpose
+  Predefined Values: yes
+  Reference: [RFC3261][RFC5367][RFC XXXX]
+        ]]></artwork>
+      </figure>
+    </section>
+
+  </middle>
+
+  <back>
+
+    <references title="Normative References">
+
+<reference anchor='RFC3261'>
+<front>
+<title>SIP: Session Initiation Protocol</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='G.' surname='Camarillo' fullname='G. Camarillo'>
+<organization /></author>
+<author initials='A.' surname='Johnston' fullname='A. Johnston'>
+<organization /></author>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'>
+<organization /></author>
+<author initials='R.' surname='Sparks' fullname='R. Sparks'>
+<organization /></author>
+<author initials='M.' surname='Handley' fullname='M. Handley'>
+<organization /></author>
+<author initials='E.' surname='Schooler' fullname='E. Schooler'>
+<organization /></author>
+<date year='2002' month='June' />
+<abstract>
+<t>This document describes Session Initiation Protocol (SIP), an application-layer control (signaling) protocol for creating, modifying, and terminating sessions with one or more participants.  These sessions include Internet telephone calls, multimedia distribution, and multimedia conferences. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='3261' />
+<format type='TXT' octets='647976' target='http://www.rfc-editor.org/rfc/rfc3261.txt' />
+</reference>
+
+<reference anchor='RFC3986'>
+<front>
+<title abbrev='URI Generic Syntax'>Uniform Resource Identifier (URI): Generic Syntax</title>
+<author initials='T.' surname='Berners-Lee' fullname='Tim Berners-Lee'>
+<organization abbrev='W3C/MIT'>World Wide Web Consortium</organization>
+<address>
+<postal>
+<street>Massachusetts Institute of Technology</street>
+<street>77 Massachusetts Avenue</street>
+<city>Cambridge</city>
+<region>MA</region>
+<code>02139</code>
+<country>USA</country></postal>
+<phone>+1-617-253-5702</phone>
+<facsimile>+1-617-258-5999</facsimile>
+<email>timbl@w3.org</email>
+<uri>http://www.w3.org/People/Berners-Lee/</uri></address></author>
+<author initials='R.' surname='Fielding' fullname='Roy T. Fielding'>
+<organization abbrev='Day Software'>Day Software</organization>
+<address>
+<postal>
+<street>5251 California Ave., Suite 110</street>
+<city>Irvine</city>
+<region>CA</region>
+<code>92617</code>
+<country>USA</country></postal>
+<phone>+1-949-679-2960</phone>
+<facsimile>+1-949-679-2972</facsimile>
+<email>fielding@gbiv.com</email>
+<uri>http://roy.gbiv.com/</uri></address></author>
+<author initials='L.' surname='Masinter' fullname='Larry Masinter'>
+<organization abbrev='Adobe Systems'>Adobe Systems Incorporated</organization>
+<address>
+<postal>
+<street>345 Park Ave</street>
+<city>San Jose</city>
+<region>CA</region>
+<code>95110</code>
+<country>USA</country></postal>
+<phone>+1-408-536-3024</phone>
+<email>LMM@acm.org</email>
+<uri>http://larry.masinter.net/</uri></address></author>
+<date year='2005' month='January' />
+<area>Applications</area>
+<keyword>uniform resource identifier</keyword>
+<keyword>URI</keyword>
+<keyword>URL</keyword>
+<keyword>URN</keyword>
+<keyword>WWW</keyword>
+<keyword>resource</keyword>
+<abstract>
+<t>
+A Uniform Resource Identifier (URI) is a compact sequence of characters
+that identifies an abstract or physical resource.  This specification
+defines the generic URI syntax and a process for resolving URI references
+that might be in relative form, along with guidelines and security
+considerations for the use of URIs on the Internet.
+The URI syntax defines a grammar that is a superset of all valid URIs,
+allowing an implementation to parse the common components of a URI
+reference without knowing the scheme-specific requirements of every
+possible identifier.  This specification does not define a generative
+grammar for URIs; that task is performed by the individual
+specifications of each URI scheme.
+</t></abstract></front>
+<seriesInfo name='STD' value='66' />
+<seriesInfo name='RFC' value='3986' />
+<format type='TXT' octets='141811' target='http://www.rfc-editor.org/rfc/rfc3986.txt' />
+<format type='HTML' octets='213584' target='http://xml.resource.org/public/rfc/html/rfc3986.html' />
+<format type='XML' octets='163534' target='http://xml.resource.org/public/rfc/xml/rfc3986.xml' />
+</reference>
+
+<reference anchor='RFC6120'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Core</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>The Extensible Messaging and Presence Protocol (XMPP) is an application profile of the Extensible Markup Language (XML) that enables the near-real-time exchange of structured yet extensible data between any two or more network entities.  This document defines XMPP's core protocol methods: setup and teardown of XML streams, channel encryption, authentication, error handling, and communication primitives for messaging, network availability ("presence"), and request-response interactions.  This document obsoletes RFC 3920. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6120' />
+<format type='TXT' octets='451942' target='http://www.rfc-editor.org/rfc/rfc6120.txt' />
+</reference>
+
+    </references>
+
+    <references title="Informative References">
+
+<reference anchor='I-D.ivov-xmpp-cusax'>
+<front>
+<title>Combined Use of the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (CUSAX)</title>
+<author initials='E' surname='Ivov' fullname='Emil Ivov'>
+    <organization />
+</author>
+<author initials='E' surname='Marocco' fullname='Enrico Marocco'>
+    <organization />
+</author>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<date month='February' day='26' year='2013' />
+<abstract><t>This document describes current practices for combined use of the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).  Such practices aim to provide a single fully featured real-time communication service by using complementary subsets of features from each of the protocols.  Typically such subsets would include telephony capabilities from SIP and instant messaging and presence capabilities from XMPP.  This specification does not define any new protocols or syntax for either SIP or XMPP. However, implementing it may require modifying or at least reconfiguring existing client and server-side software.  Also, it is not the purpose of this document to make recommendations as to whether or not such combined use should be preferred to the mechanisms provided natively by each protocol like for example SIP's SIMPLE or XMPP's Jingle.  It merely aims to provide guidance to those who are interested in such a combined use.</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ivov-xmpp-cusax-03' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ivov-xmpp-cusax-03.txt' />
+</reference>
+
+<reference anchor="XEP-0152">
+  <front>
+    <title>Reachability Addresses</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <author initials="J." surname="Hildebrand" fullname="Joe Hildebrand">
+      <organization/>
+      <address>
+        <email>jhildebr@cisco.com</email>
+      </address>
+    </author>
+    <date day="05" month="February" year="2013"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0152"/>
+  <format type="HTML" target="http://xmpp.org/extensions/xep-0152.html"/>
+</reference>
+
+    </references>
+
+    <section title="Acknowledgements" anchor="acks">
+      <t>Thanks to Keith Drage, Saul Ibarra, Emil Ivov, Cullen Jennings, Olle Johanssen, Paul Kyzivat, Gonzalo Salgueiro, Dean Willis, and Dale Worley for their input.</t>
+    </section>
+
+  </back>
+
+</rfc>

@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+
+<rfc category='info' 
+     ipr='trust200902' 
+     docName='draft-christou-sip-xmpp-interop-00'>
+
+<?rfc toc='yes' ?>
+<?rfc symrefs='yes' ?>
+<?rfc sortrefs='yes'?>
+<?rfc iprnotified='no' ?>
+<?rfc strict='yes' ?>
+<?rfc compact='yes' ?>
+
+  <front>
+
+    <title abbrev='SIP-XMPP Interoperability'>
+      Interoperability between the Session Initiation Protocol (SIP) and the 
+      Extensible Messaging and Presence Protocol (XMPP) 
+    </title>
+
+    <author initials='C.' surname='Christou' 
+            fullname='Chris Christou'>
+      <organization>Booz Allen Hamilton Inc.</organization>
+      <address>
+        <postal>
+          <street>8283 Greensboro Drive</street>
+          <city>McLean</city>
+          <region>VA</region>
+          <code>22102</code>
+          <country>USA</country>
+        </postal>
+        <phone>+1-301-419-5157</phone>
+        <email>christou_chris@bah.com</email>
+      </address>
+    </author>
+
+    <author initials='M.' surname='Lundberg' 
+            fullname='Michael Lundberg'>
+      <organization>Booz Allen Hamilton Inc.</organization>
+      <address>
+        <postal>
+          <street>8283 Greensboro Drive</street>
+          <city>McLean</city>
+          <region>VA</region>
+          <code>22102</code>
+          <country>USA</country>
+        </postal>
+        <phone>+1-703-785-7527</phone>
+        <email>lundberg_michael@bah.com</email>
+      </address>
+    </author>
+
+    <author initials='C.' surname='Ross' 
+            fullname='Christopher Ross'>
+      <organization>Booz Allen Hamilton Inc.</organization>
+      <address>
+        <postal>
+          <street>8283 Greensboro Drive</street>
+          <city>McLean</city>
+          <region>VA</region>
+          <code>22102</code>
+          <country>USA</country>
+        </postal>
+        <email>ross_christopher@bah.com</email>
+      </address>
+    </author>
+
+    <author initials='P.' surname='Saint-Andre' 
+            fullname='Peter Saint-Andre'>
+      <organization>Cisco Systems, Inc.</organization>
+      <address>
+        <postal>
+          <street>1899 Wynkoop Street, Suite 600</street>
+          <city>Denver</city>
+          <region>CO</region>
+          <code>80202</code>
+          <country>USA</country>
+        </postal>
+        <phone>+1-303-308-3282</phone>
+        <email>psaintan@cisco.com</email>
+      </address>
+    </author>
+
+    <date year="2013" month="March" day="10"/>
+    <area>RAI</area>
+    <keyword>XMPP</keyword>
+    <keyword>SIP</keyword>
+
+    <abstract>
+      <t>This document is intended to serve as a reference point for developers and operators implementing the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP) within their networks. This document does not define any new protocols but does define the different reference models for deployment of combined use of SIP and XMPP ("CUSAX") clients and SIP-XMPP interworking to ensure consistency across the community.</t>
+    </abstract>
+
+  </front>
+
+  <middle>
+
+    <section title='Introduction'>
+      <t>Across the industry, both the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP) have been implemented extensively by the vendor and developer community to provide Internet users real-time communication services, including voice, video, and IM/Chat. Initially, SIP was developed to provide the signaling underpinnings for telephony-based communication services. Similarly, XMPP was initially optimized for Instant Messaging and Chat-based communications. Since then both protocols have been extended to enable a more full-suite of features. For example, the SIMPLE protocol was defined to allow SIP to be used for IM, Chat, presence and other "enhanced" features, such as multi-user chat, server-stored contacts, file transfer, etc. The XMPP community developed the Jingle protocol extensions to define how XMPP implementations can establish end-to-end voice and video sessions.</t>
+      <t>With both suites of protocols providing similar capabilities, the adopter community has implemented both SIP/SIMPLE and XMPP.  In certain cases, vendors integrating voice, video, and IM/Chat into their products have implemented SIP for telephony and XMPP for IM/Chat, especially since SIP was initially and optimized for voice/video signaling and XMPP optimized for internet-based chat. However, in other instances, vendors have implemented all capabilities using SIP/SIMPLE or XMPP/Jingle. Unfortunately, interoperability and interworking between SIP/SIMPLE and XMPP-based implementations has been fairly limited thus far.</t>
+      <t>To help alleviate this lack of interworking, two primary collection of IETF documents have emerged describing how to interoperate between SIP/SIMPLE and XMPP:</t>
+      <t>
+        <list style='symbols'>
+          <t>Combined use of SIP and XMPP (CUSAX): The goal of this informational Internet-Draft <xref target='I-D.ivov-xmpp-cusax'/> is to define how software can be modified to enable a hybrid implementation using SIP for voice/video telephony and XMPP for IM/Chat and contact list management. This draft primarily addresses the use case where a user uses a dual stack SIP/XMPP client to access its services.</t>
+          <t>SIP-XMPP Interworking: A suite of documents was written to describe how SIMPLE-based and XMPP-based IM/Chat implementations can interoperate. These drafts primarily focus on the use case where one user SIP/SIMPLE domain needs to communicate with users who are a member of a separate XMPP domain.</t>
+        </list>
+      </t>
+      <t>While these documents are helpful, they might not cover all deployment use cases for real-time communication services using SIP and XMPP.  As a result, the goal of this document is threefold:</t>
+      <t>
+        <list style='symbols'>
+          <t>Serve as reference guide for adopters implementing real-time communication services using SIP and XMPP. It can also define common terminology across both the SIP and XMPP communities as it relates to inter-working and interoperability between the two protocols.</t>
+          <t>Define all relevant deployment scenarios for SIP and XMPP hybrid implementations.</t>
+          <t>When necessary, provide a reference to other documents that describe any protocol enhancements that enable the combined use of SIP and XMPP or the interworking functions between the two protocols.</t>
+        </list>
+      </t>
+      <t>Therefore, this document is intended to serve as a reference point for developers and operators implementing SIP and XMPP within their networks. This document will not define any new standards or protocols but will define the different reference models for deployment of CUSAX clients and SIP-XMPP interworking to ensure consistency across the community.</t>
+    </section>
+    
+    <section title='Reference Models'>
+      <t>This section defines the different reference models for the deployment of SIP and XMPP. These reference models are categorized as either "CUSAX", where a given network uses SIP for telephony and XMPP for IM/Chat, or as "Inter-Domain SIP/SIMPLE-XMPP", where one IM/chat domain using SIP/SIMPLE needs to interoperate with another XMPP IM/Chat domain.</t>
+
+      <section title='Single Client, Same Service Provider'>
+        <t>In this use case, adopters deploy a single client which uses SIP for voice/video telephony and XMPP for IM/Chat and Presence. To successfully implement CUSAX using a single client, adopters need guidance on how to provision their systems to ensure consistent account information is configured between the SIP and XMPP infrastructures for the same user. There are no other interoperability issues since presence mapping occurs within the client and the two protocols do not interact elsewhere.</t>
+        <t>The CUSAX internet-draft <xref target='I-D.ivov-xmpp-cusax'/> explains this use case and provides guidance for implementers when configuring clients and server-side software.</t>
+      </section>
+
+      <section title='Separate Clients, Same Service Provider'>
+        <t>In certain cases, CUSAX adopters might not have the opportunity to deploy SIP and XMPP in the same client. For example, a given service provider might implement a separate client for SIP telephony from the XMPP IM/Chat client. Alternatively, a service provider can deploy dedicated IP telephony devices (i.e., a phone) and a XMPP IM/Chat client. As a result, similar to what is provided in the CUSAX draft for a single client, guidance needs to be defined to explain how user accounts ought be configured between the two systems. This guidance will also need to define how presence is exchanged either client or server side.</t>
+      </section>
+
+      <section title='Separate Clients, Different Service Providers'>
+        <t>The third use case involves implementing SIP and XMPP on separate clients by separate service providers. For example, a user might obtain their SIP-based telephony services from a telecommunications provider and their XMPP IM/Chat service from an Internet provider. To provide appropriate guidance for those interested in this use case, a document is needed to describe how to align account information between the two service providers and how to exchange presence consistently between the two service providers for the same user/account.</t>
+      </section>
+
+      <section title='Inter-Domain SIP/SIMPLE-XMPP'>
+        <t>The second set of use cases involves scenarios where one domain deploys SIP/SIMPLE as its IM/Chat protocol and another domain implements XMPP as its IM/Chat protocol.</t>
+        <t>In order to consistently and effectively interoperate, four key areas need to be defined:</t>
+        <t>
+          <list style='numbers'>
+            <t>Presence exchange: In order to help ensure interworking between presence systems that  conform to the instant message / presence requirements <xref target='RFC2779'/>, it is important to clearly define protocol mappings between such systems. <xref target='I-D.saintandre-sip-xmpp-presence'/> defines this mapping and can be used by adopters that need to exchange presence between SIP/SIMPLE and XMPP systems.</t>
+            <t>IM interoperability: The term "instant message" usually refers to messages sent between two entities for delivery in close to real time (rather than messages that are stored and forwarded to the intended recipient upon request). <xref target='I-D.saintandre-sip-xmpp-chat'/> specifies mappings for one-to-one text chat sessions (sometimes called "session-mode" messaging); in particular, the document specifies mappings between XMPP and the Message Session Relay Protocol <xref target='RFC4975'/>.</t>
+            <t>Address mapping: In order to inter work between the two IM/Chat systems, a mapping function needs to be defined between the identifiers that are used for XMPP and SIP/SIMPLE (JID and SIP URI). <xref target='I-D.saintandre-sip-xmpp-core'/> explains how to translate between the two identifiers while also explaining how to translate error conditions between the two systems.</t>
+            <t>Multi-User Chat (MUC)/Groupchat: Both XMPP and SIP/SIMPLE technologies enable multi-user text chat, whereby users can exchange messages in the context of a room. To ensure interworking between these technologies for the purposes of enabling "Groupchat" between the two systems, <xref target='I-D.saintandre-sip-xmpp-groupchat'/> defines how to map syntax and semantics between the two protocols.</t>
+          </list>
+        </t>
+      </section>
+
+    </section>
+
+    <section title='Security Considerations'>
+      <t>See the security considerations described in the specifications referenced herein.</t>
+    </section>
+
+    <section title='IANA Considerations'>
+      <t>This document has no actions for the IANA.</t>
+    </section>
+
+  </middle>
+
+  <back>
+    <references title='Informative References'>
+
+<reference anchor='RFC2779'>
+<front>
+<title abbrev='Instant Messaging/Presence Protocol'>Instant Messaging / Presence Protocol Requirements</title>
+<author initials='M.' surname='Day' fullname='Mark Day'>
+<organization>SightPath, Inc.</organization>
+<address>
+<postal>
+<street>135 Beaver Street</street>
+<city>Waltham</city>
+<region>MA</region>
+<code>02452</code>
+<country>US</country></postal>
+<email>mday@alum.mit.edu</email></address></author>
+<author initials='S.' surname='Aggarwal' fullname='Sonu Aggarwal'>
+<organization>Microsoft Corporation</organization>
+<address>
+<postal>
+<street>One Microsoft Way</street>
+<city>Redmond</city>
+<region>WA</region>
+<code>98052</code>
+<country>US</country></postal>
+<email>sonuag@microsoft.com</email></address></author>
+<author initials='G.' surname='Mohr' fullname='Gordon Mohr'>
+<organization />
+<address>
+<email>gojomo@usa.net</email></address></author>
+<author initials='J.' surname='Vincent' fullname='Jesse Vincent'>
+<organization>Into Networks, Inc.</organization>
+<address>
+<postal>
+<street>150 Cambridgepark Drive</street>
+<city>Cambridge</city>
+<region>MA</region>
+<code>02140</code>
+<country>US</country></postal>
+<email>jesse@intonet.com</email></address></author>
+<date year='2000' month='February' />
+<abstract>
+<t>Presence and Instant Messaging have recently emerged as a new medium of communications over the Internet.  Presence is a means for finding, retrieving, and subscribing to changes in the presence information (e.g. "online" or "offline") of other users. Instant messaging is a means for sending small, simple messages that are delivered immediately to online users.</t>
+<t>Applications of presence and instant messaging currently use independent, non-standard and non-interoperable protocols developed by various vendors.  The goal of the Instant Messaging and Presence Protocol (IMPP) Working Group is to define a standard protocol so that independently developed applications of instant messaging and/or   presence can interoperate across the Internet. This document defines a minimal set of requirements that IMPP must meet.</t></abstract></front>
+<seriesInfo name='RFC' value='2779' />
+<format type='TXT' octets='47420' target='http://www.rfc-editor.org/rfc/rfc2779.txt' />
+</reference>
+
+<reference anchor='RFC4975'>
+<front>
+<title>The Message Session Relay Protocol (MSRP)</title>
+<author initials='B.' surname='Campbell' fullname='B. Campbell'>
+<organization /></author>
+<author initials='R.' surname='Mahy' fullname='R. Mahy'>
+<organization /></author>
+<author initials='C.' surname='Jennings' fullname='C. Jennings'>
+<organization /></author>
+<date year='2007' month='September' />
+<abstract>
+<t>This document describes the Message Session Relay Protocol, a protocol for transmitting a series of related instant messages in the context of a session.  Message sessions are treated like any other media stream when set up via a rendezvous or session creation protocol such as the Session Initiation Protocol. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='4975' />
+<format type='TXT' octets='144254' target='http://www.rfc-editor.org/rfc/rfc4975.txt' />
+</reference>
+
+<reference anchor='I-D.ivov-xmpp-cusax'>
+<front>
+<title>Combined Use of the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (CUSAX)</title>
+<author initials='E' surname='Ivov' fullname='Emil Ivov'>
+    <organization />
+</author>
+<author initials='E' surname='Marocco' fullname='Enrico Marocco'>
+    <organization />
+</author>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<date month='February' day='26' year='2013' />
+<abstract><t>This document describes current practices for combined use of the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).  Such practices aim to provide a single fully featured real-time communication service by using complementary subsets of features from each of the protocols.  Typically such subsets would include telephony capabilities from SIP and instant messaging and presence capabilities from XMPP.  This specification does not define any new protocols or syntax for either SIP or XMPP. However, implementing it may require modifying or at least reconfiguring existing client and server-side software.  Also, it is not the purpose of this document to make recommendations as to whether or not such combined use should be preferred to the mechanisms provided natively by each protocol like for example SIP's SIMPLE or XMPP's Jingle.  It merely aims to provide guidance to those who are interested in such a combined use.</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ivov-xmpp-cusax-03' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ivov-xmpp-cusax-03.txt' />
+</reference>
+
+<reference anchor='I-D.saintandre-sip-xmpp-chat'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): One-to-One Text Chat</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<author initials='E' surname='Gavita' fullname='Eddy Gavita'>
+    <organization />
+</author>
+<author initials='N' surname='Hossain' fullname='Nazin Hossain'>
+    <organization />
+</author>
+<author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
+    <organization />
+</author>
+<date month='October' day='15' year='2012' />
+<abstract><t>This document defines a bi-directional protocol mapping for the exchange of instant messages in the context of a one-to-one chat session between a user of the Session Initiation Protocol (SIP) and a user of the Extensible Messaging and Presence Protocol (XMPP). Specifically for SIP text chat, this document specifies a mapping to the Message Session Relay Protocol (MSRP).</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-chat-04' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-chat-04.txt' />
+</reference>
+
+<reference anchor='I-D.saintandre-sip-xmpp-core'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Core</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<author initials='A' surname='Houri' fullname='Avshalom Houri'>
+    <organization />
+</author>
+<author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
+    <organization />
+</author>
+<date month='February' day='5' year='2013' />
+<abstract><t>As a foundation for the definition of application-specific, bi- directional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-core-03' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-core-03.txt' />
+</reference>
+
+<reference anchor='I-D.saintandre-sip-xmpp-groupchat'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Multi-Party Text Chat</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
+    <organization />
+</author>
+<author initials='F' surname='Forno' fullname='Fabio Forno'>
+    <organization />
+</author>
+<date month='October' day='15' year='2012' />
+<abstract><t>This document defines a bi-directional protocol mapping for the exchange of instant messages in the context of a many-to-many chat session among users of the Session Initiation Protocol (SIP) and users of the Extensible Messaging and Presence Protocol (XMPP). Specifically for SIP text chat, this document specifies a mapping to the Message Session Relay Protocol (MSRP).</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-groupchat-02' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-groupchat-02.txt' />
+</reference>
+
+<reference anchor='I-D.saintandre-sip-xmpp-presence'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Presence</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<author initials='A' surname='Houri' fullname='Avshalom Houri'>
+    <organization />
+</author>
+<author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
+    <organization />
+</author>
+<date month='February' day='5' year='2013' />
+<abstract><t>This document defines a bi-directional protocol mapping for the exchange of presence information between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-presence-04' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-presence-04.txt' />
+</reference>
+
+    </references>
+  </back>
+
+</rfc>
