@@ -36,6 +36,17 @@
         <email>Salvatore.Loreto@ericsson.com</email>
       </address>
     </author>
+    <author initials="S." surname="Ibarra" fullname="Saul Ibarra Corretge">
+      <organization>AG Projects</organization>
+        <postal>
+          <street>Dr. Leijdsstraat 92</street>
+          <code>2021RK</code> 
+          <city>Haarlem</city> 
+          <country>The Netherlands</country>
+         </postal>
+        <email>saul@ag-projects.com</email>
+      </address>
+    </author>
     <author initials="F." surname="Forno" fullname="Fabio Forno">
       <organization>Bluendo srl</organization>
       <address>
@@ -103,7 +114,6 @@
 
 
       </section>
-
 
       <section title="Acknowledgements" anchor="intro-ack">
         <t>Some text in this document was borrowed from <xref target="I-D.saintandre-sip-xmpp-core"/> and from <xref target="XEP-0045"/>.</t>
