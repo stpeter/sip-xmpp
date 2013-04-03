@@ -5,7 +5,7 @@
 <?rfc symrefs="yes"?>
 <?rfc compact="yes"?>
 <?rfc strict="yes"?>
-<rfc category='info' docName='draft-saintandre-sip-xmpp-core-03' ipr='trust200902'>
+<rfc category='std' docName='draft-saintandre-sip-xmpp-core-04' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Core">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Addresses and Error Conditions</title>
@@ -48,12 +48,12 @@
         <email>jhildebr@cisco.com</email>
       </address>
     </author>
-    <date year="2013" month="February" day="5"/>
+    <date/>
     <area>RAI</area>
     <keyword>XMPP</keyword>
     <keyword>SIP</keyword>
     <abstract>
-      <t>As a foundation for the definition of application-specific, bi-directional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t>
+      <t>As a foundation for the definition of bidirectional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t>
     </abstract>
   </front>
 
@@ -63,24 +63,21 @@
       <t>The IETF has worked on two signalling technologies that can be used for multimedia session negotiation, messaging, presence, capabilities discovery, notifications, and other application-level functionality:</t>
       <t>
         <list style='symbols'>
-          <t>The Session Initiation Protocol <xref target="RFC3261"/>, along with various SIP extensions developed within the SIP for Instant Messaging and Presence Leveraging Extensions (SIMPLE) Working Group.<vspace blankLines='1'/></t>
+          <t>The Session Initiation Protocol <xref target="RFC3261"/>, along with various SIP extensions developed within the SIP for Instant Messaging and Presence Leveraging Extensions (SIMPLE) Working Group.</t>
           <t>The Extensible Messaging and Presence Protocol <xref target='RFC6120'/>, along with various XMPP extensions developed by the IETF as well as by the XMPP Standards Foundation.</t>
         </list>
       </t>
       <t>Because these technologies are widely deployed, it is important to clearly define mappings between them for the sake of interworking.  This document inaugurates a series of SIP-XMPP interworking specifications by defining the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t>
+      <t>The discussion venue for this document is the mailing list of the DISPATCH WG; visit https://www.ietf.org/mailman/listinfo/dispatch for subscription information and discussion archives.</t>
     </section>
 
     <section title="Terminology" anchor="terms">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
     </section>
 
-    <section title="Discussion Venue" anchor="venue">
-      <t>The discussion venue for this document is the mailing list of the DISPATCH WG; visit <eref target='https://www.ietf.org/mailman/listinfo/dispatch'/> for subscription and archive information.</t>
-    </section>
-
     <section title="Architectural Assumptions" anchor="intro-arch">
-      <t>Protocol translation between SIP and XMPP could occur in a number of different entities, depending on the architecture of real-time communication deployments.  For example, protocol translation could occur within a multi-protocol server, within a multi-protocol client, or within a gateway that acts as a dedicated protocol translator.</t>
-      <t>This document assumes that the protocol translation will occur within a gateway.  (This assumption not meant to discourage protocol translation within multi-protocol clients or servers; instead, this assumption is followed mainly to clarify the discussion and examples so that the protocol translation principles can be more easily understood and can be applied by client and server implementors with appropriate modifications to the examples and terminology.)  Specifically, we assume that the protocol translation will occur within an "XMPP-to-SIP gateway" that translates XMPP syntax and semantics on behalf of an XMPP service when communicating with SIP services and/or within a "SIP-to-XMPP gateway" that translates SIP syntax and semantics on behalf of a SIP service when communicating with XMPP services.</t>
+      <t>Protocol translation between SIP and XMPP could occur in a number of different entities, depending on the architecture of real-time communication deployments.  For example, protocol translation could occur within a multi-protocol server (which uses application-specific connection managers to initiate traffic to and accept traffic from clients or other servers natively using SIP/SIMPLE, XMPP, etc.), within a multi-protocol client (which enables a user to establish connections natively with various servers using SIP/SIMPLE, XMPP, etc.), or within a gateway that acts as a dedicated protocol translator (which takes one protocol as input and provides another protocol as output).</t>
+      <t>This document assumes that the protocol translation will occur within a gateway.  (This assumption not meant to discourage protocol translation within multi-protocol clients or servers; instead, this assumption is followed mainly to clarify the discussion and examples so that the protocol translation principles can be more easily understood and can be applied by client and server implementors with appropriate modifications to the examples and terminology.)  Specifically, we assume that the protocol translation will occur within an "XMPP-to-SIP gateway" that translates XMPP syntax and semantics on behalf of an XMPP service when communicating with SIP services and/or within a "SIP-to-XMPP gateway" that translates SIP syntax and semantics on behalf of a SIP service when communicating with XMPP services (naturally, these logical functions could occur in one and the same actual translator).</t>
       <t>This document assumes that a gateway will translate directly from one protocol to the other.  We further assume that protocol translation will occur within a gateway in the source domain, so that information generated by the user of an XMPP service will be translated by a gateway within the trust domain of that XMPP service, and information generated by the user of a SIP service will be translated by a gateway within the trust domain of that SIP service.</t>
       <t>An architectural diagram for a possible gateway deployment is shown below, where the entities have the following significance and the "#" character is used to show the boundary of a trust domain:</t>
       <t>
@@ -109,8 +106,8 @@
     <section title="Address Mapping" anchor="addr">
       <section title="Overview" anchor="addr-over">
         <t>The basic SIP address format is a "sip:" or "sips:" URI as specified in <xref target='RFC3261'/>.  When a SIP entity supports extensions for instant messaging it might be identified by an 'im:' URI as specified in the Common Profile for Instant Messaging <xref target="RFC3860"/> (see <xref target="RFC3428"/>) and when a SIP entity spports extensions for presence it might be identified by a 'pres:' URI as specified in the Common Profile for Presence <xref target="RFC3859"/> (see <xref target="RFC3856"/>).</t>
-        <t>The XMPP address format is specified in <xref target="RFC6122"/>; as specified in <xref target="RFC6121"/>, instant messaging and presence applications of XMPP also need to support 'im:' and 'pres:' URIs as specified in <xref target="RFC3860"/> and <xref target="RFC3859"/> respectively, although such support might simply involve leaving resolution of such addresses up to an XMPP server.</t>
-        <t>In this document we primarily describe mappings for addresses of the form &lt;user@domain&gt;; however, we also provide guidelies for mapping the addresses of specific user agent instances, which take the form of Globally Routable User Agent URIs (GRUUs) in SIP and "resourceparts" in XMPP.  Mapping of protocol-specific identifiers (such as telephone numbers) is out of scope for this specification.  In addition, we have ruled the mapping of domain names as out of scope for now since that is a matter for the Domain Name System; specifically, the issue for interworking between SIP and XMPP relates to the translation of fully internationalized domain names (IDNs) into non-internationalized domain names (IDNs are not allowed in the SIP address format, but are allowed in the XMPP address via Internationalized Domain Names in Applications, see <xref target="RFC6122"/> and <xref target='I-D.ietf-xmpp-6122bis'/>).  Therefore, in the following sections we focus primarily on the local part of an address (these are called variously "usernames", "instant inboxes", "presentities", and "localparts" in the protocols at issue), and secondarily on the instance-specific part of an address.</t>
+        <t>The XMPP address format is specified in <xref target="RFC6122"/>; as discussed in <xref target="RFC6121"/>, instant messaging and presence applications of XMPP also need to support 'im:' and 'pres:' URIs as specified in <xref target="RFC3860"/> and <xref target="RFC3859"/> respectively, although such support might simply involve leaving resolution of such addresses up to an XMPP server.</t>
+        <t>In this document we primarily describe mappings for addresses of the form &lt;user@domain&gt;; however, we also provide guidelines for mapping the addresses of specific user agent instances, which take the form of Globally Routable User Agent URIs (GRUUs) in SIP and "resourceparts" in XMPP.  Mapping of protocol-specific identifiers (such as telephone numbers) is out of scope for this specification.  In addition, we have ruled the mapping of domain names as out of scope for now since that is a matter for the Domain Name System; specifically, the issue for interworking between SIP and XMPP relates to the translation of fully internationalized domain names (IDNs) into non-internationalized domain names (IDNs are not allowed in the SIP address format, but are allowed in the XMPP address via Internationalized Domain Names in Applications, see <xref target="RFC6122"/> and <xref target='I-D.ietf-xmpp-6122bis'/>).  Therefore, in the following sections we focus primarily on the local part of an address (these are called variously "usernames", "instant inboxes", "presentities", and "localparts" in the protocols at issue), secondarily on the instance-specific part of an address, and not at all on the domain-name part of an address.</t>
         <t>The sip:/sips:, im:/pres:, and XMPP address schemes allow different sets of characters (although all three allow alphanumeric characters and disallow both spaces and control characters).  In some cases, characters allowed in one scheme are disallowed in others; these characters need to be mapped appropriately in order to ensure interworking across systems.</t>
       </section>
       <section title="Local Part Mapping" anchor="addr-localpart">
@@ -128,21 +125,18 @@
         <figure>
           <artwork><![CDATA[
    dot-atom-text =  1*atext *("." 1*atext)
-   atext         =  ALPHA / DIGIT / ; Any character except controls,
-                    "!" / "#" /     ;  SP, and specials.
-                    "$" / "%" /     ;  Used for atoms
-                    "&" / "'" /
-                    "*" / "+" /
-                    "-" / "/" /
-                    "=" / "?" /
-                    "^" / "_" /
-                    "`" / "{" /
-                    "|" / "}" /
+   atext         =  ALPHA / DIGIT /    ; Any character except 
+                    "!" / "#" / "$" /  ; controls, SP, and 
+                    "%" / "&" / "'" /  ; specials. Used for 
+                    "*" / "+" / "-" /  ; atoms.
+                    "/" / "=" / "?" /
+                    "^" / "_" / "`" / 
+                    "{" / "|" / "}" /
                     "~"
           ]]></artwork>
         </figure>
         <t>The local part of an XMPP address allows any ASCII character except space, controls, and the " &amp; ' / : &lt; &gt; @ characters.</t>
-        <t>Therefore, the following table lists the allowed and disallowed characters in the local part of identifiers for each protocol (aside from the alphanumeric, space, and control characters), in order by hexadecimal character number (where the "A" row shows the allowed characters and the "D" row shows the disallowed characters).</t>
+        <t>To summarize the foregoing information, the following table lists the allowed and disallowed characters in the local part of identifiers for each protocol (aside from the alphanumeric, space, and control characters), in order by hexadecimal character number (where each "A" row shows the allowed characters and each "D" row shows the disallowed characters).</t>
         <figure>
           <preamble>Table 1: Allowed and disallowed characters</preamble>
           <artwork><![CDATA[
@@ -179,7 +173,7 @@
         </t>
       </section>
       <section title="Instance-Specific Mapping" anchor="addr-instance">
-        <t>The meaning of a resourcepart in XMPP (i.e., the portion of a JID after the slash character, such as "foo" in the JID "user@example.com/foo") matches that of a Globally Routable User Agent URI (GRUU) in SIP <xref target='RFC5627'/>.  In both cases, these constructs identify a particular device associated with the bare JID ("user@host") of an XMPP entity or with the Address of Record (AOR) of a SIP entity. Therefore, it is reasonable to map the value of a "gr" URI parameter to an XMPP resource part, and vice-versa.</t>
+        <t>The meaning of a resourcepart in XMPP (i.e., the portion of a JID after the slash character, such as "foo" in "user@example.com/foo") matches that of a Globally Routable User Agent URI (GRUU) in SIP <xref target='RFC5627'/>.  In both cases, these constructs identify a particular device associated with the bare JID ("localpart@domainpart") of an XMPP entity or with the Address of Record (AOR) of a SIP entity. Therefore, it is reasonable to map the value of a "gr" URI parameter to an XMPP resource part, and vice-versa.</t>
         <t>Note that the "gr" URI parameter in SIP can contain only characters from the ASCII range, whereas an XMPP resourcepart can contain nearly any Unicode character <xref target='UNICODE'/>.  Therefore Unicode characters outside the ASCII range need to be mapped to characters in the ASCII range, as described below.</t>
       </section>
       <section title="SIP to XMPP" anchor="addr-sip">
@@ -190,10 +184,10 @@
             <t>Split at the first '@' character into local part and hostname (mapping the latter is out of scope).</t>
             <t>Translate any percent-encoded strings ("%hexhex") to percent-decoded octets.</t>
             <t>Treat result as a UTF-8 string.</t>
-            <t>Translate "&amp;" to "\26", "'" to "\27", and "/" to "\2f" respectively in order to properly handle the characters disallowed in XMPP addresses but allowed in sip:/sips: URIs and im:/pres: URIs as shown in Column 3 of Table 3 above (this is consistent with <xref target="XEP-0106"/>).</t>
+            <t>Translate "&amp;" to "\26", "'" to "\27", and "/" to "\2f" respectively in order to properly handle the characters disallowed in XMPP addresses but allowed in sip:/sips: URIs and im:/pres: URIs as shown in Table 1 above (this is consistent with <xref target="XEP-0106"/>).</t>
             <t>Apply Nodeprep profile of Stringprep <xref target="RFC3454"/> or its replacement (see <xref target="RFC6122"/> and <xref target='I-D.ietf-xmpp-6122bis'/>) for canonicalization (OPTIONAL).</t>
-            <t>Recombine local part with mapped hostname to form a local@domain address (bare JID).</t>
-            <t>If the (SIP) address contained a "gr" URI parameter, append a slash character "/" and the "gr" value to the local@domain address to form a local@domain/resource address (full JID).</t>
+            <t>Recombine local part with mapped hostname to form a bare JID ("localpart@domainpart").</t>
+            <t>If the (SIP) address contained a "gr" URI parameter, append a slash character "/" and the "gr" value to the bare JID to form a full JID ("localpart@domainpart/resourcepart").</t>
           </list>
         </t>
       </section>
@@ -205,17 +199,17 @@
             <t>Apply Nodeprep profile of <xref target="RFC3454"/> or its replacement (see <xref target="RFC6122"/> and <xref target='I-D.ietf-xmpp-6122bis'/>) for canonicalization of the XMPP localpart (OPTIONAL).</t>
             <t>Translate "\26" to "&amp;", "\27" to "'", and "\2f" to "/" respectively (this is consistent with <xref target="XEP-0106"/>).</t>
             <t>Determine if the foreign domain supports im: and pres: URIs (discovered via <xref target="RFC2782"/> lookup as specified in <xref target="RFC6121"/>), else assume that the foreign domain supports sip:/sips: URIs.</t>
-            <t>If converting into im: or pres: URI, for each byte, if the byte is in the set (),.;[\] (i.e., the partial complement from Row 3, Column 2 of Table 3 above) or is a UTF-8 character outside the ASCII range then percent-encode that byte to "%hexhex" format.  If converting into sip: or sips: URI, for each byte, if the byte is in the set #%[\]^`{|} (i.e., the partial complement from Row 3, Column 1 of Table 3 above) or is a UTF-8 character outside the ASCII range then percent-encode that byte to "%hexhex" format.</t>
+            <t>If converting into im: or pres: URI, for each byte, if the byte is in the set (),.;[\] or is a UTF-8 character outside the ASCII range then percent-encode that byte to "%hexhex" format.  If converting into sip: or sips: URI, for each byte, if the byte is in the set #%[\]^`{|} or is a UTF-8 character outside the ASCII range then percent-encode that byte to "%hexhex" format.</t>
             <t>Combine resulting local part with mapped hostname to form local@domain address.</t>
             <t>Prepend with 'im:' scheme (for XMPP &lt;message/&gt; stanzas) or 'pres:' scheme (for XMPP &lt;presence/&gt; stanzas) if foreign domain supports these, else prepend with 'sip:' or 'sips:' scheme according to local service policy.</t>
-            <t>If the XMPP address included a resourcepart and the destination URI scheme is 'sip:' or 'sips:', optionally append the slash character '/' and then append the resourcepart (making sure to percent-encode any UTF-8 characters outside the ASCII range).</t>
+            <t>If the XMPP address included a resourcepart and the destination URI scheme is 'sip:' or 'sips:', optionally append the slash character '/' and then append the resourcepart (making sure to percent-encode any UTF-8 characters outside the ASCII range) as the "gr" URI parameter.</t>
           </list>
         </t>
       </section>
     </section>
 
     <section title='Error Condition Mapping' anchor="errors">
-      <t>SIP response codes are specified in <xref target='RFC3261'/> and XMPP error conditions are specified in <xref target='RFC6120'/>.</t>
+      <t>SIP response codes are specified in <xref target='RFC3261'/> and XMPP error conditions are specified in <xref target='RFC6120'/>.  Because there is no equivalent in XMPP for the provisional (1xx) and successful (2xx) response codes in SIP, mappings are provided only for the redirection (3xx), request failure (4xx), server failure (5xx), and glogal failure (6xx) codes.</t>
       <section title="XMPP to SIP" anchor="errors-xmpp">
         <figure>
           <preamble>Table 8: Mapping of XMPP error conditions to SIP response codes</preamble>
@@ -234,7 +228,6 @@
    |  <not-acceptable/>           | 406                 |
    |  <not-allowed/>              | 405                 |
    |  <not-authorized/>           | 401                 |
-   |  <payment-required/>         | 402                 |
    |  <recipient-unavailable/>    | 480                 |
    |  <redirect/>                 | 300                 |
    |  <registration-required/>    | 407                 |
@@ -264,13 +257,13 @@
    |  380                |  <not-acceptable/>           |
    |  400                |  <bad-request/>              |
    |  401                |  <not-authorized/>           |
-   |  402                |  <payment-required/>         |
+   |  402                |  see note [1]                |
    |  403                |  <forbidden/>                |
    |  404                |  <item-not-found/>           |
    |  405                |  <not-allowed/>              |
    |  406                |  <not-acceptable/>           |
    |  407                |  <registration-required/>    |
-   |  408                |  <service-unavailable/>      |
+   |  408                |  <recipient-unavailable/>    |
    |  410                |  <gone/>                     |
    |  413                |  <bad-request/>              |
    |  414                |  <bad-request/>              |
@@ -285,8 +278,8 @@
    |  483                |  <not-acceptable/>           |
    |  484                |  <jid-malformed/>            |
    |  485                |  <item-not-found/>           |
-   |  486                |  <service-unavailable/>      |
-   |  487                |  <service-unavailable/>      |
+   |  486                |  <recipient-unavailable/>    |
+   |  487                |  <recipient-unavailable/>    |
    |  488                |  <not-acceptable/>           |
    |  491                |  <unexpected-request/>       |
    |  493                |  <bad-request/>              |
@@ -297,13 +290,18 @@
    |  504                |  <remote-server-timeout/>    |
    |  505                |  <not-acceptable/>           |
    |  513                |  <bad-request/>              |
-   |  600                |  <service-unavailable/>      |
-   |  603                |  <service-unavailable/>      |
+   |  600                |  <recipient-unavailable/>    |
+   |  603                |  <recipient-unavailable/>    |
    |  604                |  <item-not-found/>           |
    |  606                |  <not-acceptable/>           |
    +---------------------+------------------------------+
           ]]></artwork>
         </figure>
+        <t>
+          <list style='numbers'>
+            <t>The XMPP &lt;payment-required/&gt; error condition was removed in <xref target='RFC6120'/>.</t>
+          </list>
+        </t>
       </section>
     </section>
 
@@ -694,12 +692,12 @@ other RFCs.</t></abstract></front>
 <author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
     <organization />
 </author>
-<date month='November' day='6' year='2012' />
+<date month='March' day='27' year='2013' />
 <abstract><t>This document defines the address format for the Extensible Messaging and Presence Protocol (XMPP), including support for code points outside the ASCII range.  This document obsoletes RFC 6122.</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-xmpp-6122bis-05' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-xmpp-6122bis-06' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-xmpp-6122bis-05.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-xmpp-6122bis-06.txt' />
 </reference>
 
 <reference anchor="XEP-0106">
@@ -726,7 +724,7 @@ other RFCs.</t></abstract></front>
     </references>
 
     <section title="Acknowledgements" anchor="ack">
-      <t>The authors wish to thank the following individuals for their feedback: Fabio Forno, Adrian Georgescu, Saul Ibarra, Salvatore Loreto, Daniel-Constantin Mierla, and Tory Patnoe.</t>
+      <t>The authors wish to thank the following individuals for their feedback: Fabio Forno, Adrian Georgescu, Saul Ibarra, Salvatore Loreto, Daniel-Constantin Mierla, Tory Patnoe, and Robert Sparks.</t>
     </section>
 
   </back>
