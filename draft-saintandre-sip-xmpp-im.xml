@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd">
-<?rfc toc="yes"?>
-<?rfc tocdepth="2"?>
-<?rfc symrefs="yes"?>
 <?rfc compact="yes"?>
+<?rfc sortrefs="yes"?>
 <?rfc strict="yes"?>
-<rfc category='info' docName='draft-saintandre-sip-xmpp-im-02' ipr='pre5378Trust200902'>
+<?rfc symrefs="yes"?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="1"?>
+<rfc category='std' docName='draft-saintandre-sip-xmpp-im-03' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: IM">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Instant Messaging</title>
@@ -48,7 +49,7 @@
         <email>jhildebr@cisco.com</email>
       </address>
     </author>
-    <date year="2012" month="October" day="15"/>
+    <date/>
     <area>RAI</area>
     <keyword>XMPP</keyword>
     <keyword>Jabber</keyword>
@@ -58,7 +59,7 @@
     <keyword>Instant Messaging</keyword>
 
     <abstract>
-      <t>This document defines a bi-directional protocol mapping for the exchange of single instant messages between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t>
+      <t>This document defines a bidirectional protocol mapping for the exchange of single instant messages between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t>
     </abstract>
   </front>
 
@@ -66,54 +67,44 @@
 
     <section title="Introduction" anchor="intro">
       <t>In order to help ensure interworking between instant messaging systems that conform to the instant messaging / presence requirements <xref target="RFC2779"/>, it is important to clearly define protocol mappings between such systems.  Within the IETF, work has proceeded on two instant messaging technologies:</t>
-      <t><list style='symbols'>
-        <t>Various extensions to the Session Initiation Protocol (<xref target="RFC3261"/>) for instant messaging, as developed within the SIP for Instant Messaging and Presence Leveraging Extensions (SIMPLE) Working Group; the relevant specification for instant messaging is <xref target='RFC3428'/></t>
-        <t>The Extensible Messaging and Presence Protocol (XMPP), which consists of a formalization of the core XML streaming protocols developed originally by the Jabber open-source community; the relevant specifications are <xref target='RFC6120'/> for the XML streaming layer and <xref target='RFC6121'/> for basic presence and instant messaging extensions</t>
-      </list></t>
-      <t>One approach to helping ensure interworking between these protocols is to map each protocol to the abstract semantics described in <xref target="RFC3860"/>; that is the approach taken by <xref target="I-D.ietf-simple-cpim-mapping"/> and <xref target="RFC3922"/>.  The approach taken in this document is to directly map semantics from one protocol to another (i.e., from SIP/SIMPLE to XMPP and vice-versa).</t>
+      <t>
+        <list style='symbols'>
+          <t>Various extensions to the Session Initiation Protocol (<xref target="RFC3261"/>) for instant messaging, as developed within the SIP for Instant Messaging and Presence Leveraging Extensions (SIMPLE) Working Group; the relevant specification for instant messaging is <xref target='RFC3428'/></t>
+          <t>The Extensible Messaging and Presence Protocol (XMPP), which consists of a formalization of the core XML streaming protocols developed originally by the Jabber open-source community; the relevant specifications are <xref target='RFC6120'/> for the XML streaming layer and <xref target='RFC6121'/> for basic presence and instant messaging extensions</t>
+        </list>
+      </t>
+      <t>One approach to helping ensure interworking between these protocols is to map each protocol to the abstract semantics described in <xref target="RFC3860"/>; that is the approach taken by <xref target="I-D.ietf-simple-cpim-mapping"/> and <xref target="RFC3922"/>.  By contrast, the approach taken in this document is to directly map semantics from one protocol to another (i.e., from SIP/SIMPLE to XMPP and vice-versa).</t>
+      <t>Both XMPP and IM-aware SIP systems enable entities to exchange "instant messages".  The term "instant message" usually refers to messages sent between two entities for delivery in close to real time (rather than messages that are stored and forwarded to the intended recipient upon request).  This document covers single messages only (sometimes called "pager-mode" messaging), since they form the lowest common denominator for instant messaging.  One-to-one chat sessions and multi-party groupchat are covered in separate documents.</t>
       <t>The architectural assumptions underlying such direct mappings are provided in <xref target='I-D.saintandre-sip-xmpp-core'/>, including mapping of addresses and error condisions.  The mappings specified in this document cover basic instant messaging functionality, i.e., the exchange of a single instant message between a SIP user and an XMPP user in either direction.  Mapping of more advanced functionality is out of scope for this document, but other documents in this "series" cover such topics.</t>
+      <t>The discussion venue for this document is the mailing list of the DISPATCH WG; visit https://www.ietf.org/mailman/listinfo/dispatch for subscription information and discussion archives.</t>
     </section>
 
     <section title="Terminology" anchor="terms">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
     </section>
 
-    <section title="Instant Messages" anchor="im">
-      <section title="Overview" anchor="im-over">
-        <t>Both XMPP and IM-aware SIP systems enable entities (often but not necessarily human users) to send "instant messages" to other entities.  The term "instant message" usually refers to messages sent between two entities for delivery in close to real time (rather than messages that are stored and forwarded to the intended recipient upon request).  Generally there are three kinds of instant message:</t>
-        <t>
-          <list style="symbols">
-            <t>Single messages, which are sent from the sender to the recipient outside the context of any one-to-one chat session or multi-user text conference.</t>
-            <t>Chat messages, which are sent from the sender to the recipient in the context of a "messaging session" between the two entities.</t>
-            <t>Groupchat messages, which are sent from a sender to multiple recipients in the context of a text conference.</t>
-          </list>
-        </t>
-        <t>This document covers single messages only, since they form the "lowest common denominator" for instant messaging on the Internet.  It is likely that future documents will address one-to-one chat sessions and multi-user chat.</t>
-        <t>Instant messaging using XMPP message stanzas of type "normal" is specified in <xref target="RFC6121"/>.  Instant messaging using SIP requests of type MESSAGE (often called "page-mode" messaging) is specified in <xref target="RFC3428"/>.</t>
-        <t>As described in <xref target="RFC6121"/>, a single instant message is an XML &lt;message/&gt; stanza of type "normal" sent over an XML stream (since "normal" is the default for the 'type' attribute of the &lt;message/&gt; stanza, the attribute is often omitted).  In this document we will assume that such a message is sent from an XMPP client to an XMPP server over an XML stream negotiated between the client and the server, and that the client is controlled by a human user (this is a simplifying assumption introduced for explanatory purposes only; the XMPP sender could be a bot-controlled client, a component such as a workflow application, a server, etc.).  Continuing the tradition of Shakespeare examples in XMPP documentation, we will say that the XMPP user has an XMPP address of &lt;juliet@example.com&gt;.</t>
-        <t>As described in <xref target="RFC3428"/>, a single instant message is a SIP MESSAGE request sent from a SIP user agent to an intended recipient who is most generally referenced by an Instant Message URI of the form &lt;im:user@domain&gt; but who may be referenced by a SIP or SIPS URI of the form &lt;sip:user@domain&gt; or &lt;sips:user@domain&gt;  Here again we introduce the simplifying assumption that the user agent is controlled by a human user, whom we shall dub &lt;romeo@example.net&gt;.</t>
-      </section>
-      <section title="XMPP to SIP" anchor="im-xmpp">
-        <t>When Juliet wants to send an instant message to Romeo, she interacts with her XMPP client, which generates an XMPP &lt;message/&gt; stanza.  The syntax of the &lt;message/&gt; stanza, including required and optional elements and attributes, is defined in <xref target="RFC6121"/>.  The following is an example of such a stanza:</t>
-        <figure>
-          <preamble>Example: XMPP user sends message:</preamble>
-          <artwork><![CDATA[
+    <section title="XMPP to SIP" anchor="xmpp2sip">
+      <t>As described in <xref target="RFC6121"/>, a single instant message is an XML &lt;message/&gt; stanza of type "normal" sent over an XML stream (since "normal" is the default for the 'type' attribute of the &lt;message/&gt; stanza, the attribute is often omitted).  In this document we will assume that such a message is sent from an XMPP client to an XMPP server over an XML stream negotiated between the client and the server, and that the client is controlled by a human user (this is a simplifying assumption introduced for explanatory purposes only; the XMPP sender could be a bot-controlled client, a component such as a workflow application, a server, etc.).  Continuing the tradition of Shakespeare examples in XMPP documentation, we will say that the XMPP user has an XMPP address of &lt;juliet@example.com&gt;.</t>
+      <t>When Juliet wants to send an instant message to Romeo, she interacts with her XMPP client, which generates an XMPP &lt;message/&gt; stanza.  The syntax of the &lt;message/&gt; stanza, including required and optional elements and attributes, is defined in <xref target="RFC6121"/>.  The following is an example of such a stanza:</t>
+      <figure>
+        <preamble>Example: XMPP user sends message:</preamble>
+        <artwork><![CDATA[
 |  <message from='juliet@example.com/balcony'
 |           to='romeo@example.net'>
 |    <body>Art thou not Romeo, and a Montague?</body>
 |  </message>
-          ]]></artwork>
-        </figure>
-        <t>Upon receiving such a stanza, the XMPP server to which Juliet has connected either delivers it to a local recipient (if the hostname in the 'to' attribute matches one of the hostnames serviced by the XMPP server) or attempts to route it to the foreign domain that services the hostname in the 'to' attribute.  Naturally, in this document we assume that the hostname in the 'to' attribute is an IM-aware SIP service hosted by a separate server.  As specified in <xref target="RFC6121"/>, the XMPP server needs to determine the identity of the foreign domain, which it does by performing one or more DNS SRV lookups <xref target="RFC2782"/>.  For message stanzas, the order of lookups recommended by <xref target="RFC6121"/> is to first try the "_xmpp-server" service as specified in <xref target="RFC6120"/> and to then try the "_im" service as specified in <xref target="RFC3861"/>.  Here we assume that the first lookup will fail but that the second lookup will succeed and return a resolution "_im._simple.example.net.", since we have already assumed that the example.net hostname is running a SIP instant messaging service.  (Note: The XMPP server may have previously determined that the foreign domain is a SIMPLE server, in which case it would not need to perform the SRV lookups; the caching of such information is a matter of implementation and local service policy, and is therefore out of scope for this document.)</t>
-        <t>Once the XMPP server has determined that the foreign domain is serviced by a SIMPLE server, it must determine how to proceed.  We here assume that the XMPP server contains or has available to it an XMPP-SIMPLE gateway.  The XMPP server would then deliver the message stanza to the XMPP-SIMPLE gateway.</t>
-        <t>The XMPP-SIMPLE gateway is then responsible for translating the XMPP message stanza into a SIP MESSAGE request from the XMPP user to the SIP user:</t>
-        <figure>
-          <preamble>Example: XMPP user sends message (SIP transformation):</preamble>
-          <artwork><![CDATA[
+        ]]></artwork>
+      </figure>
+      <t>Upon receiving such a stanza, the XMPP server to which Juliet has connected either delivers it to a local recipient (if the hostname in the 'to' attribute matches one of the hostnames serviced by the XMPP server) or attempts to route it to the foreign domain that services the hostname in the 'to' attribute.  Naturally, in this document we assume that the hostname in the 'to' attribute is an IM-aware SIP service hosted by a separate server.  As specified in <xref target="RFC6121"/>, the XMPP server needs to determine the identity of the foreign domain, which it does by performing one or more DNS SRV lookups <xref target="RFC2782"/>.  For message stanzas, the order of lookups recommended by <xref target="RFC6121"/> is to first try the "_xmpp-server" service as specified in <xref target="RFC6120"/> and to then try the "_im" service as specified in <xref target="RFC3861"/>.  Here we assume that the first lookup will fail but that the second lookup will succeed and return a resolution "_im._simple.example.net.", since we have already assumed that the example.net hostname is running a SIP instant messaging service.  (Note: The XMPP server may have previously determined that the foreign domain is a SIMPLE server, in which case it would not need to perform the SRV lookups; the caching of such information is a matter of implementation and local service policy, and is therefore out of scope for this document.)</t>
+      <t>Once the XMPP server has determined that the foreign domain is serviced by a SIMPLE server, it must determine how to proceed.  We here assume that the XMPP server contains or has available to it an XMPP-SIMPLE gateway (such an architecture is described in <xref target='I-D.saintandre-sip-xmpp-core'/>).  The XMPP server would then deliver the message stanza to the XMPP-SIMPLE gateway.</t>
+      <t>The XMPP-SIMPLE gateway is then responsible for translating the XMPP message stanza into a SIP MESSAGE request from the XMPP user to the SIP user:</t>
+      <figure>
+        <preamble>Example: XMPP user sends message (SIP transformation):</preamble>
+        <artwork><![CDATA[
 |  MESSAGE sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bK776sgdkse
 |  Max-Forwards: 70
-|  From: sip:juliet@example.com;tag=49583
+|  From: sip:juliet@example.com;gr=balcony
 |  To: sip:romeo@example.net
 |  Call-ID: Hr0zny9l3@example.com
 |  CSeq: 1 MESSAGE
@@ -121,12 +112,12 @@
 |  Content-Length: 35
 |
 |  Art thou not Romeo, and a Montague?
-          ]]></artwork>
-        </figure>
-        <t>The mapping of XMPP syntax elements to SIP syntax elements SHOULD be as shown in the following table.  (Mappings for elements not mentioned are undefined.)</t>
-        <figure>
-          <preamble>Table 4: Message syntax mapping from XMPP to SIP</preamble>
-          <artwork><![CDATA[
+        ]]></artwork>
+      </figure>
+      <t>The mapping of XMPP syntax elements to SIP syntax elements SHOULD be as shown in the following table.  (Mappings for elements not mentioned are undefined.)</t>
+      <figure>
+        <preamble>Table 4: Message syntax mapping from XMPP to SIP</preamble>
+        <artwork><![CDATA[
    +-----------------------------+--------------------------+
    |  XMPP Element or Attribute  |  SIP Header or Contents  |
    +-----------------------------+--------------------------+
@@ -139,41 +130,43 @@
    |  type                       |  (no mapping)            |
    |  xml:lang                   |  Content-Language        |
    +-----------------------------+--------------------------+
-          ]]></artwork>
-        </figure>
-      </section>
-      <section title="SIP to XMPP" anchor="im-sip">
-        <t>When Romeo wants to send an instant message to Juliet, he interacts with his SIP user agent, which generates a SIP MESSAGE request.  The syntax of the MESSAGE request is defined in <xref target="RFC3428"/>.  The following is an example of such a request:</t>
-        <figure>
-          <preamble>Example: SIP user sends message:</preamble>
-          <artwork><![CDATA[
+        ]]></artwork>
+      </figure>
+    </section>
+
+    <section title="SIP to XMPP" anchor="sip2xmpp">
+      <t>As described in <xref target="RFC3428"/>, a single instant message is a SIP MESSAGE request sent from a SIP user agent to an intended recipient who is most generally referenced by an Instant Message URI of the form &lt;im:user@domain&gt; but who may be referenced by a SIP or SIPS URI of the form &lt;sip:user@domain&gt; or &lt;sips:user@domain&gt;.  Here again we introduce the simplifying assumption that the user agent is controlled by a human user, whom we shall dub &lt;romeo@example.net&gt;.</t>
+      <t>When Romeo wants to send an instant message to Juliet, he interacts with his SIP user agent, which generates a SIP MESSAGE request.  The syntax of the MESSAGE request is defined in <xref target="RFC3428"/>.  The following is an example of such a request:</t>
+      <figure>
+        <preamble>Example: SIP user sends message:</preamble>
+        <artwork><![CDATA[
 |  MESSAGE sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKeskdgs677
 |  Max-Forwards: 70
-|  From: sip:romeo@example.net;tag=38594
-|  To: sip:juliet@example.com
+|  From: sip:romeo@example.net;gr=orchard
+|  To: sip:juliet@example.com;gr=balcony
 |  Call-ID: M4spr4vdu@example.net
 |  CSeq: 1 MESSAGE
 |  Content-Type: text/plain
 |  Content-Length: 44
 |
 |  Neither, fair saint, if either thee dislike.
-          ]]></artwork>
-        </figure>
-        <t>Section 5 of <xref target="RFC3428"/> stipulates that a SIP User Agent presented with an im: URI should resolve it to a sip: or sips: URI.  Therefore we assume that the To header of a request received by a SIMPLE-XMPP gateway will contain a sip: or sips: URI.  The gateway SHOULD resolve that address to an im: URI for SIP MESSAGE requests, then follow the rules in <xref target="RFC3861"/> regarding the "_im" SRV service for the target domain contained in the To header.  If SRV address resolution fails for the "_im" service, the gateway MAY attempt a lookup for the "_xmpp-server" service as specified in <xref target="RFC6120"/> or MAY return an error to the sender (the SIP "502 Bad Gateway" error seems most appropriate; see <xref target='I-D.saintandre-sip-xmpp-core'/> for details).  If SRV address resolution succeeds, the gateway is responsible for translating the request into an XMPP message stanza from the SIP user to the XMPP user and returning a SIP "200 OK" message to the sender:</t>
-        <figure>
-          <preamble>Example: SIP user sends message (XMPP transformation):</preamble>
-          <artwork><![CDATA[
-|  <message from='romeo@example.net'
-|           to='juliet@example.com'>
+        ]]></artwork>
+      </figure>
+      <t>Section 5 of <xref target="RFC3428"/> stipulates that a SIP User Agent presented with an im: URI should resolve it to a sip: or sips: URI.  Therefore we assume that the To header of a request received by a SIMPLE-XMPP gateway will contain a sip: or sips: URI.  The gateway SHOULD resolve that address to an im: URI for SIP MESSAGE requests, then follow the rules in <xref target="RFC3861"/> regarding the "_im" SRV service for the target domain contained in the To header.  If SRV address resolution fails for the "_im" service, the gateway MUST either attempt a lookup for the "_xmpp-server" service as specified in <xref target="RFC6120"/> or return an error to the sender (the SIP "502 Bad Gateway" error seems most appropriate; see <xref target='I-D.saintandre-sip-xmpp-core'/> for details).  If SRV address resolution succeeds, the gateway is responsible for translating the request into an XMPP message stanza from the SIP user to the XMPP user and returning a SIP "200 OK" message to the sender:</t>
+      <figure>
+        <preamble>Example: SIP user sends message (XMPP transformation):</preamble>
+        <artwork><![CDATA[
+|  <message from='romeo@example.net/orchard'
+|           to='juliet@example.com/balcony'>
 |    <body>Neither, fair saint, if either thee dislike.</body>
 |  </message>
-          ]]></artwork>
-        </figure>
-        <t>The mapping of SIP syntax elements to XMPP syntax elements SHOULD be as shown in the following table.  (Mappings for elements not mentioned in the foregoing table are undefined.)</t>
-        <figure>
-          <preamble>Table 5: Message syntax mapping from SIP to XMPP</preamble>
-          <artwork><![CDATA[
+        ]]></artwork>
+      </figure>
+      <t>The mapping of SIP syntax elements to XMPP syntax elements SHOULD be as shown in the following table.  (Mappings for elements not mentioned in the foregoing table are undefined.)</t>
+      <figure>
+        <preamble>Table 5: Message syntax mapping from SIP to XMPP</preamble>
+        <artwork><![CDATA[
    +--------------------------+-----------------------------+
    |  SIP Header or Contents  |  XMPP Element or Attribute  |
    +--------------------------+-----------------------------+
@@ -185,24 +178,22 @@
    |  To                      |  to                         |
    |  body of MESSAGE         |  <body/>                    |
    +--------------------------+-----------------------------+
-          ]]></artwork>
-        </figure>
-        <t>Note: When transforming SIP page-mode messages, a SIMPLE-XMPP gateway SHOULD specify no XMPP 'type' attribute or a 'type' attribute whose value is "normal" (alternatively, the value of the 'type' attribute MAY be "chat", although it SHOULD NOT be "headline" and MUST NOT be "groupchat").</t>
-        <t>Note: See the <xref target='content'>Content Types</xref> of this document regarding handling of SIP message bodies that contain content types other than plain text.</t>
-      </section>
+        ]]></artwork>
+      </figure>
+      <t>Note: When transforming SIP pager-mode messages, a SIMPLE-XMPP gateway SHOULD specify no XMPP 'type' attribute or, equivalently, a 'type' attribute whose value is "normal".</t>
+      <t>Note: See <xref target='content'/> of this document about the handling of SIP message bodies that contain content types other than plain text.</t>
     </section>
 
     <section title='Content Types' anchor="content">
-      <t>SIP requests of type MESSAGE may contain essentially any content type.  The recommended procedures for SIMPLE-to-XMPP gateways to use in handling these content types are as follows.</t>
+      <t>SIP requests of type MESSAGE are allowed to contain essentially any content type.  The recommended procedures for SIMPLE-to-XMPP gateways to use in handling these content types are as follows.</t>
       <t>A SIMPLE-to-XMPP gateway MUST process SIP messages that contain message bodies of type "text/plain" and MUST encapsulate such message bodies as the XML character data of the XMPP &lt;body/&gt; element.</t>
       <t>A SIMPLE-to-XMPP gateway SHOULD process SIP messages that contain message bodies of type "text/html"; if so, a gateway MUST transform the "text/html" content into XHTML content that conforms to the XHTML 1.0 Integration Set specified in <xref target='XEP-0071'/>.</t>
-      <t>A SIMPLE-to-XMPP gateway MAY process SIP messages that contain message bodies of types other than "text/plain" and "text/html" but handling of such content types is a matter of implementation.</t>
+      <t>Although a SIMPLE-to-XMPP gateway MAY process SIP messages that contain message bodies of types other than "text/plain" and "text/html", the handling of such content types is a matter of implementation.</t>
     </section>
 
     <section title='Security Considerations' anchor="sec">
       <t>Detailed security considerations for instant messaging protocols are given in <xref target='RFC2779'/>, for SIP-based instant messaging in <xref target="RFC3428"/> (see also <xref target="RFC3261"/>), and for XMPP-based instant messaging in <xref target="RFC6121"/> (see also <xref target="RFC6120"/>).</t>
-      <t>This document specifies methods for exchanging instant messages information through a gateway that translates between SIP and XMPP.  Such a gateway MUST be compliant with the minimum security requirements of the instant messaging protocols for which it translates (i.e., SIP and XMPP).  The addition of gateways to the security model of instant messaging specified in <xref target="RFC2779"/> introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between instant messaging user agents that interface through a SIMPLE-XMPP gateway can be provided only if common formats are supported.  Specification of those common formats is out of scope for this document, although it is recommended to use <xref target="RFC3862"/> for instant messages.</t>
-      <t><xref target="RFC2779"/> requires that conformant technologies shall include methods for blocking communications from unwanted addresses.  Such blocking is the responsibility of conformant technology (e.g., XMPP or SIP) and is out of scope for this memo.</t>
+      <t>This document specifies methods for exchanging instant messages through a gateway that translates between SIP and XMPP.  Such a gateway MUST be compliant with the minimum security requirements of the instant messaging protocols for which it translates (i.e., SIP and XMPP).  The addition of gateways to the security model of instant messaging specified in <xref target="RFC2779"/> introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between instant messaging user agents that interface through a SIMPLE-XMPP gateway can be provided only if common formats are supported.  Specification of those common formats is out of scope for this document, although it is preferred to use <xref target="RFC3862"/> for instant messages.</t>
     </section>
 
     <section title="IANA Considerations" anchor="iana">
@@ -227,12 +218,12 @@
 <author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
     <organization />
 </author>
-<date month='October' day='15' year='2012' />
+<date month='April' day='2' year='2013' />
 <abstract><t>As a foundation for the definition of application-specific, bi-directional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-core-02' />
+<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-core-04' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-core-02.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-core-04.txt' />
 </reference>
 
 <reference anchor='RFC2119'>
@@ -385,6 +376,21 @@
 <format type='TXT' octets='244800' target='http://www.rfc-editor.org/rfc/rfc6121.txt' />
 </reference>
 
+<reference anchor="XEP-0071">
+  <front>
+    <title>XHTML-IM</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <date day="28" month="November" year="2012"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0071"/>
+  <format type="HTML" target="http://www.xmpp.org/extensions/xep-0071.html"/>
+</reference>
+
     </references>
 
     <references title="Informative References">
@@ -478,21 +484,6 @@
   </front>
   <seriesInfo name='RFC' value='3922' />
   <format type='TXT' octets='70790' target='ftp://ftp.isi.edu/in-notes/rfc3922.txt' />
-</reference>
-
-<reference anchor="XEP-0071">
-  <front>
-    <title>XHTML-IM</title>
-    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
-      <organization/>
-      <address>
-        <email>stpeter@jabber.org</email>
-      </address>
-    </author>
-    <date day="11" month="January" year="2006"/>
-  </front>
-  <seriesInfo name="XSF XEP" value="0071"/>
-  <format type="HTML" target="http://www.xmpp.org/extensions/xep-0071.html"/>
 </reference>
 
     </references>
