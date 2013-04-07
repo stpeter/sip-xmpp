@@ -8,7 +8,7 @@
 <?rfc toc="yes"?>
 <?rfc tocdepth="4"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-saintandre-impp-call-info-00">
+<rfc category="std" ipr="trust200902" docName="draft-saintandre-impp-call-info-01">
 
   <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 
@@ -31,7 +31,7 @@
       </address>
     </author>
 
-    <date day="10" month="March" year="2013"/>
+    <date/>
 
     <keyword>SIP</keyword>
     <keyword>Call-Info</keyword>
@@ -46,13 +46,13 @@
 
   <middle>
 
-    <section title="Definition" anchor="def">
-      <t>Developers of real-time communication endpoints that implement both the Session Initiation Protocol (SIP) <xref target='RFC3261'/> and the Extensible Messaging and Presence Protocol (XMPP) <xref target='RFC6120'/> sometimes wish to communicate the endpoint's SIP address over XMPP and communicate the endpoint's XMPP address over SIP.  The former feature is enabled by an XMPP extension protocol called Reachability Addresses <xref target='XEP-0152'/>.  As to the latter feature, discussion in the SIP community led to the conclusion of using the Call-Info header <xref target='RFC3261'/>, with a predefined value of "impp" ("instant messaging and presence protocol") for the "purpose" header.  Therefore this document defines and registers the "impp" value for the "purpose" parameter.</t>
-      <t>(Although the primary use case for the "impp" purpose is dual-stack SIP/XMPP endpoints <xref target='I-D.ivov-xmpp-cusax'/>, a Uniform Resource Identifier (URI) <xref target='RFC3986'/> for instant messaging and presence protocols other than XMPP could be included in the Call-Info header.)</t>
+    <section title="Introduction" anchor="intro">
+      <t>To improve interoperability among real-time communication endpoints that support the combined use of the Session Initiation Protocol (SIP) <xref target='RFC3261'/> and the Extensible Messaging and Presence Protocol (XMPP) <xref target='RFC6120'/> (so-called "CUSAX" endpoints <xref target='I-D.ivov-xmpp-cusax'/>), it can be helpful to communicate the endpoint's SIP address over XMPP and the endpoint's XMPP address over SIP to provide hints about the endpoints communication capabilities.  The former feature is enabled by an XMPP extension protocol called Reachability Addresses <xref target='XEP-0152'/>.  As to the latter feature, discussion in the SIP community led to the conclusion that it would be best to use the Call-Info header <xref target='RFC3261'/> with a value of "impp" ("instant messaging and presence protocol") for the "purpose" header field parameter.  This document defines and registers the "impp" value.</t>
+      <t>(Although CUSAX endpoints constitute the primary use case for the "impp" purpose, a Uniform Resource Identifier (URI) <xref target='RFC3986'/> for an instant messaging and presence protocol other than XMPP could be included in the Call-Info header.)</t>
     </section>
 
     <section title="Security Considerations" anchor="security">
-      <t>Advertising an endpoint's XMPP address over SIP could inform malicious entities about an alternative attack vector.</t>
+      <t>Advertising an endpoint's XMPP address over SIP could inform malicious entities about an alternative attack vector.  Because the "purpose" header field parameter could be spoofed, the receiving endpoint ought to check the value against an authoritative source such as a user directory.</t>
     </section>
 
     <section title="IANA Considerations" anchor="iana">
@@ -61,8 +61,8 @@
         <artwork><![CDATA[
   Header Field: Call-Info
   Parameter Name: purpose
-  Predefined Values: yes
-  Reference: [RFC3261][RFC5367][RFC XXXX]
+  Predefined Values: Yes
+  Reference: [this document]
         ]]></artwork>
       </figure>
     </section>
@@ -192,18 +192,18 @@ specifications of each URI scheme.
 <author initials='E' surname='Ivov' fullname='Emil Ivov'>
     <organization />
 </author>
-<author initials='E' surname='Marocco' fullname='Enrico Marocco'>
-    <organization />
-</author>
 <author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
     <organization />
 </author>
-<date month='February' day='26' year='2013' />
-<abstract><t>This document describes current practices for combined use of the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).  Such practices aim to provide a single fully featured real-time communication service by using complementary subsets of features from each of the protocols.  Typically such subsets would include telephony capabilities from SIP and instant messaging and presence capabilities from XMPP.  This specification does not define any new protocols or syntax for either SIP or XMPP. However, implementing it may require modifying or at least reconfiguring existing client and server-side software.  Also, it is not the purpose of this document to make recommendations as to whether or not such combined use should be preferred to the mechanisms provided natively by each protocol like for example SIP's SIMPLE or XMPP's Jingle.  It merely aims to provide guidance to those who are interested in such a combined use.</t></abstract>
+<author initials='E' surname='Marocco' fullname='Enrico Marocco'>
+    <organization />
+</author>
+<date month='April' day='4' year='2013' />
+<abstract><t>This document describes suggested practices for combined use of the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP). Such practices aim to provide a single fully featured real-time communication service by using complementary subsets of features from each of the protocols. Typically such subsets would include telephony capabilities from SIP and instant messaging and presence capabilities from XMPP. This specification does not define any new protocols or syntax for either SIP or XMPP. However, implementing it may require modifying or at least reconfiguring existing client and server-side software. Also, it is not the purpose of this document to make recommendations as to whether or not such combined use should be preferred to the mechanisms provided natively by each protocol (for example, SIP's SIMPLE or XMPP's Jingle).  It merely aims to provide guidance to those who are interested in such a combined use.</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ivov-xmpp-cusax-03' />
+<seriesInfo name='Internet-Draft' value='draft-ivov-xmpp-cusax-04' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ivov-xmpp-cusax-03.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ivov-xmpp-cusax-04.txt' />
 </reference>
 
 <reference anchor="XEP-0152">
@@ -230,7 +230,7 @@ specifications of each URI scheme.
     </references>
 
     <section title="Acknowledgements" anchor="acks">
-      <t>Thanks to Keith Drage, Saul Ibarra, Emil Ivov, Cullen Jennings, Olle Johanssen, Paul Kyzivat, Gonzalo Salgueiro, Dean Willis, and Dale Worley for their input.</t>
+      <t>Thanks to Keith Drage, Saul Ibarra, Emil Ivov, Cullen Jennings, Olle Johanssen, Paul Kyzivat, Gonzalo Salgueiro, Dean Willis, and Dale Worley for their input.  Thanks to Yana Stamcheva for her helpful comments and for shepherding the document.</t>
     </section>
 
   </back>
