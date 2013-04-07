@@ -776,12 +776,13 @@ SIP User                     GW                       room
     Content-Length: ...
 
     <conference-info version="0" state="full"
-     entity="sip:3402934234@conf.example.com">
+     entity="sip:verona@chat.example.org">
      <conference-description>
       <subject>Today in Verona</subject>
       <conf-uris>
        <entry>
         <uri>tel:+18882934234</uri>
+        <uri>sip:verona@chat.example.org</uri>
        </entry>
       </conf-uris>
      </conference-description>
