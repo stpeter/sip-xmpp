@@ -997,7 +997,7 @@ SIP User                      GW                       server
           ]]></artwork>
         </figure>
 
-        <t>If Romeo decides to changing her nickname within the room, he SHOULD send a new MSRP NICKNAME request. In fact modification of the nickname in MSRP is not different from the initial reservation and usage of a nickname.</t>
+        <t>If Romeo decides to changing her nickname within the room, he MUST send a new MSRP NICKNAME request. In fact modification of the nickname in MSRP is not different from the initial reservation and usage of a nickname.</t>
 
         <figure>
           <preamble>Example: (F1) the MSRP user changes the nickname</preamble>
