@@ -493,7 +493,7 @@ XMPP User                      GW                       server
         </figure>
         <t>Upon receiving such a stanza, the XMPP-to-SIP gateway terminates the SIP session by sending a SIP BYE to the MSRP conference server. The MSRP conference server then responds with a 200 OK.</t>
 
-        <t>Juliet MAY include a custom exit message in the presence stanza of type "unavailable"</t>
+        <t>Juliet MAY include a custom exit message in the presence stanza of type "unavailable", in which case it SHOULD be broadcasted to other participants using the methods described above.</t>
         <figure>
           <preamble>Example: (F17) Juliet exiting a chatroom</preamble>
           <artwork><![CDATA[
