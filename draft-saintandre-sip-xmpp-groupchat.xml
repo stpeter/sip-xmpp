@@ -597,7 +597,92 @@ XMPP User                      GW                       server
 
       </section>
 
-    </section>      
+      <section title="Inviting Another User to a Room" anchor="muc2msrp-inviting">
+          <figure>
+              <artwork><![CDATA[
+                                                  MSRP conference
+XMPP User                      GW                       server
+    |                          |                          |
+    |(F1) (XMPP) Message stanza to invite participant     |
+    |------------------------->|                          |
+    |                          |(F2) (SIP) REFER          |
+    |                          |------------------------->|
+    |                          |(F3) (SIP) 200 OK         |
+    |                          |<-------------------------|
+    .                          .                          .
+    |                          |(F4) (SIP) NOTIFY         |
+    |                          |<-------------------------|
+
+                  ]]></artwork>
+        </figure>
+
+        <t>If Juliet decides to invite Hecate to the room, she sends a message stanza to the room.</t>
+
+        <figure>
+          <preamble>Example: (F1) Juliet inviting Hecate to the room</preamble>
+          <artwork><![CDATA[
+<message
+    from='juliet@example.com/balcony'
+    id='nzd143v8'
+    to='verona@chat.example.org'>
+  <x xmlns='http://jabber.org/protocol/muc#user'>
+    <invite to='hecate@example.com'>
+      <reason>
+        Hey Hecate, this is the place for all good witches!
+      </reason>
+    </invite>
+  </x>
+</message>
+          ]]></artwork>
+        </figure>
+
+        <t>The SIP - XMPP gateway then sends a SIP REFER request to the MSRP conference server indicating who needs to be invited
+        in the Refer-To header, as per RFC 4579 (sec 5.5)</t>
+
+        <figure>
+          <preamble>Example: (F2) Juliet inviting Hecate to the room</preamble>
+          <artwork><![CDATA[
+        REFER sip:verona@chat.example.com SIP/2.0
+        Via: SIP/2.0/UDP client.example.com;branch=z9hG4bKg4534
+        Max-Forwards: 70
+        To: <sip:verona@chat.example.com>
+        From: <sip:juliet@example.com>;tag=5534562
+        Call-ID: 849392fklgl43
+        CSeq: 476 REFER
+        Contact: <sip:juliet@juliet.example.com>
+        Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY
+        Accept: message/sipfrag
+        Refer-To: <sip:hecate@example.com>
+        Supported: replaces
+        Content-Length: 0
+          ]]></artwork>
+        </figure>
+
+        <t>The progress of the invitation will be tracked by the reeived NOTIFY requests as per RFC 3515.</t>
+
+        <figure>
+          <preamble>Example: (F4) Progress notification for invitation</preamble>
+          <artwork><![CDATA[
+NOTIFY sip:juliet@example.com SIP/2.0
+Via: SIP/2.0/UDP client.example.com;branch=z9hG4bK9922ef992-25
+To: <sip:juliet@example.com>;tag=5534562
+From: <sip:verona@chat.example.com>;tag=18747389
+Call-ID: 849392fklgl43
+CSeq: 1993402 NOTIFY
+Max-Forwards: 70
+Event: refer
+Subscription-State: active;expires=60
+Contact: sip:verona@verona.chat.example.com
+Content-Type: message/sipfrag;version=2.0
+Content-Length: ...
+
+SIP/2.0 200 OK
+          ]]></artwork>
+        </figure>
+
+        </section>
+
+    </section>
 
     <section title="MSRP Multi-party Messaging Session to XMPP MUC" anchor="msrp2muc">
 
@@ -1026,6 +1111,10 @@ SIP User                      GW                       server
 
     </section>
 
+    <section title="Inviting Another User to a Room" anchor="msrp-inviting">
+        <t>To follow.</t>
+    </section>
+
     <section title="Open Issues" anchor="issues">
       <t>The following issues remain to be closed.</t>
       <t>
@@ -1042,7 +1131,7 @@ SIP User                      GW                       server
         </list>
       </t>
     </section>
-    
+
     <section title="Security Considerations" anchor="security">
       <t>To follow.</t>
     </section>
