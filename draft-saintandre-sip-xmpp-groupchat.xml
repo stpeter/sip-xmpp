@@ -301,19 +301,21 @@ XMPP User                      GW                       server
         </figure>
 
         <figure>
-          <preamble>Table 2: Syntax mapping from RFC4575 payload to XMPP participants list</preamble>
+          <preamble>Table 2: Syntax mapping from RFC4575 payload to XMPP participants list. (Mappings for elements not mentioned are undefined.)</preamble>
           <artwork><![CDATA[
-    +-----------------------------+-----------------------------+
-    |  RFC 4575 Element           |  XMPP Element or Attribute  |
-    +-----------------------------+-----------------------------+
-    |  conference-info entity     |  room JID                   |
-    |  conference subject         |  room subject               |
-    |  user entity                |  participant bare JID       |
-    |  user display-text          |  participant nickname       |
-    |  endpoint entity            |  participant full JID       |
-    +-----------------------------+-----------------------------+
+    +--------------------------------+-----------------------------+
+    |  RFC 4575 Element              |  XMPP Element or Attribute  |
+    +--------------------------------+-----------------------------+
+    |  conference-info entity        |  room JID                   |
+    |  conference subject            |  room subject               |
+    |  user entity                   |  participant bare JID       |
+    |  user display-text / nickname  |  participant nickname       |
+    |  endpoint entity               |  participant full JID       |
+    +--------------------------------+-----------------------------+
           ]]></artwork>
         </figure>
+
+        <t>If both nickname and display-text are present in the RFC 4575 payload the nickname element takes precedence.</t>
 
         <t>Upon receiving such a response, the SIP-to-XMPP gateway MUST send a 200 OK to the MSRP conference server and translate it in an XMPP presence stanza.</t>
 
