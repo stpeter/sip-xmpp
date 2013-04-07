@@ -705,6 +705,7 @@ SIP User                     GW                       room
   m=message 8763 TCP/MSRP *
   a=accept-types:message/cpim text/plain text/html
   a=path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
+  a=chatroom:nickname private-messages
           ]]></artwork>
         </figure>
 
