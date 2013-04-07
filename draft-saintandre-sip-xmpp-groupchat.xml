@@ -668,7 +668,7 @@ SIP User                     GW                       room
       <section title="Enter Room" anchor="mrsp2muc-enter">
 
         <t>When the MSRP user ("Romeo") wants to join a multi-user chat room ("Verona"), he first has to start the SIP session by sending out a SIP INVITE request containing an offered session description that includes an MSRP media line accompanied by a mandatory "path" and "chatroom" attributes. The MSRP media line is also accompanied by an "accept-types" attribute specifing support for a Message/CPIM top level wrapper for the MSRP message.</t>
-      
+
         <figure>
           <preamble>Example: (F1) SIP user starts the session</preamble>
           <artwork><![CDATA[
@@ -683,7 +683,7 @@ SIP User                     GW                       room
     m=message 7313 TCP/MSRP *
     a=accept-types:message/cpim text/plain text/html
     a=path:msrp://s2x.example.net:7313/ansp71weztas;tcp
-    a=chatroom:nickname private-messages
+    a=chatroom
           ]]></artwork>
         </figure>
 
