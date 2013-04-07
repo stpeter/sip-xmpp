@@ -799,6 +799,10 @@ SIP User                     GW                       room
           ]]></artwork>
         </figure>
 
+        <t><list style="format [OPEN ISSUE: %d]">
+        <t>If the room is semi-anonymous, publish the occupant JID instead? Always set the occupant JID as the 'user' and the real JID as an 'endpoint'?</t>
+        </list></t>
+
       </section>
 
       <section title="Exchanging Messages" anchor="mrsp-exchange">
@@ -905,8 +909,12 @@ SIP User                     GW                       room
              type='chat'/>
           <body>I am here!!!</body>
     </message>
-            ]]></artwork>
-          </figure>
+          ]]></artwork>
+        </figure>
+
+        <t><list style="format [OPEN ISSUE: %d]">
+        <t>Should the private messages be addressed to the occupant JID instead? It would need to be translated to a GRUU then: sip:verona@chat.example.org;gr=JuliC</t>
+        </list></t>
 
         </section>
 
