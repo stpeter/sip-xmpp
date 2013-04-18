@@ -8,13 +8,13 @@
 <?rfc toc="yes"?>
 <?rfc tocdepth="4"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-saintandre-impp-call-info-01">
+<rfc category="std" ipr="trust200902" docName="draft-saintandre-impp-call-info-02">
 
   <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 
   <front>
 
-    <title abbrev="Call-Info Purpose: IMPP">Instant Messaging and Presence Purpose for the Call-Info Header in the Session Initiation Protocol (SIP)</title>
+    <title abbrev="Call-Info Purpose: IMPP">Instant Messaging and Presence Purpose for the Call-Info Header Field in the Session Initiation Protocol (SIP)</title>
 
     <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
       <organization>Cisco Systems, Inc.</organization>
@@ -47,12 +47,12 @@
   <middle>
 
     <section title="Introduction" anchor="intro">
-      <t>To improve interoperability among real-time communication endpoints that support the combined use of the Session Initiation Protocol (SIP) <xref target='RFC3261'/> and the Extensible Messaging and Presence Protocol (XMPP) <xref target='RFC6120'/> (so-called "CUSAX" endpoints <xref target='I-D.ivov-xmpp-cusax'/>), it can be helpful to communicate the endpoint's SIP address over XMPP and the endpoint's XMPP address over SIP to provide hints about the endpoints communication capabilities.  The former feature is enabled by an XMPP extension protocol called Reachability Addresses <xref target='XEP-0152'/>.  As to the latter feature, discussion in the SIP community led to the conclusion that it would be best to use the Call-Info header <xref target='RFC3261'/> with a value of "impp" ("instant messaging and presence protocol") for the "purpose" header field parameter.  This document defines and registers the "impp" value.</t>
-      <t>(Although CUSAX endpoints constitute the primary use case for the "impp" purpose, a Uniform Resource Identifier (URI) <xref target='RFC3986'/> for an instant messaging and presence protocol other than XMPP could be included in the Call-Info header.)</t>
+      <t>To improve interoperability among real-time communication endpoints that support the combined use of the Session Initiation Protocol (SIP) <xref target='RFC3261'/> and the Extensible Messaging and Presence Protocol (XMPP) <xref target='RFC6120'/> (so-called "CUSAX" endpoints <xref target='I-D.ivov-xmpp-cusax'/>), it can be helpful to communicate the endpoint's SIP address over XMPP and the endpoint's XMPP address over SIP to provide hints about the endpoints communication capabilities.  The former feature is enabled by an XMPP extension protocol called Reachability Addresses <xref target='XEP-0152'/>.  As to the latter feature, discussion in the SIP community led to the conclusion that it would be best to use the Call-Info header field <xref target='RFC3261'/> with a value of "impp" ("instant messaging and presence protocol") for the "purpose" header field parameter.  This document defines and registers the "impp" value.</t>
+      <t>(Although CUSAX endpoints constitute the primary use case for the "impp" purpose, a Uniform Resource Identifier (URI) <xref target='RFC3986'/> for an instant messaging and presence protocol other than XMPP could be included in the Call-Info header field.)</t>
     </section>
 
     <section title="Security Considerations" anchor="security">
-      <t>Advertising an endpoint's XMPP address over SIP could inform malicious entities about an alternative attack vector.  Because the "purpose" header field parameter could be spoofed, the receiving endpoint ought to check the value against an authoritative source such as a user directory.</t>
+      <t>Advertising an endpoint's XMPP address over SIP could inform malicious entities about an alternative attack vector.  Because the "purpose" header field parameter could be spoofed, the receiving endpoint ought to check the value against an authoritative source such as a user directory.  Clients can integrity protect and encrypt this header field using end-to-end mechanisms such as S/MIME or hop-by-hop mechanisms such as TLS.</t>
     </section>
 
     <section title="IANA Considerations" anchor="iana">
@@ -230,7 +230,7 @@ specifications of each URI scheme.
     </references>
 
     <section title="Acknowledgements" anchor="acks">
-      <t>Thanks to Keith Drage, Saul Ibarra, Emil Ivov, Cullen Jennings, Olle Johanssen, Paul Kyzivat, Gonzalo Salgueiro, Dean Willis, and Dale Worley for their input.  Thanks to Yana Stamcheva for her helpful comments and for shepherding the document.</t>
+      <t>Thanks to Gonzalo Camarillo, Keith Drage, Saul Ibarra, Emil Ivov, Cullen Jennings, Olle Johanssen, Paul Kyzivat, Gonzalo Salgueiro, Dean Willis, and Dale Worley for their input.  Thanks also to Yana Stamcheva for her helpful comments and for shepherding the document.</t>
     </section>
 
   </back>
