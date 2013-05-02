@@ -301,19 +301,21 @@ XMPP User                      GW                       server
         </figure>
 
         <figure>
-          <preamble>Table 2: Syntax mapping from RFC4575 payload to XMPP participants list</preamble>
+          <preamble>Table 2: Syntax mapping from RFC4575 payload to XMPP participants list. (Mappings for elements not mentioned are undefined.)</preamble>
           <artwork><![CDATA[
-    +-----------------------------+-----------------------------+
-    |  RFC 4575 Element           |  XMPP Element or Attribute  |
-    +-----------------------------+-----------------------------+
-    |  conference-info entity     |  room JID                   |
-    |  conference subject         |  room subject               |
-    |  user entity                |  participant bare JID       |
-    |  user display-text          |  participant nickname       |
-    |  endpoint entity            |  participant full JID       |
-    +-----------------------------+-----------------------------+
+    +--------------------------------+-----------------------------+
+    |  RFC 4575 Element              |  XMPP Element or Attribute  |
+    +--------------------------------+-----------------------------+
+    |  conference-info entity        |  room JID                   |
+    |  conference subject            |  room subject               |
+    |  user entity                   |  participant bare JID       |
+    |  user display-text / nickname  |  participant nickname       |
+    |  endpoint entity               |  participant full JID       |
+    +--------------------------------+-----------------------------+
           ]]></artwork>
         </figure>
+
+        <t>If both nickname and display-text are present in the RFC 4575 payload the nickname element takes precedence.</t>
 
         <t>Upon receiving such a response, the SIP-to-XMPP gateway MUST send a 200 OK to the MSRP conference server and translate it in an XMPP presence stanza.</t>
 
@@ -491,7 +493,7 @@ XMPP User                      GW                       server
         </figure>
         <t>Upon receiving such a stanza, the XMPP-to-SIP gateway terminates the SIP session by sending a SIP BYE to the MSRP conference server. The MSRP conference server then responds with a 200 OK.</t>
 
-        <t>Juliet MAY include a custom exit message in the presence stanza of type "unavailable"</t>
+        <t>Juliet MAY include a custom exit message in the presence stanza of type "unavailable", in which case it SHOULD be broadcasted to other participants using the methods described above.</t>
         <figure>
           <preamble>Example: (F17) Juliet exiting a chatroom</preamble>
           <artwork><![CDATA[
@@ -522,7 +524,7 @@ XMPP User                      GW                       server
     |                          |                          |
     |                          |(F5) (MSRP) NICKNAME      |
     |                          |------------------------->|
-    |                          |(F6) (MSRP) 423 OK        |
+    |                          |(F6) (MSRP) 425 Error     |
     |                          |<-------------------------|
     |                          |                          |
     |(F7) (XMPP) Presence Error
@@ -535,11 +537,11 @@ XMPP User                      GW                       server
           ]]></artwork>
         </figure>
 
-        <t>The chat room server analyzes the existing allocation of nicknames, and detects that the nickname proposal is already provided to another participant by the conference.  In this case the MSRP conference server answers with a 423 response.</t>
+        <t>The chat room server analyzes the existing allocation of nicknames, and detects that the nickname proposal is already provided to another participant by the conference.  In this case the MSRP conference server answers with a 425 response.</t>
         <figure>
           <preamble>Example: (F6) chat room does not accept the nickname proposal</preamble>
           <artwork><![CDATA[
-    MSRP a786hjs2 423 Nickname usage failed
+    MSRP a786hjs2 425 Nickname usage failed
     To-Path: msrp://x2s.example.com:7654/jshA7weztas;tcp
     From-Path: msrp://s2x.example.org:12763/kjhd37s2s20w2a;tcp
     -------a786hjs2
@@ -595,7 +597,92 @@ XMPP User                      GW                       server
 
       </section>
 
-    </section>      
+      <section title="Inviting Another User to a Room" anchor="muc2msrp-inviting">
+          <figure>
+              <artwork><![CDATA[
+                                                  MSRP conference
+XMPP User                      GW                       server
+    |                          |                          |
+    |(F1) (XMPP) Message stanza to invite participant     |
+    |------------------------->|                          |
+    |                          |(F2) (SIP) REFER          |
+    |                          |------------------------->|
+    |                          |(F3) (SIP) 200 OK         |
+    |                          |<-------------------------|
+    .                          .                          .
+    |                          |(F4) (SIP) NOTIFY         |
+    |                          |<-------------------------|
+
+                  ]]></artwork>
+        </figure>
+
+        <t>If Juliet decides to invite Hecate to the room, she sends a message stanza to the room.</t>
+
+        <figure>
+          <preamble>Example: (F1) Juliet inviting Hecate to the room</preamble>
+          <artwork><![CDATA[
+<message
+    from='juliet@example.com/balcony'
+    id='nzd143v8'
+    to='verona@chat.example.org'>
+  <x xmlns='http://jabber.org/protocol/muc#user'>
+    <invite to='hecate@example.com'>
+      <reason>
+        Hey Hecate, this is the place for all good witches!
+      </reason>
+    </invite>
+  </x>
+</message>
+          ]]></artwork>
+        </figure>
+
+        <t>The SIP - XMPP gateway then sends a SIP REFER request to the MSRP conference server indicating who needs to be invited
+        in the Refer-To header, as per RFC 4579 (sec 5.5)</t>
+
+        <figure>
+          <preamble>Example: (F2) Juliet inviting Hecate to the room</preamble>
+          <artwork><![CDATA[
+        REFER sip:verona@chat.example.com SIP/2.0
+        Via: SIP/2.0/UDP client.example.com;branch=z9hG4bKg4534
+        Max-Forwards: 70
+        To: <sip:verona@chat.example.com>
+        From: <sip:juliet@example.com>;tag=5534562
+        Call-ID: 849392fklgl43
+        CSeq: 476 REFER
+        Contact: <sip:juliet@juliet.example.com>
+        Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY
+        Accept: message/sipfrag
+        Refer-To: <sip:hecate@example.com>
+        Supported: replaces
+        Content-Length: 0
+          ]]></artwork>
+        </figure>
+
+        <t>The progress of the invitation will be tracked by the reeived NOTIFY requests as per RFC 3515.</t>
+
+        <figure>
+          <preamble>Example: (F4) Progress notification for invitation</preamble>
+          <artwork><![CDATA[
+NOTIFY sip:juliet@example.com SIP/2.0
+Via: SIP/2.0/UDP client.example.com;branch=z9hG4bK9922ef992-25
+To: <sip:juliet@example.com>;tag=5534562
+From: <sip:verona@chat.example.com>;tag=18747389
+Call-ID: 849392fklgl43
+CSeq: 1993402 NOTIFY
+Max-Forwards: 70
+Event: refer
+Subscription-State: active;expires=60
+Contact: sip:verona@verona.chat.example.com
+Content-Type: message/sipfrag;version=2.0
+Content-Length: ...
+
+SIP/2.0 200 OK
+          ]]></artwork>
+        </figure>
+
+        </section>
+
+    </section>
 
     <section title="MSRP Multi-party Messaging Session to XMPP MUC" anchor="msrp2muc">
 
@@ -666,7 +753,7 @@ SIP User                     GW                       room
       <section title="Enter Room" anchor="mrsp2muc-enter">
 
         <t>When the MSRP user ("Romeo") wants to join a multi-user chat room ("Verona"), he first has to start the SIP session by sending out a SIP INVITE request containing an offered session description that includes an MSRP media line accompanied by a mandatory "path" and "chatroom" attributes. The MSRP media line is also accompanied by an "accept-types" attribute specifing support for a Message/CPIM top level wrapper for the MSRP message.</t>
-      
+
         <figure>
           <preamble>Example: (F1) SIP user starts the session</preamble>
           <artwork><![CDATA[
@@ -681,7 +768,7 @@ SIP User                     GW                       room
     m=message 7313 TCP/MSRP *
     a=accept-types:message/cpim text/plain text/html
     a=path:msrp://s2x.example.net:7313/ansp71weztas;tcp
-    a=chatroom:nickname private-messages
+    a=chatroom
           ]]></artwork>
         </figure>
 
@@ -703,6 +790,7 @@ SIP User                     GW                       room
   m=message 8763 TCP/MSRP *
   a=accept-types:message/cpim text/plain text/html
   a=path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
+  a=chatroom:nickname private-messages
           ]]></artwork>
         </figure>
 
@@ -773,12 +861,13 @@ SIP User                     GW                       room
     Content-Length: ...
 
     <conference-info version="0" state="full"
-     entity="sip:3402934234@conf.example.com">
+     entity="sip:verona@chat.example.org">
      <conference-description>
       <subject>Today in Verona</subject>
       <conf-uris>
        <entry>
         <uri>tel:+18882934234</uri>
+        <uri>sip:verona@chat.example.org</uri>
        </entry>
       </conf-uris>
      </conference-description>
@@ -794,6 +883,10 @@ SIP User                     GW                       room
 
           ]]></artwork>
         </figure>
+
+        <t><list style="format [OPEN ISSUE: %d]">
+        <t>If the room is semi-anonymous, publish the occupant JID instead? Always set the occupant JID as the 'user' and the real JID as an 'endpoint'?</t>
+        </list></t>
 
       </section>
 
@@ -901,8 +994,12 @@ SIP User                     GW                       room
              type='chat'/>
           <body>I am here!!!</body>
     </message>
-            ]]></artwork>
-          </figure>
+          ]]></artwork>
+        </figure>
+
+        <t><list style="format [OPEN ISSUE: %d]">
+        <t>Should the private messages be addressed to the occupant JID instead? It would need to be translated to a GRUU then: sip:verona@chat.example.org;gr=JuliC</t>
+        </list></t>
 
         </section>
 
@@ -959,7 +1056,7 @@ SIP User                      GW                       server
    |                         |------------------------->|
    |                         |(F7) (XMPP) Presence Error|
    |                         |<-------------------------|
-   |(F6) (MSRP) 423 OK       |                          |
+   |(F6) (MSRP) 425 Error    |                          |
    |<------------------------|                          |
    |                         |                          |
 
@@ -985,7 +1082,7 @@ SIP User                      GW                       server
           ]]></artwork>
         </figure>
 
-        <t>If Romeo decides to changing her nickname within the room, he SHOULD send a new MSRP NICKNAME request. In fact modification of the nickname in MSRP is not different from the initial reservation and usage of a nickname.</t>
+        <t>If Romeo decides to changing her nickname within the room, he MUST send a new MSRP NICKNAME request. In fact modification of the nickname in MSRP is not different from the initial reservation and usage of a nickname.</t>
 
         <figure>
           <preamble>Example: (F1) the MSRP user changes the nickname</preamble>
@@ -1012,6 +1109,10 @@ SIP User                      GW                       server
 
       </section>
 
+      <section title="Inviting Another User to a Room" anchor="msrp-inviting">
+        <t>To follow.</t>
+      </section>
+
     </section>
 
     <section title="Open Issues" anchor="issues">
@@ -1025,12 +1126,10 @@ SIP User                      GW                       server
           <t><xref target="I-D.ietf-simple-chat"/> does not say anything about including the SDP "chatroom" attribute in the INVITE; however, that is the only way for a gateway to understand that the INVITE is establishing a groupchat session.</t>
           <t>When joining via SIP, the gateway could use a temporary nickname and directly translate the request into a XMPP presence stanza.</t>
           <t>The SIP-to-XMPP gateway will receive back the reflected message from the Chat room service. Does the SIP-to-XMPP gateway need to translate it back to the MSRP user or not?</t>
-        </list></t>
-
         </list>
       </t>
     </section>
-    
+
     <section title="Security Considerations" anchor="security">
       <t>To follow.</t>
     </section>
