@@ -846,7 +846,7 @@ SIP User                     GW                       room
           ]]></artwork>
         </figure>
 
-        <t> Upon receiving such a response, if the MSRP has already complited the subscription to the Conference Event package <xref target="RFC4575"/>, the XMPP-to-SIP gateway MUST translate it in a SIP NOTIFY request.</t>
+        <t> Upon receiving such a response, if the MSRP has already completed the subscription to the Conference Event package <xref target="RFC4575"/>, the XMPP-to-SIP gateway MUST translate it in a SIP NOTIFY request.</t>
 
         <figure>
           <preamble>Example: (F10) the XMPP-to-SIP notifies the presence information</preamble>
@@ -910,7 +910,7 @@ SIP User                     GW                       room
           <t>When Romeo wants to sends a message to all other occupants in the room, he sends a MSRP SEND request to &lt;room@service&gt; itself (i.e. &lt;verona@chat.example.org&gt; in our example).</t>
 
           <figure>
-            <preamble>Example: (F12) ROMEO sends a message to the chat room</preamble>
+            <preamble>Example: (F12) Romeo sends a message to the chat room</preamble>
             <artwork><![CDATA[
     MSRP a786hjs2 SEND
     To-Path: path:msrp://s2x.example.net:7313/ansp71weztas;tcp
@@ -929,7 +929,7 @@ SIP User                     GW                       room
             ]]></artwork>
           </figure>
 
-          <t>Upon receiving the SEND request, if the request either contains a Failure-Report header field value of "yes" or does not contain a Failure-Report header at all, the SIP-to-XMPP gateway MUST immediately translate in a XMPP message stanza (F13) and then generate and send an MSRP response (F14).</t>
+          <t>Upon receiving the SEND request, if the request either contains a Failure-Report header field value of "yes" or does not contain a Failure-Report header at all, the SIP-to-XMPP gateway MUST immediately translate it in a XMPP message stanza (F13) and then generate and send an MSRP response (F14).</t>
 
           <t>The following examples show an exchange of a public message.</t>
 
@@ -1014,7 +1014,7 @@ SIP User                     GW                       room
           ]]></artwork>
         </figure>
 
-        <t>Upon receiving the SIP BYE, the SIP-to-XMPP gateway translate it in a presence stanza (F19) and send it to the XMPP chat room service. Then the SIP-to-XMPP gateway responds with a 200 OK to the MSRP user.</t>
+        <t>Upon receiving the SIP BYE, the SIP-to-XMPP gateway translates it in a presence stanza (F19) and sends it to the XMPP chat room service. Then the SIP-to-XMPP gateway responds with a 200 OK to the MSRP user.</t>
 
         <figure>
           <preamble>Example: (F19) Juliet exiting a chatroom</preamble>
