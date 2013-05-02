@@ -5,7 +5,7 @@
 <?rfc strict="yes"?>
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
-<?rfc tocdepth="1"?>
+<?rfc tocdepth="3"?>
 <rfc category="std" docName="draft-saintandre-sip-xmpp-groupchat-03" ipr="trust200902">
 
   <front>
@@ -79,10 +79,9 @@
   <middle>
 
     <section title="Introduction" anchor="intro">
-
       <t>Both the Session Initiation Protocol (SIP) <xref target="RFC3261"/> and the Extensible Messaging and Presence Protocol (XMPP) <xref target="RFC6120"/> can be used for the purpose of multiparty text chat over the Internet.  To ensure interworking between these technologies, it is important to define bidirectional protocol mappings.</t>
       <t>The architectural assumptions underlying such protocol mappings are provided in <xref target="I-D.saintandre-sip-xmpp-core"/>, including mapping of addresses and error conditions.  This document specifies mappings for multiparty text chat sessions (often called "groupchat"); specifically, this document defines a mapping between the XMPP Multi-User Chat (MUC) extension <xref target='XEP-0045'/> and the SIP-based Message Session Relay Protocol <xref target="RFC4975"/>.</t>
-      <t>Both MUC and MSRP contain a large set of features, such as the ability to administer rooms, kick and ban users, reserve a room nickname, change room subject, enable room moderation, and destroy the room.  This document covers only a basic subset of groupchat features: joining the room, establishing or changing a room nickname, modifying presence information within the room, sending a message to all participants, sending a private message to a single participant, and leaving the room.</t>
+      <t>Both MUC and MSRP contain a large set of features, such as the ability to administer rooms, kick and ban users, reserve a room nickname, change room subject, enable room moderation, and destroy the room.  This document covers only a basic subset of groupchat features: joining the room, establishing or changing a room nickname, modifying presence information within the room, sending a message to all participants, sending a private message to a single participant, and leaving the room.  Future documents might define mapping of additional features beyond this core.</t>
       <t>The discussion venue for this document is the mailing list of the DISPATCH WG; visit https://www.ietf.org/mailman/listinfo/dispatch for subscription information and discussion archives.</t>
     </section>
 
@@ -258,6 +257,97 @@ XMPP User                      GW                       server
           ]]></artwork>
         </figure>
         
+      </section>
+
+      <section title="Nickname Conflict" anchor="muc2msrp-nickConflict">
+        <t>The foregoing section assumed that the requested nickname did not conflict with any existing nicknames.  This section describes the handling of a nickname conflict.</t>
+        <figure>
+          <artwork><![CDATA[
+                                                  MSRP conference
+XMPP User                      GW                       server
+    |                          |                          |
+    |(F1) (XMPP) Enter room    |                          |
+    |------------------------->|                          |
+    |                          |(F2) (SIP) INVITE         |
+    |                          |------------------------->|
+    |                          |(F3) (SIP) 200 OK         |
+    |                          |<-------------------------|
+    |                          |(F4) (SIP) ACK            |
+    |                          |------------------------->|
+    |                          |                          |
+    |                          |(F5) (MSRP) NICKNAME      |
+    |                          |------------------------->|
+    |                          |(F6) (MSRP) 423 OK        |
+    |                          |<-------------------------|
+    |                          |                          |
+    |(F7) (XMPP) Presence Error
+    |<-------------------------|                          |
+    .                          .                          .
+    |                          |(F8) (SIP) BYE            |
+    |                          |------------------------->|
+    |                          |(F9) (SIP) 200 OK         |
+    |                          |<-------------------------|
+          ]]></artwork>
+        </figure>
+
+        <t>The chat room server analyzes the existing allocation of nicknames, and detects that the nickname proposal is already provided to another participant by the conference.  In this case the MSRP conference server answers with a 423 response.</t>
+        <figure>
+          <preamble>Example: (F6) chat room does not accept the nickname proposal</preamble>
+          <artwork><![CDATA[
+    MSRP a786hjs2 423 Nickname usage failed
+    To-Path: msrp://x2s.example.com:7654/jshA7weztas;tcp
+    From-Path: msrp://s2x.example.org:12763/kjhd37s2s20w2a;tcp
+    -------a786hjs2
+          ]]></artwork>
+        </figure>
+
+        <t>Upon receiving such a response, the SIP-to-XMPP gateway MUST translate it in an XMPP presence stanza of type "error" specifying a &lt;conflict/&gt; error condition.</t>
+
+        <figure>
+          <preamble>Example: (F7) conflict error for nickname</preamble>
+          <artwork><![CDATA[
+    <presence from='verona@chat.example.org'
+              to='juliet@example.com/balcony'
+              type='error'>
+      <x xmlns='http='http://jabber.org/protocol/muc'/>
+      <error type='cancel'>
+        <conflict xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'/>
+      </error>
+    </presence>
+          ]]></artwork>
+        </figure>
+        <t>A nickname conflict can also be detected when a user attempts to change their nickname, as described in the following section.</t>
+      </section>
+
+      <section title="Changing Nickname" anchor="muc2msrp-nickChanging">
+
+        <figure>
+          <artwork><![CDATA[
+                                                  MSRP conference
+XMPP User                      GW                       server
+    |                          |                          |
+    |(F1) (XMPP) Presence to change Nickname              |
+    |------------------------->|                          |
+    |                          |(F2) (MSRP) NICKNAME      |
+    |                          |------------------------->|
+    |                          |(F3) (MSRP) 200 OK        |
+    |                          |<-------------------------|
+
+          ]]></artwork>
+        </figure>
+
+        <t>If Juliet decides to change her nickname within the room, she sends an update presence information to the room (specifically she SHOULD send a new Nickname in the same room).</t>
+
+        <figure>
+          <preamble>Example: (F1) Juliet changing the nickname</preamble>
+          <artwork><![CDATA[
+    <presence from='juliet@example.com/balcony'
+              to='verona@chat.example.org/JuliC'>
+    </presence>
+
+          ]]></artwork>
+        </figure>
+
       </section>
 
       <section title="Presence Broadcast" anchor="muc2msrp-presence">
@@ -477,7 +567,7 @@ XMPP User                      GW                       server
 
       </section>
 
-      <section title="Exiting a Room" anchor="muc2msrp-exit">
+      <section title="Exit Room" anchor="muc2msrp-exit">
         <t>If Juliet decides to exit the multi-user chat room, her client sends a presence stanza of type "unavailable" to the occupant JID she is currently using in the room (here &lt;verona@chat.example.org/JuliC&gt;).</t>
 
         <figure>
@@ -500,96 +590,6 @@ XMPP User                      GW                       server
               type='unavailable'>
       <status>Time to go!</status>
     </presence>
-          ]]></artwork>
-        </figure>
-
-      </section>
-
-      <section title="Nickname Conflict" anchor="muc2msrp-nickConflict">
-        <figure>
-          <artwork><![CDATA[
-                                                  MSRP conference
-XMPP User                      GW                       server
-    |                          |                          |
-    |(F1) (XMPP) Enter room    |                          |
-    |------------------------->|                          |
-    |                          |(F2) (SIP) INVITE         |
-    |                          |------------------------->|
-    |                          |(F3) (SIP) 200 OK         |
-    |                          |<-------------------------|
-    |                          |(F4) (SIP) ACK            |
-    |                          |------------------------->|
-    |                          |                          |
-    |                          |(F5) (MSRP) NICKNAME      |
-    |                          |------------------------->|
-    |                          |(F6) (MSRP) 423 OK        |
-    |                          |<-------------------------|
-    |                          |                          |
-    |(F7) (XMPP) Presence Error
-    |<-------------------------|                          |
-    .                          .                          .
-    |                          |(F8) (SIP) BYE            |
-    |                          |------------------------->|
-    |                          |(F9) (SIP) 200 OK         |
-    |                          |<-------------------------|
-          ]]></artwork>
-        </figure>
-
-        <t>The chat room server analyzes the existing allocation of nicknames, and detects that the nickname proposal is already provided to another participant by the conference.  In this case the MSRP conference server answers with a 423 response.</t>
-        <figure>
-          <preamble>Example: (F6) chat room does not accept the nickname proposal</preamble>
-          <artwork><![CDATA[
-    MSRP a786hjs2 423 Nickname usage failed
-    To-Path: msrp://x2s.example.com:7654/jshA7weztas;tcp
-    From-Path: msrp://s2x.example.org:12763/kjhd37s2s20w2a;tcp
-    -------a786hjs2
-          ]]></artwork>
-        </figure>
-
-        <t>Upon receiving such a response, the SIP-to-XMPP gateway MUST translate it in an XMPP presence stanza of type "error" specifying a &lt;conflict/&gt; error condition.</t>
-
-        <figure>
-          <preamble>Example: (F7) conflict error for nickname</preamble>
-          <artwork><![CDATA[
-    <presence from='verona@chat.example.org'
-              to='juliet@example.com/balcony'
-              type='error'>
-      <x xmlns='http='http://jabber.org/protocol/muc'/>
-      <error type='cancel'>
-        <conflict xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'/>
-      </error>
-    </presence>
-          ]]></artwork>
-        </figure>
-
-      </section>
-
-      <section title="Changing Nickname" anchor="muc2msrp-nickChanging">
-
-        <figure>
-          <artwork><![CDATA[
-                                                  MSRP conference
-XMPP User                      GW                       server
-    |                          |                          |
-    |(F1) (XMPP) Presence to change Nickname              |
-    |------------------------->|                          |
-    |                          |(F2) (MSRP) NICKNAME      |
-    |                          |------------------------->|
-    |                          |(F3) (MSRP) 200 OK        |
-    |                          |<-------------------------|
-
-          ]]></artwork>
-        </figure>
-
-        <t>If Juliet decides to change her nickname within the room, she sends an update presence information to the room (specifically she SHOULD send a new Nickname in the same room).</t>
-
-        <figure>
-          <preamble>Example: (F1) Juliet changing the nickname</preamble>
-          <artwork><![CDATA[
-    <presence from='juliet@example.com/balcony'
-              to='verona@chat.example.org/JuliC'>
-    </presence>
-
           ]]></artwork>
         </figure>
 
@@ -742,7 +742,80 @@ SIP User                     GW                       room
         </figure>
       </section>
 
-      <section title="Presence Broadcast" anchor="msrp-presence">
+      <section title="Nickname Conflict" anchor="msrp2muc-nickConflict">
+        <t>The foregoing section assumed that the requested nickname did not conflict with any existing nicknames.  This section describes the handling of a nickname conflict.</t>
+        <figure>
+          <artwork><![CDATA[
+                                                  XMPP conference
+SIP User                      GW                       server
+   |                         |                          |
+   |(F1)(SIP) INVITE         |                          |
+   |------------------------>|                          |
+   |(F2) (SIP) 200 OK        |                          |
+   |<------------------------|                          |
+   |(F3) (SIP) ACK           |                          |
+   |------------------------>|                          |
+   |                         |                          |
+   |(F4) (MSRP) NICKNAME     |                          |
+   |------------------------>|                          |
+   |                         |(F5)(XMPP) Entering a room|
+   |                         |------------------------->|
+   |                         |(F7) (XMPP) Presence Error|
+   |                         |<-------------------------|
+   |(F6) (MSRP) 423 OK       |                          |
+   |<------------------------|                          |
+   |                         |                          |
+
+         ]]></artwork>
+        </figure>
+        <t>A nickname conflict can also be detected when a user attempts to change their nickname, as described in the following section.</t>
+      </section>
+
+      <section title="Changing Nickname" anchor="msrp2muc-nickChanging">
+
+        <figure>
+          <artwork><![CDATA[
+                                                  XMPP conference
+SIP User                      GW                       server
+    |                          |                          |
+    |(F1) (MSRP) NICKNAME      |                          |
+    |------------------------->|                          |
+    |                          |(F2) (XMPP) Presence w/ Nickname
+    |                          |------------------------->|
+    |(F3) (MSRP) 200 OK        |                          |
+    |<-------------------------|                          |
+
+          ]]></artwork>
+        </figure>
+
+        <t>If Romeo decides to changing her nickname within the room, he SHOULD send a new MSRP NICKNAME request. In fact modification of the nickname in MSRP is not different from the initial reservation and usage of a nickname.</t>
+
+        <figure>
+          <preamble>Example: (F1) the MSRP user changes the nickname</preamble>
+          <artwork><![CDATA[
+    MSRP a786hjs2 NICKNAME
+    To-Path: path:msrp://s2x.example.net:7313/ansp71weztas;tcp
+    From-Path: path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
+    Use-Nickname: "montecchi"
+        -------a786hjs2
+          ]]></artwork>
+        </figure>
+
+        <t>Upon receiving such message, the SIP-to-XMPP gateway MUST translate it in a XMPP presence stanza.</t>
+
+        <figure>
+          <preamble>Example: (F2) Juliet changing the nickname</preamble>
+          <artwork><![CDATA[
+    <presence from='juliet@example.com'
+              to='verona@chat.example.org/montecchi'>
+    </presence>
+
+          ]]></artwork>
+        </figure>
+
+      </section>
+
+      <section title="Presence Broadcast" anchor="msrp2muc-presence">
 
         <t>If the multi-user chat service is able to add the user to the room, it sends presence from all the existing occupants' room JIDs to the new occupants's full JID, including extended presence information about roles in an &lt;x/&gt; element.</t>
 
@@ -816,7 +889,7 @@ SIP User                     GW                       room
           ]]></artwork>
         </figure>
 
-        <section title="Sending a Message to All Occupants" anchor="msrp-messageToAll">
+        <section title="Sending a Message to All Occupants" anchor="msrp2muc-messageToAll">
 
           <t>When Romeo wants to sends a message to all other occupants in the room, he sends a MSRP SEND request to &lt;room@service&gt; itself (i.e. &lt;verona@chat.example.org&gt; in our example).</t>
 
@@ -867,7 +940,7 @@ SIP User                     GW                       room
 
         </section>
 
-        <section title="Sending a Private Message" anchor="msrp-privatemessage">
+        <section title="Sending a Private Message" anchor="msrp2muc-privatemessage">
 
           <t>Romeo can send a "private message" to a selected occupant via the chat room service by sending a message to the occupant's room nickname.</t>
 
@@ -908,7 +981,7 @@ SIP User                     GW                       room
 
       </section>
 
-      <section title="Exiting a Room" anchor="msrp-exit">
+      <section title="Exit Room" anchor="msrp2muc-exit">
 
         <t>If Romeo decides to exit the multi-user chat room, his client sends SIP BYE to the &lt;verona@chat.example.org&gt; chat room.</t>
 
@@ -939,79 +1012,6 @@ SIP User                     GW                       room
 
       </section>
 
-      <section title="Nickname Conflict" anchor="msrp-nickConflict">
-
-        <figure>
-          <artwork><![CDATA[
-                                                  XMPP conference
-SIP User                      GW                       server
-   |                         |                          |
-   |(F1)(SIP) INVITE         |                          |
-   |------------------------>|                          |
-   |(F2) (SIP) 200 OK        |                          |
-   |<------------------------|                          |
-   |(F3) (SIP) ACK           |                          |
-   |------------------------>|                          |
-   |                         |                          |
-   |(F4) (MSRP) NICKNAME     |                          |
-   |------------------------>|                          |
-   |                         |(F5)(XMPP) Entering a room|
-   |                         |------------------------->|
-   |                         |(F7) (XMPP) Presence Error|
-   |                         |<-------------------------|
-   |(F6) (MSRP) 423 OK       |                          |
-   |<------------------------|                          |
-   |                         |                          |
-
-         ]]></artwork>
-        </figure>
-
-      </section>
-
-      <section title="Changing Nickname" anchor="msrp-nickChanging">
-
-        <figure>
-          <artwork><![CDATA[
-                                                  XMPP conference
-SIP User                      GW                       server
-    |                          |                          |
-    |(F1) (MSRP) NICKNAME      |                          |
-    |------------------------->|                          |
-    |                          |(F2) (XMPP) Presence w/ Nickname
-    |                          |------------------------->|
-    |(F3) (MSRP) 200 OK        |                          |
-    |<-------------------------|                          |
-
-          ]]></artwork>
-        </figure>
-
-        <t>If Romeo decides to changing her nickname within the room, he SHOULD send a new MSRP NICKNAME request. In fact modification of the nickname in MSRP is not different from the initial reservation and usage of a nickname.</t>
-
-        <figure>
-          <preamble>Example: (F1) the MSRP user changes the nickname</preamble>
-          <artwork><![CDATA[
-    MSRP a786hjs2 NICKNAME
-    To-Path: path:msrp://s2x.example.net:7313/ansp71weztas;tcp
-    From-Path: path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
-    Use-Nickname: "montecchi"
-        -------a786hjs2
-          ]]></artwork>
-        </figure>
-
-        <t>Upon receiving such message, the SIP-to-XMPP gateway MUST translate it in a XMPP presence stanza.</t>
-
-        <figure>
-          <preamble>Example: (F2) Juliet changing the nickname</preamble>
-          <artwork><![CDATA[
-    <presence from='juliet@example.com'
-              to='verona@chat.example.org/montecchi'>
-    </presence>
-
-          ]]></artwork>
-        </figure>
-
-      </section>
-
     </section>
 
     <section title="Open Issues" anchor="issues">
@@ -1025,8 +1025,6 @@ SIP User                      GW                       server
           <t><xref target="I-D.ietf-simple-chat"/> does not say anything about including the SDP "chatroom" attribute in the INVITE; however, that is the only way for a gateway to understand that the INVITE is establishing a groupchat session.</t>
           <t>When joining via SIP, the gateway could use a temporary nickname and directly translate the request into a XMPP presence stanza.</t>
           <t>The SIP-to-XMPP gateway will receive back the reflected message from the Chat room service. Does the SIP-to-XMPP gateway need to translate it back to the MSRP user or not?</t>
-        </list></t>
-
         </list>
       </t>
     </section>
