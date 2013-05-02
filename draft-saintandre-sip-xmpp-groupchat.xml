@@ -524,7 +524,7 @@ XMPP User                      GW                       server
     |                          |                          |
     |                          |(F5) (MSRP) NICKNAME      |
     |                          |------------------------->|
-    |                          |(F6) (MSRP) 423 OK        |
+    |                          |(F6) (MSRP) 425 Error     |
     |                          |<-------------------------|
     |                          |                          |
     |(F7) (XMPP) Presence Error
@@ -537,11 +537,11 @@ XMPP User                      GW                       server
           ]]></artwork>
         </figure>
 
-        <t>The chat room server analyzes the existing allocation of nicknames, and detects that the nickname proposal is already provided to another participant by the conference.  In this case the MSRP conference server answers with a 423 response.</t>
+        <t>The chat room server analyzes the existing allocation of nicknames, and detects that the nickname proposal is already provided to another participant by the conference.  In this case the MSRP conference server answers with a 425 response.</t>
         <figure>
           <preamble>Example: (F6) chat room does not accept the nickname proposal</preamble>
           <artwork><![CDATA[
-    MSRP a786hjs2 423 Nickname usage failed
+    MSRP a786hjs2 425 Nickname usage failed
     To-Path: msrp://x2s.example.com:7654/jshA7weztas;tcp
     From-Path: msrp://s2x.example.org:12763/kjhd37s2s20w2a;tcp
     -------a786hjs2
@@ -1056,7 +1056,7 @@ SIP User                      GW                       server
    |                         |------------------------->|
    |                         |(F7) (XMPP) Presence Error|
    |                         |<-------------------------|
-   |(F6) (MSRP) 423 OK       |                          |
+   |(F6) (MSRP) 425 Error    |                          |
    |<------------------------|                          |
    |                         |                          |
 
