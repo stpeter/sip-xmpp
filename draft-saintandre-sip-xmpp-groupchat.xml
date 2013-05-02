@@ -1109,10 +1109,10 @@ SIP User                      GW                       server
 
       </section>
 
-    </section>
-
-    <section title="Inviting Another User to a Room" anchor="msrp-inviting">
+      <section title="Inviting Another User to a Room" anchor="msrp-inviting">
         <t>To follow.</t>
+      </section>
+
     </section>
 
     <section title="Open Issues" anchor="issues">
@@ -1126,8 +1126,6 @@ SIP User                      GW                       server
           <t><xref target="I-D.ietf-simple-chat"/> does not say anything about including the SDP "chatroom" attribute in the INVITE; however, that is the only way for a gateway to understand that the INVITE is establishing a groupchat session.</t>
           <t>When joining via SIP, the gateway could use a temporary nickname and directly translate the request into a XMPP presence stanza.</t>
           <t>The SIP-to-XMPP gateway will receive back the reflected message from the Chat room service. Does the SIP-to-XMPP gateway need to translate it back to the MSRP user or not?</t>
-        </list></t>
-
         </list>
       </t>
     </section>
