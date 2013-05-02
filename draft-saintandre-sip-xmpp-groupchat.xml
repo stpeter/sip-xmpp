@@ -1123,7 +1123,6 @@ SIP User                      GW                       server
           <t>Define how to send to the room jid with the subject child set (e.g., do we need to send it in a different presence stanza than step F11?)</t>
           <t>Specify how to deal with conflicts between SIP display name and XMPP nickname (e.g., use only display-text?).</t>
           <t>Specify how to map the &lt;roles/&gt; conference-info attribute to XMPP &lt;affiliation/&gt; and &lt;role/&gt;. In XMPP roles are current privileges within the room while, affiliations are kept permanently in different sessions (they are the default for a given user).</t>
-          <t><xref target="I-D.ietf-simple-chat"/> does not say anything about including the SDP "chatroom" attribute in the INVITE; however, that is the only way for a gateway to understand that the INVITE is establishing a groupchat session.</t>
           <t>When joining via SIP, the gateway could use a temporary nickname and directly translate the request into a XMPP presence stanza.</t>
           <t>The SIP-to-XMPP gateway will receive back the reflected message from the Chat room service. Does the SIP-to-XMPP gateway need to translate it back to the MSRP user or not?</t>
         </list>
