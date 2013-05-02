@@ -884,10 +884,6 @@ SIP User                     GW                       room
           ]]></artwork>
         </figure>
 
-        <t><list style="format [OPEN ISSUE: %d]">
-        <t>If the room is semi-anonymous, publish the occupant JID instead? Always set the occupant JID as the 'user' and the real JID as an 'endpoint'?</t>
-        </list></t>
-
       </section>
 
       <section title="Exchanging Messages" anchor="mrsp-exchange">
@@ -996,10 +992,6 @@ SIP User                     GW                       room
     </message>
           ]]></artwork>
         </figure>
-
-        <t><list style="format [OPEN ISSUE: %d]">
-        <t>Should the private messages be addressed to the occupant JID instead? It would need to be translated to a GRUU then: sip:verona@chat.example.org;gr=JuliC</t>
-        </list></t>
 
         </section>
 
@@ -1125,6 +1117,8 @@ SIP User                      GW                       server
           <t>Specify how to map the &lt;roles/&gt; conference-info attribute to XMPP &lt;affiliation/&gt; and &lt;role/&gt;. In XMPP roles are current privileges within the room while, affiliations are kept permanently in different sessions (they are the default for a given user).</t>
           <t>When joining via SIP, the gateway could use a temporary nickname and directly translate the request into a XMPP presence stanza.</t>
           <t>The SIP-to-XMPP gateway will receive back the reflected message from the Chat room service. Does the SIP-to-XMPP gateway need to translate it back to the MSRP user or not?</t>
+          <t>If the room is semi-anonymous, publish the occupant JID instead? Always set the occupant JID as the 'user' and the real JID as an 'endpoint'?</t>
+          <t>Should the private messages be addressed to the occupant JID instead? It would need to be translated to a GRUU then: sip:verona@chat.example.org;gr=JuliC</t>
         </list>
       </t>
     </section>
