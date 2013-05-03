@@ -168,7 +168,8 @@ XMPP User                      GW                       server
           <artwork><![CDATA[
     INVITE sip:verona@chat.example.org SIP/2.0
     To: <sip:verona@chat.example.org>
-    From: <sip:juliet@example.com>;gr=balcony
+    From: <sip:juliet@example.com>
+    Contact: <sip:juliet@example.com>;gr=balcony
     Call-ID: 711609sa
     Content-Type: application/sdp
     Content-Length: [length]
@@ -582,7 +583,8 @@ SIP/2.0 200 OK
     Content-Type: message/cpim
 
     To: <sip:verona@chat.example.org;transport=tcp>
-    From: <sip:juliet@example.com;gr=balcony>
+    From: <sip:juliet@example.com>
+    Contact: <sip:juliet@example.com>;gr=balcony
     DateTime: 2008-10-15T15:02:31-03:00
     Content-Type: text/plain
 
@@ -640,8 +642,8 @@ SIP/2.0 200 OK
     Byte-Range: 1-*/*
     Content-Type: message/cpim
 
-    To: <sip:romeo@chat.example.org>
-    From: <sip:juliet@chat.example.org;gr=balcony>
+    To: <sip:verona@chat.example.org>;gr=romeo
+    From: <sip:juliet@chat.example.org>
     DateTime: 2008-10-15T15:02:31-03:00
     Content-Type: text/plain
 

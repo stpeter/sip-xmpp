@@ -104,8 +104,9 @@
 |  MESSAGE sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bK776sgdkse
 |  Max-Forwards: 70
-|  From: sip:juliet@example.com;gr=balcony
 |  To: sip:romeo@example.net
+|  From: sip:juliet@example.com
+|  Contact: sip:juliet@example.com;gr=balcony
 |  Call-ID: Hr0zny9l3@example.com
 |  CSeq: 1 MESSAGE
 |  Content-Type: text/plain
@@ -143,8 +144,9 @@
 |  MESSAGE sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKeskdgs677
 |  Max-Forwards: 70
-|  From: sip:romeo@example.net;gr=orchard
 |  To: sip:juliet@example.com;gr=balcony
+|  From: sip:romeo@example.net
+|  Contact: sip:romeo@example.net;gr=orchard
 |  Call-ID: M4spr4vdu@example.net
 |  CSeq: 1 MESSAGE
 |  Content-Type: text/plain

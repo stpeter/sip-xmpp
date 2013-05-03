@@ -147,7 +147,8 @@ XMPP User                      GW                      SIP User
         <artwork><![CDATA[
 INVITE sip:romeo@example.net SIP/2.0
 To: <sip:romeo@example.net>
-From: <sip:juliet@example.com>;gr=balcony
+From: <sip:juliet@example.com>
+Contact: <sip:juliet@example.com>;gr=balcony
 Subject: Open chat with Juliet?
 Call-ID: 711609sa
 Content-Type: application/sdp
@@ -165,8 +166,9 @@ a=path:msrp://x2s.example.com:7654/jshA7weztas;tcp
         <preamble>Example: (F3) Romeo accepts the request</preamble>
         <artwork><![CDATA[
 SIP/2.0 200 OK
-To: <sip:romeo@example.net>;gr=orchard
-From: <sip:juliet@example.com>;gr=balcony
+To: <sip:juliet@example.com>;gr=balcony
+From: <sip:romeo@example.net>
+Contact: <sip:romeo@example.net>;gr=orchard
 Call-ID: 711609sa
 Content-Type: application/sdp
 
@@ -177,13 +179,14 @@ a=lang:it
 a=path:msrp://s2x.example.net:12763/kjhd37s2s20w2a;tcp
         ]]></artwork>
       </figure>
-      <t>The XMPP-to-SIP gateway then acknowledges the session acceptance on behalf of Juliet.</t>
+      <t>The XMPP-to-SIP gateway then acknowledges the session acceptance on behalf of Romeo.</t>
       <figure>
         <preamble>Example: (F4) Gateway sends ACK to Romeo's UA</preamble>
         <artwork><![CDATA[
-ACK sip:romeo@example.net SIP/2.0
+ACK sip:juliet@example.com SIP/2.0
 To: <sip:romeo@example.net>;gr=orchard
-From: <sip:juliet@example.com>;gr=balcony
+From: <sip:juliet@example.com>
+Contact: <sip:juliet@example.com>;gr=balcony
 Call-ID: 711609sa
         ]]></artwork>
       </figure>
@@ -295,7 +298,8 @@ SIP User                     GW                     XMPP User
         <artwork><![CDATA[
 INVITE sip:juliet@example.com SIP/2.0
 To: <sip:juliet@example.com>
-From: <sip:romeo@example.net>;gr=orchard
+From: <sip:romeo@example.net>
+Contact: <sip:romeo@example.net>;gr=orchard
 Subject: Open chat with Romeo?
 Call-ID: 742507no
 Content-Type: application/sdp
@@ -312,8 +316,9 @@ a=path:msrp://s2x.example.net:7313/ansp71weztas;tcp
         <preamble>Example: (F2) Gateway accepts session on Juliet's behalf</preamble>
           <artwork><![CDATA[
 SIP/2.0 200 OK
-To: <sip:juliet@example.com>;gr=balcony
-From: <sip:romeo@example.net>;gr=orchard
+To: <sip:romeo@example.net>;gr=orchard
+From: <sip:juliet@example.com>
+Contact: <sip:juliet@example.com>;gr=balcony
 Call-ID: 742507no
 Content-Type: application/sdp
 
@@ -329,7 +334,8 @@ a=path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
           <artwork><![CDATA[
 ACK sip:juliet@example.com SIP/2.0
 To: <sip:juliet@example.com>;gr=balcony
-From: <sip:romeo@example.net>;gr=orchard
+From: <sip:romeo@example.net>
+Contact: <sip:romeo@example.net>;gr=orchard
 Call-ID: 742507no
           ]]></artwork>
         </figure>
@@ -390,8 +396,9 @@ What man art thou ...?
           <artwork><![CDATA[
 BYE juliet@example.com sip: SIP/2.0
 Max-Forwards: 70
-From: <sip:romeo@example.net>;gr=orchard
 To: <sip:juliet@example.com>;gr=balcony
+From: <sip:romeo@example.net>
+Contact: <sip:romeo@example.net>;gr=orchard
 Call-ID: 742507no
 Cseq: 1 BYE
 Content-Length: 0
@@ -401,8 +408,9 @@ Content-Length: 0
           <preamble>Example: (F10) Gateway acknowledges the termination of the session on behalf of XMPP user</preamble>
           <artwork><![CDATA[
 SIP/2.0 200 OK
-From: <sip:romeo@example.net>;gr=orchard
 To: <sip:juliet@example.com>;gr=balcony
+From: <sip:romeo@example.net>
+Contact: <sip:romeo@example.net>;gr=orchard
 Call-ID: 742507no
 CSeq: 1 BYE
           ]]></artwork>

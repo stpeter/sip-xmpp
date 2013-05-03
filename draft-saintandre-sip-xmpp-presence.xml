@@ -360,6 +360,7 @@
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bKna998sk
 |  From: <sip:juliet@example.com>;tag=gh19
 |  To: <sip:romeo@example.net>;tag=yt66
+|  Contact: <sip:juliet@example.com>;gr=balcony
 |  Call-ID: j4s0h4vny@example.com
 |  Event: presence
 |  Subscription-State: active;expires=599
@@ -421,6 +422,7 @@
 |  Via: SIP/2.0/TCP simple.example.net;branch=z9hG4bKna998sk
 |  From: <sip:romeo@example.net>;tag=yt66
 |  To: <sip:juliet@example.com>;tag=bi54
+|  Contact: <sip:romeo@example.net>;gr=orchard
 |  Call-ID: j0sj4sv1m@example.net
 |  Event: presence
 |  Subscription-State: active;expires=499
@@ -433,7 +435,7 @@
 |  <?xml version='1.0' encoding='UTF-8'?>
 |  <presence xmlns='urn:ietf:params:xml:ns:pidf'
 |            entity='pres:romeo@example.net'>
-|    <tuple id='orchard'>
+|    <tuple id='ID-orchard'>
 |      <status>
 |        <basic>closed</basic>
 |      </status>
@@ -463,7 +465,6 @@
    |  From                     |  from                       |
    |  priority for tuple       |  <priority/>                |
    |  To                       |  to                         |
-   |  body of MESSAGE          |  <body/>                    |
    |  <note/>                  |  <status/>                  |
    +---------------------------+-----------------------------+
           ]]></artwork>
