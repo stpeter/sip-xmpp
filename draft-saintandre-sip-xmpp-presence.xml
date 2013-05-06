@@ -108,7 +108,6 @@
 |  SUBSCRIBE sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bKna998sk
 |  From: <sip:juliet@example.com>;tag=ffd2
-|  To: <sip:romeo@example.net>
 |  Call-ID: l04th3s1p@example.com
 |  Event: presence
 |  Max-Forwards: 70
@@ -201,7 +200,6 @@
 |  SUBSCRIBE sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
 |  From: <sip:juliet@example.com>;tag=j89d
-|  To: <sip:romeo@example.net>;tag=xfg9
 |  Call-ID: 1ckm32@example.com
 |  Event: presence
 |  Max-Forwards: 70
@@ -232,7 +230,6 @@
 |  SUBSCRIBE sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
 |  From: <sip:romeo@example.net>;tag=xfg9
-|  To: <sip:juliet@example.com>;tag=ur93
 |  Call-ID: 4wcm0n@example.net
 |  Event: presence
 |  Max-Forwards: 70
@@ -315,7 +312,6 @@
 |  SUBSCRIBE sip:192.0.2.1 SIP/2.0
 |  Via: SIP/2.0/TCP simple.example.net;branch=z9hG4bKna998sk
 |  From: <sip:romeo@example.net>;tag=yt66
-|  To: <sip:juliet@example.com>;tag=bi54
 |  Call-ID: 1tsn1ce@example.net
 |  Event: presence
 |  Max-Forwards: 70
