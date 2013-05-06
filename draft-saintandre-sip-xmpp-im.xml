@@ -155,7 +155,7 @@
 |  Neither, fair saint, if either thee dislike.
         ]]></artwork>
       </figure>
-      <t>Section 5 of <xref target="RFC3428"/> stipulates that a SIP User Agent presented with an im: URI should resolve it to a sip: or sips: URI.  Therefore we assume that the To header of a request received by a SIMPLE-XMPP gateway will contain a sip: or sips: URI.  The gateway SHOULD resolve that address to an im: URI for SIP MESSAGE requests, then follow the rules in <xref target="RFC3861"/> regarding the "_im" SRV service for the target domain contained in the To header.  If SRV address resolution fails for the "_im" service, the gateway MUST either attempt a lookup for the "_xmpp-server" service as specified in <xref target="RFC6120"/> or return an error to the sender (the SIP "502 Bad Gateway" error seems most appropriate; see <xref target='I-D.saintandre-sip-xmpp-core'/> for details).  If SRV address resolution succeeds, the gateway is responsible for translating the request into an XMPP message stanza from the SIP user to the XMPP user and returning a SIP "200 OK" message to the sender:</t>
+      <t>Section 5 of <xref target="RFC3428"/> stipulates that a SIP User Agent presented with an im: URI should resolve it to a sip: or sips: URI.  Therefore we assume that the Request-URI of a request received by a SIMPLE-XMPP gateway will contain a sip: or sips: URI.  The gateway SHOULD resolve that address to an im: URI for SIP MESSAGE requests, then follow the rules in <xref target="RFC3861"/> regarding the "_im" SRV service for the target domain contained in the Request-URI.  If SRV address resolution fails for the "_im" service, the gateway MUST either attempt a lookup for the "_xmpp-server" service as specified in <xref target="RFC6120"/> or return an error to the sender (the SIP "502 Bad Gateway" error seems most appropriate; see <xref target='I-D.saintandre-sip-xmpp-core'/> for details).  If SRV address resolution succeeds, the gateway is responsible for translating the request into an XMPP message stanza from the SIP user to the XMPP user and returning a SIP "200 OK" message to the sender:</t>
       <figure>
         <preamble>Example: SIP user sends message (XMPP transformation):</preamble>
         <artwork><![CDATA[
@@ -177,7 +177,7 @@
    |  CSeq                    |  (no mapping)               |
    |  From                    |  from                       |
    |  Subject                 |  <subject/>                 |
-   |  To                      |  to                         |
+   |  Request-URI             |  to                         |
    |  body of MESSAGE         |  <body/>                    |
    +--------------------------+-----------------------------+
         ]]></artwork>
@@ -489,6 +489,10 @@
 </reference>
 
     </references>
+
+    <section title="Acknowledgements" anchor="ack">
+      <t>The authors wish to thank the following individuals for their feedback: Adrian Georgescu, Saul Ibarra, Salvatore Loreto, and Tory Patnoe.</t>
+    </section>
 
   </back>
 
