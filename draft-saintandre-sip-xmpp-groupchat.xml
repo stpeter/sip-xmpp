@@ -24,18 +24,6 @@
         <email>psaintan@cisco.com</email>
       </address>
     </author>
-    <author initials="S." surname="Loreto" fullname="Salvatore Loreto">
-      <organization>Ericsson</organization>
-      <address>
-        <postal>
-          <street>Hirsalantie 11</street>
-          <code>02420</code> 
-          <city>Jorvas</city> 
-          <country>Finland</country>
-         </postal>
-        <email>Salvatore.Loreto@ericsson.com</email>
-      </address>
-    </author>
     <author initials="S." surname="Ibarra" fullname="Saul Ibarra Corretge">
       <organization>AG Projects</organization>
       <address>
@@ -48,16 +36,16 @@
         <email>saul@ag-projects.com</email>
       </address>
     </author>
-    <author initials="F." surname="Forno" fullname="Fabio Forno">
-      <organization>Bluendo srl</organization>
+    <author initials="S." surname="Loreto" fullname="Salvatore Loreto">
+      <organization>Ericsson</organization>
       <address>
         <postal>
-          <street>Via Morosini 10</street>
-          <code>10128</code> 
-          <city>Torino</city> 
-          <country>Italy</country>
+          <street>Hirsalantie 11</street>
+          <code>02420</code> 
+          <city>Jorvas</city> 
+          <country>Finland</country>
          </postal>
-        <email>fabio@bluendo.com</email>
+        <email>Salvatore.Loreto@ericsson.com</email>
       </address>
     </author>
     <date/> 
@@ -1393,6 +1381,7 @@ SIP User                      GW                       server
     </references>
 
     <section title="Acknowledgements" anchor="acks">
+      <t>Special thanks to Fabio Forno for his co-authorship of an early version of this document.</t>
       <t>Some text in this document was borrowed from <xref target="I-D.saintandre-sip-xmpp-core"/> and from <xref target="XEP-0045"/>.</t>
     </section>
 
