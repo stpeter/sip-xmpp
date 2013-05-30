@@ -8,7 +8,7 @@
 <?rfc toc="yes"?>
 <?rfc tocdepth="4"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-saintandre-impp-call-info-03">
+<rfc category="info" ipr="trust200902" docName="draft-saintandre-impp-call-info-04">
 
   <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 
@@ -35,6 +35,7 @@
 
     <keyword>SIP</keyword>
     <keyword>Call-Info</keyword>
+    <keyword>header field</keyword>
     <keyword>Instant Messaging</keyword>
     <keyword>Presence</keyword>
     
@@ -58,6 +59,7 @@ Call-Info: <xmpp:juliet@example.com> ;purpose=impp
 
     <section title="Security Considerations" anchor="security">
       <t>Advertising an endpoint's XMPP address over SIP could inform malicious entities about an alternative attack vector.  Because the "purpose" header field parameter could be spoofed, the receiving endpoint ought to check the value against an authoritative source such as a user directory.  Clients can integrity protect and encrypt this header field using end-to-end mechanisms such as S/MIME or hop-by-hop mechanisms such as TLS.</t>
+      <t>This specification provides a new way to correlate otherwise possibly unconnected identifiers.  Because such correlations can be privacy sensitive, user agents ought to provide a means for users to control whether or not these values are sent.</t>
     </section>
 
     <section title="IANA Considerations" anchor="iana">
@@ -67,7 +69,7 @@ Call-Info: <xmpp:juliet@example.com> ;purpose=impp
   Header Field: Call-Info
   Parameter Name: purpose
   Predefined Values: Yes
-  Reference: [this document]
+  Reference: [RFC3261][RFC5367][RFC6910][this document]
         ]]></artwork>
       </figure>
     </section>
@@ -203,12 +205,12 @@ specifications of each URI scheme.
 <author initials='E' surname='Marocco' fullname='Enrico Marocco'>
     <organization />
 </author>
-<date month='April' day='4' year='2013' />
+<date month='May' day='2' year='2013' />
 <abstract><t>This document describes suggested practices for combined use of the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP). Such practices aim to provide a single fully featured real-time communication service by using complementary subsets of features from each of the protocols. Typically such subsets would include telephony capabilities from SIP and instant messaging and presence capabilities from XMPP. This specification does not define any new protocols or syntax for either SIP or XMPP. However, implementing it may require modifying or at least reconfiguring existing client and server-side software. Also, it is not the purpose of this document to make recommendations as to whether or not such combined use should be preferred to the mechanisms provided natively by each protocol (for example, SIP's SIMPLE or XMPP's Jingle).  It merely aims to provide guidance to those who are interested in such a combined use.</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ivov-xmpp-cusax-04' />
+<seriesInfo name='Internet-Draft' value='draft-ivov-xmpp-cusax-05' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ivov-xmpp-cusax-04.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ivov-xmpp-cusax-05.txt' />
 </reference>
 
 <reference anchor="XEP-0152">
@@ -235,7 +237,7 @@ specifications of each URI scheme.
     </references>
 
     <section title="Acknowledgements" anchor="acks">
-      <t>Thanks to Gonzalo Camarillo, Keith Drage, Saul Ibarra, Emil Ivov, Cullen Jennings, Olle Johanssen, Paul Kyzivat, Gonzalo Salgueiro, Dean Willis, and Dale Worley for their input.  Elwyn Davies, Salvatore Loreto, and Glen Zorn completed reviews on behalf of the General Area Review Team, Applications Area Directorate, and Security Directorate, respectively.  Thanks to Yana Stamcheva for her helpful comments and for shepherding the document.</t>
+      <t>Thanks to Gonzalo Camarillo, Keith Drage, Saul Ibarra, Emil Ivov, Cullen Jennings, Olle Johanssen, Paul Kyzivat, Gonzalo Salgueiro, Dean Willis, and Dale Worley for their input.  Elwyn Davies, Salvatore Loreto, Glen Zorn, and Mehmet Ersue completed reviews on behalf of the General Area Review Team, Applications Area Directorate, Security Directorate, and Operations and Management Directorate, respectively.  Stephen Farrell and Pete Resnick provided substantive feedback during IESG review.  Thanks to Yana Stamcheva for her helpful comments and for shepherding the document.</t>
     </section>
 
   </back>
