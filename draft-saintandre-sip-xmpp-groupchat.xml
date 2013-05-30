@@ -69,20 +69,21 @@
     <section title="Introduction" anchor="intro">
       <t>Both the Session Initiation Protocol (SIP) <xref target="RFC3261"/> and the Extensible Messaging and Presence Protocol (XMPP) <xref target="RFC6120"/> can be used for the purpose of multiparty text chat over the Internet.  To ensure interworking between these technologies, it is important to define bidirectional protocol mappings.</t>
       <t>The architectural assumptions underlying such protocol mappings are provided in <xref target="I-D.saintandre-sip-xmpp-core"/>, including mapping of addresses and error conditions.  This document specifies mappings for multiparty text chat sessions (often called "groupchat"); specifically, this document defines a mapping between the XMPP Multi-User Chat (MUC) extension <xref target='XEP-0045'/> and the SIP-based Message Session Relay Protocol <xref target="RFC4975"/>.</t>
-      <t>Both MUC and MSRP contain a large set of features, such as the ability to administer rooms, kick and ban users, reserve a room nickname, change room subject, enable room moderation, and destroy the room.  This document covers only a basic subset of groupchat features: joining the room, establishing or changing a room nickname, modifying presence information within the room, sending a message to all participants, sending a private message to a single participant, and leaving the room.  Future documents might define mapping of additional features beyond this core.</t>
-      <t>The discussion venue for this document is the mailing list of the DISPATCH WG; visit https://www.ietf.org/mailman/listinfo/dispatch for subscription information and discussion archives.</t>
+      <t>Both MUC and MSRP contain a large set of features, such as the ability to administer rooms, kick and ban users, reserve a room nickname, change room subject, enable room moderation, and destroy the room.  This document covers only a basic subset of groupchat features: joining the room, establishing or changing a room nickname, modifying presence information within the room, sending a message to all participants, sending a private message to a single participant, and leaving the room.  Future documents might define mappings for additional features beyond this set.</t>
+      <t>The discussion venue for this document is the stox@ietf.org mailing list; visit https://www.ietf.org/mailman/listinfo/stox for subscription information and discussion archives.</t>
     </section>
 
     <section title="Terminology" anchor="terms">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
+      <t>A number of technical terms used here are defined in <xref target="RFC3261"/>, <xref target="RFC6120"/>, <xref target="RFC4975"/>, and <xref target='XEP-0045'/>.</t>
     </section>
 
     <section title="XMPP MUC to MSRP Multi-party Messaging Session" anchor="muc2msrp">
-      <t>This section describes how to map an XMPP MUC session to an MSRP Multi-party Messaging session.</t>
+      <t>This section describes how to map an XMPP MUC session to an MSRP Multi-party Messaging session.  The following diagram outlines the overall protocol flow.</t>
       <figure>
         <artwork><![CDATA[
                                                   MSRP conference
-XMPP User                      GW                       server
+XMPP User                   Gateway                     server
     |                          |                          |
     |(F1) (XMPP) Enter room    |                          |
     |------------------------->|                          |
@@ -92,26 +93,22 @@ XMPP User                      GW                       server
     |                          |<-------------------------|
     |                          |(F4) (SIP) ACK            |
     |                          |------------------------->|
-    |                          |                          |
     |                          |(F5) (MSRP) NICKNAME      |
     |                          |------------------------->|
     |                          |(F6) (MSRP) 200 OK        |
     |                          |<-------------------------|
-    |                          |                          |
     |                          |(F7) (SIP)SUBSCRIBE       |
     |                          |------------------------->|
     |                          |     Event:conference     |
     |                          |                          |
     |                          |(F8) (SIP) 200 OK         |
     |                          |<-------------------------|
-    |                          |                          |
     |                          |(F9) (SIP) NOTIFY         |
     |                          |<-------------------------|
     |                          |(F10) (SIP) 200 OK        |
     |                          |------------------------->|
     |(F11) (XMPP) Presence     |                          |
     |<-------------------------|                          |
-    |                          |                          |
     |(F12) (XMPP) Subject      |                          |
     |<-------------------------|                          |
     |                          |                          |
@@ -253,7 +250,7 @@ XMPP User                      GW                       server
         <figure>
           <artwork><![CDATA[
                                                   MSRP conference
-XMPP User                      GW                       server
+XMPP User                   Gateway                     server
     |                          |                          |
     |(F1) (XMPP) Enter room    |                          |
     |------------------------->|                          |
@@ -263,7 +260,6 @@ XMPP User                      GW                       server
     |                          |<-------------------------|
     |                          |(F4) (SIP) ACK            |
     |                          |------------------------->|
-    |                          |                          |
     |                          |(F5) (MSRP) NICKNAME      |
     |                          |------------------------->|
     |                          |(F6) (MSRP) 425 Error     |
@@ -313,7 +309,7 @@ XMPP User                      GW                       server
         <figure>
           <artwork><![CDATA[
                                                   MSRP conference
-XMPP User                      GW                       server
+XMPP User                   Gateway                     server
     |                          |                          |
     |(F1) (XMPP) Presence to change Nickname              |
     |------------------------->|                          |
@@ -343,7 +339,7 @@ XMPP User                      GW                       server
           <figure>
               <artwork><![CDATA[
                                                   MSRP conference
-XMPP User                      GW                       server
+XMPP User                   Gateway                     server
     |                          |                          |
     |(F1) (XMPP) Message stanza to invite participant     |
     |------------------------->|                          |
@@ -682,7 +678,7 @@ SIP/2.0 200 OK
       <figure>
         <artwork><![CDATA[
                                                     XMPP Chat
-SIP User                     GW                       room                        
+SIP User                  Gateway                     room                        
    |                         |                          |
    |(F1)(SIP) INVITE         |                          |
    |------------------------>|                          |
@@ -690,7 +686,6 @@ SIP User                     GW                       room
    |<------------------------|                          |
    |(F3) (SIP) ACK           |                          |
    |------------------------>|                          |
-   |                         |                          |
    |(F4) (MSRP) NICKNAME     |                          |
    |------------------------>|                          |
    |                         |(F5)(XMPP) Enter a room   |
@@ -706,7 +701,6 @@ SIP User                     GW                       room
    |                         |                          |
    |(F9) (SIP) 200 OK        |                          |
    |<------------------------|                          |
-   |                         |                          |
    |(F10) (SIP) NOTIFY       |                          |
    |<------------------------|                          |
    |(F11) (SIP) 200 OK       |                          |
@@ -716,7 +710,6 @@ SIP User                     GW                       room
    |                         |                          |
    |(F13)(MSRP) SEND         |                          |
    |------------------------>|                          |
-   |                         |                          |
    |(F14)(MSRP) SEND         |                          |
    |------------------------>|                          |
    |                         |(F15)(XMPP) Chat message  |
@@ -808,7 +801,7 @@ SIP User                     GW                       room
           ]]></artwork>
         </figure> 
 
-        <t>If the room does not already contain another user with the nickname, the service accept the access. So if the GW does not receive any stanza of type "error" specifying a &lt;conflict/&gt; error condition, it MUST answer the MSRP nickname proposal with a 200 OK response (F6).</t>
+        <t>If the room does not already contain another user with the nickname, the service accept the access. So if the gateway does not receive any stanza of type "error" specifying a &lt;conflict/&gt; error condition, it MUST answer the MSRP nickname proposal with a 200 OK response (F6).</t>
 
         <figure>
           <preamble>Example: (F6) </preamble>
@@ -826,7 +819,7 @@ SIP User                     GW                       room
         <figure>
           <artwork><![CDATA[
                                                   XMPP conference
-SIP User                      GW                       server
+SIP User                  Gateway                     server
    |                         |                          |
    |(F1)(SIP) INVITE         |                          |
    |------------------------>|                          |
@@ -855,7 +848,7 @@ SIP User                      GW                       server
         <figure>
           <artwork><![CDATA[
                                                   XMPP conference
-SIP User                      GW                       server
+SIP User                   Gateway                      server
     |                          |                          |
     |(F1) (MSRP) NICKNAME      |                          |
     |------------------------->|                          |
