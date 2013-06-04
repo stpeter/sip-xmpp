@@ -1,0 +1,94 @@
+SIP-TO-XMPP (stox)
+------------------------------------------------
+Current Status: Proposed WG
+
+Chairs:
+  Markus Isomaki <markus.isomaki at nokia.com>
+  Yana Stamcheva <yana at jitsi.org>
+
+Assigned Area Director:
+  Gonzalo Camarillo <gonzalo.camarillo at ericsson.com>
+
+Mailing list
+  Address: stox at ietf.org
+  To Subscribe: https://www.ietf.org/mailman/listinfo/stox
+  Archive: http://www.ietf.org/mail-archive/web/stox/
+
+Charter:
+
+Problem Statement
+
+The IETF has defined two signalling technologies that can be used
+for multimedia session negotiation, instant messaging, presence,
+file transfer, capabilities discovery, notifications, and other types 
+of real-time functionality:
+
+o  The Session Initiation Protocol (SIP), along with various SIP
+   extensions developed within the SIP for Instant Messaging and
+   Presence Leveraging Extensions (SIMPLE) Working Group.
+
+o  The Extensible Messaging and Presence Protocol (XMPP), along
+   with various XMPP extensions developed by the IETF as well as by
+   the XMPP Standards Foundation.
+
+SIP has been focused primarily on media session negotiation (e.g., audio
+and video), whereas XMPP has been focused primarily on messaging and
+presence.  As a result, the technologies are mostly complementary.
+However, there is also some overlap between SIP and XMPP, since there
+are SIP extensions for messaging, presence, groupchat, file transfer,
+etc., and there are XMPP extensions for multimedia session negotiation.
+This overlap has practical implications, since some deployed services
+use SIP for both media and messaging/presence, whereas other deployed
+services use XMPP for both messaging/presence and media.  When such 
+services wish to exchange information, they often need to translate 
+their native protocol (either SIP or XMPP) to the other protocol (either 
+XMPP or SIP).
+
+Implementers needing to perform such protocol mappings have often worked
+out their own heuristics for doing so.  Unfortunately, these heuristics
+are not always consistent, which can lead to interoperability problems.
+
+Objectives
+
+To make it easier for implementers to enable interworking between
+SIP-based systems and XMPP-based systems, several Internet-Drafts have
+defined guidelines for protocol mapping between SIP and XMPP, starting
+with draft-saintandre-xmpp-simple-00 in early 2004.  The current
+documents are:
+
+draft-saintandre-sip-xmpp-core
+draft-saintandre-sip-xmpp-presence
+draft-saintandre-sip-xmpp-im
+draft-saintandre-sip-xmpp-chat
+draft-saintandre-sip-xmpp-groupchat
+draft-saintandre-sip-xmpp-media
+
+These documents are fairly stable and the authors have received feedback
+from a number of implementers over the years.  However, implementers do
+not always know about these documents because they are Internet-Drafts
+and sometimes they have become expired due to inactivity.  Thus it would 
+be helpful to polish them off and publish them as RFCs.
+
+It might also be helpful to at some point publish additional documents in
+
+the same series, covering topics like capabilities discovery and file 
+transfer.  However, any such work would require a recharter.
+
+The group shall not be tasked with defining any new protocols, only with
+specifying mappings between existing protocols that have been defined for
+SIP and XMPP.
+
+Deliverables
+
+1. Address mapping and error handling
+2. Presence mapping
+3. Mapping for single instant messages
+4. Mapping for one-to-one text chat sessions
+5. Mapping for multi-user text chat sessions
+6. Mapping for media signaling
+
+All of the foregoing deliverables are standards track, since they are
+subject to interoperability testing.
+
+Milestones:
+TBD
