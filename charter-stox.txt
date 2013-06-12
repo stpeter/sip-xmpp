@@ -63,11 +63,14 @@ draft-saintandre-sip-xmpp-chat
 draft-saintandre-sip-xmpp-groupchat
 draft-saintandre-sip-xmpp-media
 
-These documents are fairly stable and the authors have received feedback
+Those documents are fairly stable and the authors have received feedback
 from a number of implementers over the years.  However, implementers do
-not always know about these documents because they are Internet-Drafts
-and sometimes they have become expired due to inactivity.  Thus it would 
-be helpful to polish them off and publish them as RFCs.
+not always know that such mapping specifications exist, because they are
+Internet-Drafts and sometimes they have become expired due to
+inactivity.  Thus it would be helpful to publish a set of mapping
+specifications as RFCs; the foregoing Internet-Drafts provide likely
+starting points, but other proposals are welcome as per normal IETF
+working group processes.
 
 It might also be helpful to at some point publish additional documents in
 
@@ -91,4 +94,10 @@ All of the foregoing deliverables are standards track, since they are
 subject to interoperability testing.
 
 Milestones:
-TBD
+
+Jun 2013   Accept starting-point mapping specifications as WG items
+
+Aug 2013   Start Working Group Last Call on mapping specifications
+
+Oct 2013   Submit mapping specifications to the IESG
+
