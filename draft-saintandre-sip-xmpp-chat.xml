@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="1"?>
-<rfc category="std" docName="draft-saintandre-sip-xmpp-chat-05" ipr="trust200902">
+<rfc category="std" docName="draft-saintandre-sip-xmpp-chat-06" ipr="trust200902">
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Chat">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): One-to-One Text Chat</title>
@@ -22,6 +22,18 @@
         </postal>
         <phone>+1-303-308-3282</phone>
         <email>psaintan@cisco.com</email>
+      </address>
+    </author>
+    <author initials="S." surname="Loreto" fullname="Salvatore Loreto">
+      <organization>Ericsson</organization>
+      <address>
+        <postal>
+          <street>Hirsalantie 11</street>
+          <code>02420</code> 
+          <city>Jorvas</city> 
+          <country>Finland</country>
+         </postal>
+        <email>Salvatore.Loreto@ericsson.com</email>
       </address>
     </author>
     <author initials="E." surname="Gavita" fullname="Eddy Gavita">      
@@ -47,18 +59,6 @@
           <country>Canada</country>
          </postal>
         <email>Nazin.Hossain@ericsson.com</email>
-      </address>
-    </author>
-    <author initials="S." surname="Loreto" fullname="Salvatore Loreto">
-      <organization>Ericsson</organization>
-      <address>
-        <postal>
-          <street>Hirsalantie 11</street>
-          <code>02420</code> 
-          <city>Jorvas</city> 
-          <country>Finland</country>
-         </postal>
-        <email>Salvatore.Loreto@ericsson.com</email>
       </address>
     </author>
     <date/>
@@ -442,12 +442,12 @@ CSeq: 1 BYE
 <author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
     <organization />
 </author>
-<date month='April' day='2' year='2013' />
+<date month='June' day='13' year='2013' />
 <abstract><t>As a foundation for the definition of application-specific, bi-directional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-core-04' />
+<seriesInfo name='Internet-Draft' value='draft-saintandre-sip-xmpp-core-05' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-core-04.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-saintandre-sip-xmpp-core-05.txt' />
 </reference>
 
 <reference anchor='RFC2119'>
