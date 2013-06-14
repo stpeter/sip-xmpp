@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="3"?>
-<rfc category="std" docName="draft-saintandre-sip-xmpp-groupchat-03" ipr="trust200902">
+<rfc category="std" docName="draft-saintandre-sip-xmpp-groupchat-04" ipr="trust200902">
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Groupchat">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Groupchat</title>
@@ -76,6 +76,13 @@
     <section title="Terminology" anchor="terms">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
       <t>A number of technical terms used here are defined in <xref target="RFC3261"/>, <xref target="RFC6120"/>, <xref target="RFC4975"/>, and <xref target='XEP-0045'/>.</t>
+    </section>
+
+    <section title="Handling of Nicknames and Display Names" anchor="names">
+      <t>Fundamental rules for mapping addresses between XMPP and SIP are provided in <xref target="I-D.saintandre-sip-xmpp-core"/>.  However, chatrooms include a more specialized, unique identifier for each participant in a room, called a nickname.  Implementations are strongly encouraged to apply the rules for preparation and comparison of nicknames specified in <xref target='I-D.ietf-precis-nickname'/>.</t>
+      <t>In addition to nicknames, some groupchat implementations also include display names (which might or might not be different from users' nicknames).  A display name need not be unique within the context of a room but instead simply provides a user-friendly name for a participant.</t>
+      <t>In SIP, the nickname is the value of the XCON 'nickname' attribute <xref target='RFC6501'/> and the display name is the XML character data of the conference-info &lt;display-text/&gt; element <xref target='RFC4575'/>.  In XMPP, the nickname is the value of the resourcepart of the Occupant JID <xref target='XEP-0045'/> and the display text is the XML character data of the &lt;nick/&gt; element <xref target='XEP-0172'/>.</t>
+      <t>If there is a conflict between the SIP nickname and the XMPP nickname, the SIP-to-XMPP or XMPP-to-SIP gateway is responsible for adjusting the nickname to avoid the conflict and for informing the SIP or XMPP client of the unique nickname used to join the chatroom.</t>
     </section>
 
     <section title="XMPP MUC to MSRP Multi-party Messaging Session" anchor="muc2msrp">
@@ -216,7 +223,7 @@ XMPP User                   Gateway                     server
 
       </section>
 
-      <section title="Setting up a Nickname" anchor="muc2msrp-nicksetup">
+      <section title="Set Nickname" anchor="muc2msrp-nicksetup">
 
         <t>If the chat room server accepted the session, the SIMPLE server or associated SIP-to-XMPP gateway MUST set up the nickname as received in the presence stanza. The nickname is set up using the extension specified in <xref target="I-D.ietf-simple-chat"/>.</t>
 
@@ -304,7 +311,7 @@ XMPP User                   Gateway                     server
 
       </section>
 
-      <section title="Changing Nickname" anchor="muc2msrp-nickChanging">
+      <section title="Change Nickname" anchor="muc2msrp-nickChange">
 
         <figure>
           <artwork><![CDATA[
@@ -335,7 +342,8 @@ XMPP User                   Gateway                     server
 
       </section>
 
-      <section title="Inviting Another User to a Room" anchor="muc2msrp-inviting">
+      <section title="Invite Another User to a Room" anchor="muc2msrp-invite">
+        <t>In XMPP there are two methods for inviting another user to a room: direct invitations <xref target='XEP-0249'/> (sent directly from the user's real JID outside the room to the invitee's real JID) and mediated invitations (sent through the room from the user's occupant JID to the invitee).  In this document we cover mediated invitations only.</t>
           <figure>
               <artwork><![CDATA[
                                                   MSRP conference
@@ -843,7 +851,7 @@ SIP User                  Gateway                     server
 
       </section>
 
-      <section title="Changing Nickname" anchor="msrp2muc-nickChanging">
+      <section title="Change Nickname" anchor="msrp2muc-nickChange">
 
         <figure>
           <artwork><![CDATA[
@@ -887,7 +895,7 @@ SIP User                   Gateway                      server
 
       </section>
 
-      <section title="Inviting Another User to a Room" anchor="msrp2muc-inviting">
+      <section title="Invite Another User to a Room" anchor="msrp2muc-invite">
         <t>To follow.</t>
       </section>
 
@@ -1119,6 +1127,20 @@ SIP User                   Gateway                      server
 
   <back>
     <references title="Normative References">
+
+<reference anchor='I-D.ietf-precis-nickname'>
+<front>
+<title>Preparation and Comparison of Nicknames</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<date month='November' day='6' year='2012' />
+<abstract><t>This document describes how to prepare and compare Unicode strings representing nicknames, primarily for use within textual chatrooms. This profile is intended to be used by messaging and text conferencing technologies such as the Extensible Messaging and Presence Protocol (XMPP), the Message Session Relay Protocol (MSRP), and Centralized Conferencing (XCON).</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ietf-precis-nickname-05' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-precis-nickname-05.txt' />
+</reference>
 
 <reference anchor="RFC2119">
 <front>
@@ -1369,6 +1391,60 @@ SIP User                   Gateway                      server
 <t>This document defines a conference event package for tightly coupled conferences using the Session Initiation Protocol (SIP) events framework, along with a data format used in notifications for this package.  The conference package allows users to subscribe to a conference Uniform Resource Identifier (URI).  Notifications are sent about changes in the membership of this conference and optionally about changes in the state of additional conference components. [STANDARDS TRACK]</t></abstract></front>
 <seriesInfo name='RFC' value='4575' />
 <format type='TXT' octets='97484' target='ftp://ftp.isi.edu/in-notes/rfc4575.txt' />
+</reference>
+
+<reference anchor='RFC6501'>
+<front>
+<title>Conference Information Data Model for Centralized Conferencing (XCON)</title>
+<author initials='O.' surname='Novo' fullname='O. Novo'>
+<organization /></author>
+<author initials='G.' surname='Camarillo' fullname='G. Camarillo'>
+<organization /></author>
+<author initials='D.' surname='Morgan' fullname='D. Morgan'>
+<organization /></author>
+<author initials='J.' surname='Urpalainen' fullname='J. Urpalainen'>
+<organization /></author>
+<date year='2012' month='March' />
+<abstract>
+<t>RFC 5239 defines centralized conferencing (XCON) as an association of participants with a central focus.  The state of a conference is represented by a conference object.  This document defines an XML- based conference information data model to be used for conference objects.  A conference information data model is designed to convey information about the conference and about participation in the conference.  The conference information data model defined in this document constitutes an extension of the data format specified in the Session Initiation Protocol (SIP) event package for conference State. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6501' />
+<format type='TXT' octets='180210' target='http://www.rfc-editor.org/rfc/rfc6501.txt' />
+</reference>
+
+<reference anchor="XEP-0172">
+  <front>
+    <title>User Nickname</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <author initials="V." surname="Mercier" fullname="Valerie Mercier">
+      <organization/>
+      <address>
+        <email>valerie.mercier@orange-ftgroup.com</email>
+      </address>
+    </author>
+    <date day="21" month="March" year="2012"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0172"/>
+  <format type="HTML" target="http://xmpp.org/extensions/xep-0172.html"/>
+</reference>
+
+<reference anchor="XEP-0249">
+  <front>
+    <title>Direct MUC Invitations</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <date day="22" month="September" year="2011"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0249"/>
+  <format type="HTML" target="http://xmpp.org/extensions/xep-0249.html"/>
 </reference>
 
     </references>
