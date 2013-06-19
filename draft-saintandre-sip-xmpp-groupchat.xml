@@ -790,8 +790,8 @@ SIP User                  Gateway                     room
           <preamble>Example: (F4) the MSRP user set up the nickname</preamble>
           <artwork><![CDATA[
     MSRP a786hjs2 NICKNAME
-    To-Path: path:msrp://s2x.example.net:7313/ansp71weztas;tcp
-    From-Path: path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
+    To-Path: msrp://s2x.example.net:7313/ansp71weztas;tcp
+    From-Path: msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
     Use-Nickname: "Romeo"
         -------a786hjs2
           ]]></artwork>
@@ -815,8 +815,8 @@ SIP User                  Gateway                     room
           <preamble>Example: (F6) </preamble>
           <artwork><![CDATA[
     MSRP a786hjs2 200 OK
-    To-Path: path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
-    From-Path: path:msrp://s2x.example.net:7313/ansp71weztas;tcp
+    To-Path: msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
+    From-Path: msrp://s2x.example.net:7313/ansp71weztas;tcp
         -------a786hjs2
           ]]></artwork>
         </figure>
@@ -874,8 +874,8 @@ SIP User                   Gateway                      server
           <preamble>Example: (F1) the MSRP user changes the nickname</preamble>
           <artwork><![CDATA[
     MSRP a786hjs2 NICKNAME
-    To-Path: path:msrp://s2x.example.net:7313/ansp71weztas;tcp
-    From-Path: path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
+    To-Path: msrp://s2x.example.net:7313/ansp71weztas;tcp
+    From-Path: msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
     Use-Nickname: "montecchi"
         -------a786hjs2
           ]]></artwork>
@@ -982,8 +982,8 @@ SIP User                   Gateway                      server
             <preamble>Example: (F12) Romeo sends a message to the chat room</preamble>
             <artwork><![CDATA[
     MSRP a786hjs2 SEND
-    To-Path: path:msrp://s2x.example.net:7313/ansp71weztas;tcp
-    From-Path: path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
+    To-Path: msrp://s2x.example.net:7313/ansp71weztas;tcp
+    From-Path: msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
     Message-ID: 87652492
     Byte-Range: 1-*/*
     Content-Type: message/cpim
@@ -1017,8 +1017,8 @@ SIP User                   Gateway                      server
             <preamble>Example: (F14) the SIP-to-XMPP send the MSRP response</preamble>
             <artwork><![CDATA[
     MSRP d93kswow 200 OK
-    To-Path: path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
-    From-Path: path:msrp://s2x.example.net:7313/ansp71weztas;tcp
+    To-Path: msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
+    From-Path: msrp://s2x.example.net:7313/ansp71weztas;tcp
     -------d93kswow$
             ]]></artwork>
           </figure>
@@ -1035,8 +1035,8 @@ SIP User                   Gateway                      server
             <preamble>Example: (F12) Romeo sends a private message</preamble>
             <artwork><![CDATA[
     MSRP a786hjs2 SEND
-    To-Path: path:msrp://s2x.example.net:7313/ansp71weztas;tcp
-    From-Path: path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
+    To-Path: msrp://s2x.example.net:7313/ansp71weztas;tcp
+    From-Path: msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
     Message-ID: 87652492
     Byte-Range: 1-*/*
     Content-Type: message/cpim
