@@ -764,7 +764,8 @@ SIP User                  Gateway                     room
         </figure>
 
         <t>Upon receiving the INVITE, the SIP-to-XMPP gateway needs to determine the identity of the remote domain, which it does by performing one or more DNS SRV lookups <xref target="RFC2782"/>. The SIP-to-XMPP gateway SHOULD resolve the address present in the To header of the INVITE to an im URI, then follow the rules in <xref target="RFC3861"/> regarding the "_im" SRV service for the target domain contained in the To header. If SRV address resolution fails for the "_im" service, the SIP-to-XMPP gateway MAY attempt a lookup for the "_xmpp-server" service as specified in <xref target="RFC6120"/> or MAY return an error to the sender (i.e.  502 Bad Gateway).</t>
-        <t>If SRV address resolution succeeds, the SIP-to-XMPP gateway SHOULD answer successfuly with a SIP 200 OK (F2), but it MUST NOT yet translate the request into an XMPP presece stanza before the MSRP user set up the nickname.</t>
+        <t>If SRV address resolution succeeds, the SIP-to-XMPP gateway SHOULD answer successfuly with a SIP 200 OK (F2).</t>
+        <t>Implementations MAY wait until the nickname is set with a MSRP NICKNAME chunk before joining the XMPP MUC or MAY choose a temporary nickname (such as the SIP From header display name) and use it to join the room.</t>
 
         <figure>
           <artwork><![CDATA[
