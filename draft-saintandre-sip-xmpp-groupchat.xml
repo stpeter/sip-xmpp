@@ -82,6 +82,7 @@
       <t>Fundamental rules for mapping addresses between XMPP and SIP are provided in <xref target="I-D.saintandre-sip-xmpp-core"/>.  However, chatrooms include a more specialized, unique identifier for each participant in a room, called a nickname.  Implementations are strongly encouraged to apply the rules for preparation and comparison of nicknames specified in <xref target='I-D.ietf-precis-nickname'/>.</t>
       <t>In addition to nicknames, some groupchat implementations also include display names (which might or might not be different from users' nicknames).  A display name need not be unique within the context of a room but instead simply provides a user-friendly name for a participant.</t>
       <t>In SIP, the nickname is the value of the XCON 'nickname' attribute <xref target='RFC6501'/> and the display name is the XML character data of the conference-info &lt;display-text/&gt; element <xref target='RFC4575'/>.  In XMPP, the nickname is the value of the resourcepart of the Occupant JID <xref target='XEP-0045'/> and the display text is the XML character data of the &lt;nick/&gt; element <xref target='XEP-0172'/>.</t>
+      <t>However, in practice, the SIP &lt;display-text/&gt; element is treated as canonical, and the XMPP &lt;nick/&gt; element is rarely used.  Therefore implementations SHOULD use the SIP &lt;display-text/&gt; element (not the XCON 'nickname' attribute) and the XMPP resourcepart of the Occupant JID (not the character data of the &lt;nick/&gt; element).</t>
       <t>If there is a conflict between the SIP nickname and the XMPP nickname, the SIP-to-XMPP or XMPP-to-SIP gateway is responsible for adjusting the nickname to avoid the conflict and for informing the SIP or XMPP client of the unique nickname used to join the chatroom.</t>
     </section>
 
@@ -334,8 +335,7 @@ XMPP User                   Gateway                     server
           <preamble>Example: (F1) Juliet changing the nickname</preamble>
           <artwork><![CDATA[
     <presence from='juliet@example.com/balcony'
-              to='verona@chat.example.org/JuliC'>
-    </presence>
+              to='verona@chat.example.org/JuliC'/>
 
           ]]></artwork>
         </figure>
@@ -490,7 +490,7 @@ SIP/2.0 200 OK
         <figure>
           <preamble>Example: (F11) chat room presence information translated in XMPP</preamble>
           <artwork><![CDATA[
-    <presence from='romeo@example.com/romeo'
+    <presence from='verona@chat.example.org/romeo'
               to='verona@chat.example.org/JuliC'>
       <x xmlns='http://jabber.org/protocol/muc#user'>
         <item affiliation='none' role='participant'/>
@@ -616,8 +616,8 @@ SIP/2.0 200 OK
             <preamble>Example: Juliet sends private message</preamble>
             <artwork><![CDATA[
     <message from='juliet@example.com'
-              to='verona@chat.example.org/romeo'
-              type='chat'/>
+             to='verona@chat.example.org/romeo'
+             type='chat'/>
           <body>O Romeo, Romeo! wherefore art thou Romeo?</body>
     </message>
             ]]></artwork>
@@ -803,7 +803,7 @@ SIP User                  Gateway                     room
           <preamble>Example: (F5) Romeo entering a chatroom</preamble>
           <artwork><![CDATA[
     <presence from='romeo@example.com'
-             to='verona@chat.example.org/romeo'>
+              to='verona@chat.example.org/romeo'>
       <x xmlns='http='http://jabber.org/protocol/muc'/>
     </presence>
           ]]></artwork>
@@ -1041,7 +1041,7 @@ SIP User                   Gateway                      server
     Byte-Range: 1-*/*
     Content-Type: message/cpim
 
-    To: <sip:juliet@chat.example.org>
+    To: <sip:verona@chat.example.org;gr=JuliC>
     From: <sip:romeo@example.com>
     DateTime: 2008-10-15T15:02:31-03:00
     Content-Type: text/plain
@@ -1052,7 +1052,7 @@ SIP User                   Gateway                      server
           </figure>
 
          <figure>
-            <preamble>Example: (F13) Juliet sends a private message</preamble>
+            <preamble>Example: (F13) Remeo sends a private message</preamble>
             <artwork><![CDATA[
     <message from='romeo@example.com'
              to='verona@chat.example.org/JuliC'
@@ -1103,14 +1103,14 @@ SIP User                   Gateway                      server
       <t>The following issues remain to be closed.</t>
       <t>
         <list style="numbers">
-          <t>Define a full mapping between RFC 4575 and MUC.</t>
+          <!-- WONT FIX <t>Define a full mapping between RFC 4575 and MUC.</t> -->
           <t>Define how to send to the room jid with the subject child set (e.g., do we need to send it in a different presence stanza than step F11?)</t>
-          <t>Specify how to deal with conflicts between SIP display name and XMPP nickname (e.g., use only display-text?).</t>
-          <t>Specify how to map the &lt;roles/&gt; conference-info attribute to XMPP &lt;affiliation/&gt; and &lt;role/&gt;. In XMPP roles are current privileges within the room while, affiliations are kept permanently in different sessions (they are the default for a given user).</t>
+          <!-- RESOLVED <t>Specify how to deal with conflicts between SIP display name and XMPP nickname (e.g., use only display-text?).</t> -->
+          <!-- WONT FIX <t>Specify how to map the &lt;roles/&gt; conference-info attribute to XMPP &lt;affiliation/&gt; and &lt;role/&gt;. In XMPP roles are current privileges within the room while, affiliations are kept permanently in different sessions (they are the default for a given user).</t> -->
           <t>When joining via SIP, the gateway could use a temporary nickname and directly translate the request into a XMPP presence stanza.</t>
           <t>The SIP-to-XMPP gateway will receive back the reflected message from the Chat room service. Does the SIP-to-XMPP gateway need to translate it back to the MSRP user or not?</t>
-          <t>If the room is semi-anonymous, publish the occupant JID instead? Always set the occupant JID as the 'user' and the real JID as an 'endpoint'?</t>
-          <t>Should a private message be addressed to the occupant JID? If so, it would need to be translated to a GRUU (e.g., sip:verona@chat.example.org;gr=JuliC).</t>
+          <!-- RESOLVED <t>If the room is semi-anonymous, publish the occupant JID instead? Always set the occupant JID as the 'user' and the real JID as an 'endpoint'?</t> -->
+          <!-- RESOLVED <t>Should a private message be addressed to the occupant JID? If so, it would need to be translated to a GRUU (e.g., sip:verona@chat.example.org;gr=JuliC).</t> -->
         </list>
       </t>
     </section>
