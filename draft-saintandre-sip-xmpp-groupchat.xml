@@ -511,18 +511,18 @@ SIP/2.0 200 OK
           ]]></artwork>
         </figure>
 
-        <t>The mapping of SIP and SDP syntax elements to XMPP syntax elements is as shown in the following table.  (Mappings for elements not mentioned are undefined.)</t>
+        <t>The mapping of SIP and <xref target='RFC4575'/> payload syntax elements to XMPP syntax elements is as shown in the following table.  (Mappings for elements not mentioned are undefined.)</t>
         <figure>
-          <preamble>Table 2: Message syntax mapping from SIP/SDP to XMPP</preamble>
+          <preamble>Table 2: Message syntax mapping from SIP to XMPP</preamble>
           <artwork><![CDATA[
-    +-----------------------------+-----------------------------+
-    | SIP Header or SDP Contents  | XMPP Element or Attribute   |
-    +-----------------------------+-----------------------------+
-    |  <user entity=...>          |  From                       |
-    |  To + / <nickname-text>     |  To                         |
-    |  roles                      |  role                       |
-    |  'none'                     |  affiliation                |
-    +-----------------------------+-----------------------------+
+    +---------------------------------+-----------------------------+
+    | SIP Header or RFC4575 Contents  | XMPP Element or Attribute   |
+    +---------------------------------+-----------------------------+
+    |  <user entity=...>              |  From                       |
+    |  To + / <display-text>          |  To                         |
+    |  roles                          |  role                       |
+    |  'none'                         |  affiliation                |
+    +---------------------------------+-----------------------------+
           ]]></artwork>
         </figure>
 
