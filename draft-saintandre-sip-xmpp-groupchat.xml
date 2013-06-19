@@ -998,7 +998,7 @@ SIP User                   Gateway                      server
             ]]></artwork>
           </figure>
 
-          <t>Upon receiving the SEND request, if the request either contains a Failure-Report header field value of "yes" or does not contain a Failure-Report header at all, the SIP-to-XMPP gateway MUST immediately translate it in a XMPP message stanza (F13) and then generate and send an MSRP response (F14).</t>
+          <t>Upon receiving the SEND request, if the request either contains a Failure-Report header field value of "yes" or does not contain a Failure-Report header at all, the SIP-to-XMPP gateway MUST immediately translate it into an XMPP message stanza (F13) and then generate and send an MSRP response (F14).</t>
 
           <t>The following examples show an exchange of a public message.</t>
 
