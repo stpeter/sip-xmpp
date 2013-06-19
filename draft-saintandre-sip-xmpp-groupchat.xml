@@ -455,7 +455,8 @@ SIP/2.0 200 OK
       </conf-uris>
      </conference-description>
      <users>
-      <user entity="sip:verona@chat.example.org;gr=Romeo" state="full">
+      <user entity="sip:verona@chat.example.org;gr=Romeo" 
+            state="full">
        <display-text>Romeo</display-text>
         <roles>
          <entry>participant</entry>
