@@ -161,7 +161,7 @@ XMPP User                   Gateway                     server
           <artwork><![CDATA[
     INVITE sip:verona@chat.example.org SIP/2.0
     To: <sip:verona@chat.example.org>
-    From: <sip:juliet@example.com>
+    From: "Juliet" <sip:juliet@example.com>
     Contact: <sip:juliet@example.com>;gr=balcony
     Call-ID: 711609sa
     Content-Type: application/sdp
@@ -195,7 +195,7 @@ XMPP User                   Gateway                     server
           <artwork><![CDATA[
   SIP/2.0 200 OK
   To: <sip:verona@chat.example.org>
-  From: <sip:juliet@example.com>;tag=786
+  From: "Juliet" <sip:juliet@example.com>;tag=786
   Call-ID: 711609sa
   Contact: <sip:verona@chat.example.org;transport=tcp>\
            ;methods="INVITE,BYE,OPTIONS,ACK,CANCEL,SUBSCRIBE,NOTIFY"\
@@ -217,7 +217,7 @@ XMPP User                   Gateway                     server
           <artwork><![CDATA[
     ACK sip:verona@chat.example.org SIP/2.0
     To: <sip:verona@chat.example.org>;tag=087js
-    From: <sip:juliet@example.com>;tag=786
+    From: "Juliet" <sip:juliet@example.com>;tag=786
     Call-ID: 711609sa
           ]]></artwork>
         </figure>
@@ -382,8 +382,7 @@ XMPP User                   Gateway                     server
           ]]></artwork>
         </figure>
 
-        <t>The SIP - XMPP gateway then sends a SIP REFER request to the MSRP conference server indicating who needs to be invited
-        in the Refer-To header, as per RFC 4579 (sec 5.5)</t>
+        <t>The SIP - XMPP gateway then sends a SIP REFER request to the MSRP conference server indicating who needs to be invited in the Refer-To header, as per RFC 4579 (sec 5.5)</t>
 
         <figure>
           <preamble>Example: (F2) Juliet inviting Hecate to the room</preamble>
@@ -392,7 +391,7 @@ XMPP User                   Gateway                     server
   Via: SIP/2.0/UDP client.example.com;branch=z9hG4bKg4534
   Max-Forwards: 70
   To: <sip:verona@chat.example.com>
-  From: <sip:juliet@example.com>;tag=5534562
+  From: "Juliet" <sip:juliet@example.com>;tag=5534562
   Call-ID: 849392fklgl43
   CSeq: 476 REFER
   Contact: <sip:juliet@juliet.example.com>
@@ -404,7 +403,7 @@ XMPP User                   Gateway                     server
           ]]></artwork>
         </figure>
 
-        <t>The progress of the invitation will be tracked by the reeived NOTIFY requests as per RFC 3515.</t>
+        <t>The progress of the invitation will be tracked by the reeived NOTIFY requests as per <xref target='RFC3515'/>.</t>
 
         <figure>
           <preamble>Example: (F4) Progress notification for invitation</preamble>
@@ -436,7 +435,7 @@ SIP/2.0 200 OK
           <preamble>Example: (F9) chat room sends presence information</preamble>
           <artwork><![CDATA[
     NOTIFY sip:verona@chat.example.org SIP/2.0
-    To: Juliet <sip:juliet@example.com>;gr=balcony
+    To: "Juliet" <sip:juliet@example.com>;gr=balcony
     From: <sip:verona@chat.example.org>;tag=a3343df32
     Call-ID: k3l43id034ksereree
     Event: conference
@@ -456,8 +455,8 @@ SIP/2.0 200 OK
       </conf-uris>
      </conference-description>
      <users>
-      <user entity="sip:romeo@example.com" state="full">
-       <display-text>romeo</display-text>
+      <user entity="sip:verona@chat.example.org;gr=Romeo" state="full">
+       <display-text>Romeo</display-text>
         <roles>
          <entry>participant</entry>
         </roles>
@@ -490,7 +489,7 @@ SIP/2.0 200 OK
         <figure>
           <preamble>Example: (F11) chat room presence information translated in XMPP</preamble>
           <artwork><![CDATA[
-    <presence from='verona@chat.example.org/romeo'
+    <presence from='verona@chat.example.org/Romeo'
               to='verona@chat.example.org/JuliC'>
       <x xmlns='http://jabber.org/protocol/muc#user'>
         <item affiliation='none' role='participant'/>
@@ -575,7 +574,7 @@ SIP/2.0 200 OK
     Content-Type: message/cpim
 
     To: <sip:verona@chat.example.org;transport=tcp>
-    From: <sip:juliet@example.com>
+    From: "Juliet" <sip:juliet@example.com>
     Contact: <sip:juliet@example.com>;gr=balcony
     DateTime: 2008-10-15T15:02:31-03:00
     Content-Type: text/plain
@@ -616,7 +615,7 @@ SIP/2.0 200 OK
             <preamble>Example: Juliet sends private message</preamble>
             <artwork><![CDATA[
     <message from='juliet@example.com'
-             to='verona@chat.example.org/romeo'
+             to='verona@chat.example.org/Romeo'
              type='chat'/>
           <body>O Romeo, Romeo! wherefore art thou Romeo?</body>
     </message>
@@ -634,8 +633,8 @@ SIP/2.0 200 OK
     Byte-Range: 1-*/*
     Content-Type: message/cpim
 
-    To: <sip:verona@chat.example.org>;gr=romeo
-    From: <sip:juliet@chat.example.org>
+    To: <sip:verona@chat.example.org>;gr=Romeo
+    From: "JuliC" <sip:verona@chat.example.org>;gr=JuliC
     DateTime: 2008-10-15T15:02:31-03:00
     Content-Type: text/plain
 
@@ -751,7 +750,7 @@ SIP User                  Gateway                     room
           <artwork><![CDATA[
     INVITE sip:verona@chat.example.org SIP/2.0
     To: <sip:verona@chat.example.org>
-    From: <sip:romeo@example.com>;tag=786
+    From: "Romeo" <sip:romeo@example.com>;tag=786
     Call-ID: 742510no
     Content-Type: application/sdp
     Content-Length: [length]
@@ -771,7 +770,7 @@ SIP User                  Gateway                     room
           <artwork><![CDATA[
   SIP/2.0 200 OK
   To: <sip:verona@chat.example.org>
-  From: <sip:romeo@example.com>;tag=786
+  From: "Romeo" <sip:romeo@example.com>;tag=786
   Contact: <sip:x2s.example.com;transport=tcp> \
            ;methods="INVITE,BYE,OPTIONS,ACK,CANCEL,SUBSCRIBE,NOTIFY"\
            ;automata;isfocus;message;event="conference"
@@ -792,7 +791,7 @@ SIP User                  Gateway                     room
     MSRP a786hjs2 NICKNAME
     To-Path: path:msrp://s2x.example.net:7313/ansp71weztas;tcp
     From-Path: path:msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
-    Use-Nickname: "romeo"
+    Use-Nickname: "Romeo"
         -------a786hjs2
           ]]></artwork>
         </figure>
@@ -803,7 +802,7 @@ SIP User                  Gateway                     room
           <preamble>Example: (F5) Romeo entering a chatroom</preamble>
           <artwork><![CDATA[
     <presence from='romeo@example.com'
-              to='verona@chat.example.org/romeo'>
+              to='verona@chat.example.org/Romeo'>
       <x xmlns='http='http://jabber.org/protocol/muc'/>
     </presence>
           ]]></artwork>
@@ -921,7 +920,7 @@ SIP User                   Gateway                      server
           <preamble>Example: (F10) the XMPP-to-SIP notifies the presence information</preamble>
           <artwork><![CDATA[
     NOTIFY sip:romeo@example.com SIP/2.0
-    To: Juliet <sip:romeo@example.com>;tag=43524545
+    To: <sip:romeo@example.com>;tag=43524545
     From: <sip:verona@chat.example.org>;tag=a3343df32
     Call-ID: k3l43id034ksererff
     Event: conference
@@ -989,7 +988,7 @@ SIP User                   Gateway                      server
     Content-Type: message/cpim
 
     To: <sip:verona@chat.example.org;transport=tcp>
-    From: <sip:juliet@example.com>
+    From: "Juliet" <sip:juliet@example.com>
     DateTime: 2008-10-15T15:02:31-03:00
     Content-Type: text/plain
 
@@ -1041,7 +1040,7 @@ SIP User                   Gateway                      server
     Byte-Range: 1-*/*
     Content-Type: message/cpim
 
-    To: <sip:verona@chat.example.org;gr=JuliC>
+    To: <sip:verona@chat.example.org>;gr=JuliC
     From: <sip:romeo@example.com>
     DateTime: 2008-10-15T15:02:31-03:00
     Content-Type: text/plain
@@ -1054,7 +1053,7 @@ SIP User                   Gateway                      server
          <figure>
             <preamble>Example: (F13) Remeo sends a private message</preamble>
             <artwork><![CDATA[
-    <message from='romeo@example.com'
+    <message from='verona@chat.example.org/Romeo'
              to='verona@chat.example.org/JuliC'
              type='chat'/>
           <body>I am here!!!</body>
@@ -1075,7 +1074,7 @@ SIP User                   Gateway                      server
           <artwork><![CDATA[
     BYE sip:verona@chat.example.org SIP/2.0
     Max-Forwards: 70
-    From: <sip:romeo@example.net>;tag=786
+    From: "Romeo" <sip:romeo@example.net>;tag=786
     To: <sip:verona@chat.example.org>;tag=534
     Call-ID: 742510no
     Cseq: 1 BYE
@@ -1089,7 +1088,7 @@ SIP User                   Gateway                      server
           <preamble>Example: (F19) Juliet exiting a chatroom</preamble>
           <artwork><![CDATA[
     <presence from='romeo@example.com'
-             to='verona@chat.example.org/romeo'
+             to='verona@chat.example.org/Romeo'
              type='unavailable'>
     </presence>
           ]]></artwork>
@@ -1359,6 +1358,18 @@ SIP User                   Gateway                      server
    server(s) for a specific protocol and domain.</t></abstract></front>
 <seriesInfo name='RFC' value='2782' />
 <format type='TXT' octets='24013' target='ftp://ftp.isi.edu/in-notes/rfc2782.txt' />
+</reference>
+
+<reference anchor='RFC3515'>
+<front>
+<title>The Session Initiation Protocol (SIP) Refer Method</title>
+<author initials='R.' surname='Sparks' fullname='R. Sparks'>
+<organization /></author>
+<date year='2003' month='April' />
+<abstract>
+<t>This document defines the REFER method.  This Session Initiation Protocol (SIP) extension requests that the recipient REFER to a resource provided in the request.  It provides a mechanism allowing the party sending the REFER to be notified of the outcome of the referenced request.  This can be used to enable many applications, including call transfer.  In addition to the REFER method, this document defines the refer event package and the Refer-To request header. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='3515' />
+<format type='TXT' octets='47788' target='http://www.rfc-editor.org/rfc/rfc3515.txt' />
 </reference>
 
 <reference anchor="RFC4566">
