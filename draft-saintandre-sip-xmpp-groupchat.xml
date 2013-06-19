@@ -976,7 +976,7 @@ SIP User                   Gateway                      server
 
         <section title="Sending a Message to All Occupants" anchor="msrp2muc-messageToAll">
 
-          <t>When Romeo wants to sends a message to all other occupants in the room, he sends a MSRP SEND request to &lt;room@service&gt; itself (i.e. &lt;verona@chat.example.org&gt; in our example).</t>
+          <t>When Romeo wants to send a message to all other occupants in the room, he sends a MSRP SEND request to &lt;room@service&gt; itself (i.e. &lt;verona@chat.example.org&gt; in our example).</t>
 
           <figure>
             <preamble>Example: (F12) Romeo sends a message to the chat room</preamble>
@@ -988,7 +988,7 @@ SIP User                   Gateway                      server
     Byte-Range: 1-*/*
     Content-Type: message/cpim
 
-    To: <sip:verona@chat.example.org;transport=tcp>
+    To: <sip:verona@chat.example.org>
     From: "Juliet" <sip:juliet@example.com>
     DateTime: 2008-10-15T15:02:31-03:00
     Content-Type: text/plain
