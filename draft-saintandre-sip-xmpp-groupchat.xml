@@ -172,7 +172,7 @@ XMPP User                   Gateway                     server
     a=accept-types:text/cpim
     a=accept-wrapped-types:text/plain text/html
     a=path:msrp://x2s.example.com:7654/jshA7weztas;tcp
-    a=chatroom:nickname private-messages
+    a=chatroom
           ]]></artwork>
         </figure>
         <t>Here the Session Description Protocol offer specifies the MSRP-aware XMPP-to-SIP gateway on the XMPP side as well as other particulars of the session.</t>
