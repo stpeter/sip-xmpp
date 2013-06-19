@@ -594,7 +594,7 @@ SIP/2.0 200 OK
             ]]></artwork>
           </figure>
 
-          <t>Since the XMPP room could be moderated and an XMPP user cannot be sure whether his message has been accepted or not (without receiving it back from the server), <xref target="XEP-0045"/> states that the sender needs to receive back the same message it has generated.  So in this scenario the XMPP-to-SIP gateway has to reflect the message back to the sender.</t>
+          <t>Since the XMPP room could be moderated and an XMPP user cannot be sure whether his message has been accepted or not (without receiving it back from the server), <xref target="XEP-0045"/> states that the sender needs to receive back the same message it has generated.  So in this scenario the XMPP-to-SIP gateway has to reflect the message back to the sender. This prodedure only applies to XMPP endpoints.</t>
 
         </section>
 
