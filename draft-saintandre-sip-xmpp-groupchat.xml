@@ -374,7 +374,7 @@ XMPP User                   Gateway               MSRP Conference
         <t>The SIP - XMPP gateway then sends a SIP REFER request to the MSRP conference server indicating who needs to be invited in the Refer-To header, as per <xref target='RFC4579'/> (sec 5.5)</t>
 
         <figure>
-          <preamble>Example: (F2) SIP transformation of invite</preamble>
+          <preamble>Example: (F2) SIP translation of invite</preamble>
           <artwork><![CDATA[
   REFER sip:verona@chat.example.com SIP/2.0
   Via: SIP/2.0/UDP client.example.com;branch=z9hG4bKg4534
@@ -507,7 +507,8 @@ SIP/2.0 200 OK
           <preamble>Example: (F12) Chatroom subject translated into XMPP</preamble>
           <artwork><![CDATA[
     <message from='verona@chat.example.com/mayor'
-             to='juliet@example.com/balcony'>
+             to='juliet@example.com/balcony'
+             id='mbh2vd68'>
       <subject>Today in Verona</subject>
     </message>
           ]]></artwork>
@@ -561,7 +562,8 @@ SIP/2.0 200 OK
             <artwork><![CDATA[
     <message from='juliet@example.com/balcony'
              to='verona@chat.example.org'
-             type='groupchat'>
+             type='groupchat'
+             id='lzfed24s'>
           <body>Who knows where Romeo is?</body>
     </message>
             ]]></artwork>
@@ -623,7 +625,8 @@ SIP/2.0 200 OK
             <artwork><![CDATA[
     <message from='juliet@example.com/balcony'
              to='verona@chat.example.org/Romeo'
-             type='chat'/>
+             type='chat'
+             id='6sfln45q'/>
           <body>O Romeo, Romeo! wherefore art thou Romeo?</body>
     </message>
             ]]></artwork>
@@ -1021,6 +1024,8 @@ SIP User                   Gateway                      server
 
           <t>When Romeo wants to send a message to all other occupants in the room, he sends an MSRP SEND request to &lt;room@service&gt; itself (i.e., &lt;verona@chat.example.org&gt; in our example).</t>
 
+          <t>The following examples show an exchange of a public message.</t>
+
           <figure>
             <preamble>Example: (F12) Romeo sends a message to the chat room</preamble>
             <artwork><![CDATA[
@@ -1043,14 +1048,13 @@ SIP User                   Gateway                      server
 
           <t>Upon receiving the SEND request, if the request either contains a Failure-Report header field value of "yes" or does not contain a Failure-Report header at all, the SIP-to-XMPP gateway MUST immediately translate it into an XMPP message stanza (F13) and then generate and send an MSRP response (F14).</t>
 
-          <t>The following examples show an exchange of a public message.</t>
-
           <figure>
-            <preamble>Example: (F13) Romeo sends message to all occupants</preamble>
+            <preamble>Example: (F13) XMPP translation of message</preamble>
             <artwork><![CDATA[
     <message from='romeo@example.com/orchard'
              to='verona@chat.example.org'
-             type='groupchat'>
+             type='groupchat'
+             id='8gbx1g4p'>
       <body>Romeo is here!</body>
     </message>
             ]]></artwork>
@@ -1065,6 +1069,8 @@ SIP User                   Gateway                      server
     -------d93kswow$
             ]]></artwork>
           </figure>
+
+          <t>Note well that the XMPP MUC room will reflect the sender's message back to all users, including the sender.  In MSRP this reflected message is unnecessary.  Therefore gateways are advised to maintain a cache and if the same stanza is received within a reasonable amount of time, assume is the reflected message and ignore it.</t>
 
         </section>
 
@@ -1123,7 +1129,8 @@ SIP User                   Gateway                      server
             <artwork><![CDATA[
     <message from='verona@chat.example.org/Romeo'
              to='verona@chat.example.org/JuliC'
-             type='chat'/>
+             type='chat'
+             id='rg2ca9k7'/>
           <body>I am here!!!</body>
     </message>
           ]]></artwork>
