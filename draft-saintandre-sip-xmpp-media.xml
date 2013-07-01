@@ -40,7 +40,7 @@
     <section title="Introduction" anchor="intro">
       <t>The Session Initiation Protocol <xref target="RFC3261"/> is a widely-deployed technology for the management of media sessions (such as voice calls) over the Internet.  SIP itself provides a signalling channel (typically via the User Datagram Protocol <xref target='RFC768'/>), over which two or more parties can exchange messages for the purpose of negotiating a media session that uses a dedicated media channel such as the Real-time Transport Protocol <xref target='RFC3550'/>.</t>
       <t>The Extensible Messaging and Presence Protocol <xref target='RFC6120'/> also provides a signalling channel, typically via the Transmission Control Protocol <xref target='RFC793'/>.  Given the significant differences between XMPP and SIP, it is difficult to combine the two technologies in a single user agent.  Therefore, developers wishing to add media session capabilities to XMPP clients have defined an XMPP-specific negotiation protocol called Jingle <xref target='XEP-0166'/>.</t>
-      <t>However, Jingle has been designed to easily map to SIP for communication through gateways or other transformation mechanisms.  Therefore, consistent with existing specifications for mapping between SIP and XMPP (see <xref target='I-D.saintandre-sip-xmpp-core'/> and other specifications in that "series"), this document describes a bi-directional protocol mapping for use by gateways that enable the exchange of media signalling messages between systems that implement SIP and those that implement the XMPP Jingle extensions.</t>
+      <t>However, Jingle was designed to easily map to SIP for communication through gateways or other transformation mechanisms.  Therefore, consistent with existing specifications for mapping between SIP and XMPP (see <xref target='I-D.saintandre-sip-xmpp-core'/> and other related specifications), this document describes a bi-directional protocol mapping for use by gateways that enable the exchange of media signalling messages between systems that implement SIP and those that implement the XMPP Jingle extensions.</t>
       <t>Note: The capitalized key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target="RFC2119"/>.</t>
     </section>
 
@@ -52,7 +52,7 @@
           <list style='symbols'>
             <t>Base SIP messages and headers use a plaintext format similar in some ways to the Hypertext Transport Protocol <xref target='RFC2616'/>, whereas Jingle messages are pure XML.  Mappings between SIP headers and Jingle message syntax are provided below.</t>
             <t>The SIP payloads defining session semantics use the Session Description Protocol <xref target='RFC4566'/>, whereas the equivalent Jingle payloads are defined as XML child elements of the Jingle &lt;content/&gt; element.  However, the Jingle specifications defining such child elements specify mappings to SDP for all Jingle syntax, making the mapping relatively straightforward.</t>
-            <t>The SIP signalling channel is transported over UDP, whereas the signalling channel for Jingle is XMPP over TCP.  Mapping between the transport layers typically happens within a gateway using techniques below the application level, and therefore is not addressed in this specification.</t>
+            <t>The SIP signalling channel has traditionally been transported over UDP, whereas the signalling channel for Jingle is XMPP over TCP.  Mapping between the transport layers typically happens within a gateway using techniques below the application level, and therefore is not addressed in this specification.</t>
           </list>
         </t>
       </section>
@@ -120,6 +120,7 @@
 +--------------------------------+--------------------------------+
             ]]></artwork>
           </figure>
+          <t>The 'senders' attribute is optional in Jingle, thus in case it's absent it's RECOMMENDED that the direction value is considered as 'sendrecv'.</t>
           <t>The 'action' attribute of the &lt;jingle/&gt; element has nine allowable values.  In general they should be mapped as shown in the following table, with some exceptions as described herein.</t>
           <figure>
             <artwork><![CDATA[
@@ -127,7 +128,7 @@
 | Jingle Action     | SIP Method      |
 +-------------------+-----------------+
 | content-accept    | INVITE response |
-|                   | (1xx)           |
+|                   | (1xx or 2xx)    |
 +-------------------+-----------------+
 | content-add       | INVITE request  |
 +-------------------+-----------------+
@@ -151,11 +152,11 @@
         </section>
 
         <section title="Audio Application Format" anchor="jingle-syntax-audio">
-          <t>A Jingle application format for audio exchange via RTP is specified in <xref target='XEP-0167'/>.  This application format effectively maps to the "RTP/AVP" profile specified in <xref target='RFC3551'/>, where the media type is "audio" and the specific mappings to SDP syntax are provided in <xref target='XEP-0167'/>.</t>
+            <t>A Jingle application format for audio exchange via RTP is specified in <xref target='XEP-0167'/>.  This application format effectively maps to the "RTP/AVP" profile specified in <xref target='RFC3551'/> and the "RTP/SAVP" profile specified in RFC3711, where the media type is "audio" and the specific mappings to SDP syntax are provided in <xref target='XEP-0167'/>.</t>
         </section>
 
         <section title="Video Application Format" anchor="jingle-syntax-video">
-          <t>A Jingle application format for video exchange via RTP is specified in <xref target='XEP-0167'/>.  This application format effectively maps to the "RTP/AVP" profile specified in <xref target='RFC3551'/>, where the media type is "audio" and the specific mappings to SDP syntax are provided in <xref target='XEP-0167'/>.</t>
+            <t>A Jingle application format for video exchange via RTP is specified in <xref target='XEP-0167'/>.  This application format effectively maps to the "RTP/AVP" profile specified in <xref target='RFC3551'/> and the "RTP/SAVP" profile specified in RFC3711, where the media type is "audio" and the specific mappings to SDP syntax are provided in <xref target='XEP-0167'/>.</t>
         </section>
 
         <section title="Raw UDP Transport Method" anchor="jingle-syntax-udp">
@@ -164,6 +165,7 @@
 
         <section title="ICE-UDP Transport Method" anchor="jingle-syntax-ice">
           <t>A more advanced Jingle transport method for exchanging media over UDP is specified in <xref target='XEP-0176'/>.  Under ideal conditions this transport method provides NAT traversal by following the Interactive Connectivity Exchange methodology specified in <xref target='RFC5245'/>.  The relevant SDP mappings are provided in <xref target='XEP-0176'/>.</t>
+          <t>When using ICE transport, Jingle endpoints are capable of sending candidates in several transport-info meesages. Since there is no equivalent way to achieve that with SIP, <xref target='XEP-0176'/> defines an offer-answer support mode defined by the "urn:ietf:rfc:3264" feature tag. Implementations conforming to this specification MUST support offfer-answer model with Jingle.</t>
         </section>
       </section>
 
@@ -260,16 +262,15 @@ o=alice 2890844526 2890844526 IN IP4 client.example.com
 s=-
 c=IN IP4 192.0.2.101
 t=0 0
-m=audio 49172 RTP/AVP 0
-a=rtpmap:96 SPEEX/16000
-a=rtpmap:97 SPEEX/8000
+m=audio 49172 RTP/AVP 18 96 97
+a=rtpmap:96 sppex/16000
+a=rtpmap:97 speex/8000
 a=rtpmap:18 G729
           ]]></artwork></figure>
           <t>The responder returns a SIP 180 Ringing message.</t>
           <figure><artwork><![CDATA[
 SIP/2.0 180 Ringing
-Via: SIP/2.0/TCP client.example.com:5060;branch=z9hG4bK74bf9
- ;received=192.0.2.101
+Via: SIP/2.0/TCP client.example.com:5060;branch=z9hG4bK74bf9;received=192.0.2.101
 From: Juliet Capulet <sip:juliet@example.com>;tag=t3hr0zny
 To: Romeo Montague <sip:romeo@example.net>;tag=v3rsch1kk3l1jk
 Call-ID: 3848276298220188511@example.com
@@ -287,7 +288,7 @@ Content-Length: 0
           action='session-info'
           initiator='juliet@example.com/t3hr0zny'
           sid='a73sjjvkla37jfea'>
-    <ringing xmlns='urn:xmpp:jingle:app:rtp:1-info'/>
+    <ringing xmlns='urn:xmpp:jingle:apps:rtp:info:1'/>
   </jingle>
 </iq>
           ]]></artwork></figure>
@@ -301,8 +302,7 @@ Content-Length: 0
           <t>The responder sends a SIP 200 OK to the initiator.</t>
           <figure><artwork><![CDATA[
 SIP/2.0 200 OK
-Via: SIP/2.0/TCP client.example.com:5060;branch=z9hG4bK74bf9
- ;received=192.0.2.101
+Via: SIP/2.0/TCP client.example.com:5060;branch=z9hG4bK74bf9;received=192.0.2.101
 From: Juliet Capulet <sip:juliet@example.com>;tag=t3hr0zny
 To: Romeo Montague <sip:romeo@example.net>;tag=v3rsch1kk3l1jk
 Call-ID: 3848276298220188511@example.com
@@ -316,9 +316,8 @@ o=romeo 2890844527 2890844527 IN IP4 client.example.net
 s=-
 c=IN IP4 192.0.2.201
 t=0 0
-m=audio 3456 RTP/AVP 0
-a=rtpmap:97 SPEEX/8000
-a=rtpmap:18 G729/8000
+m=audio 3456 RTP/AVP 97
+a=rtpmap:97 speex/8000
           ]]></artwork></figure>
           <t>The gateway transforms the 200 OK into a Jingle session-accept action.</t>
           <figure><artwork><![CDATA[
@@ -331,13 +330,11 @@ a=rtpmap:18 G729/8000
           initiator='juliet@example.com/t3hr0zny'
           responder='romeo@example.net/v3rsch1kk3l1jk'
           sid='a73sjjvkla37jfea'>
-    <content creator='initiator' 
+    <content creator='initiator'
              media='audio'
              name='this-is-the-audio-content'>
       <description xmlns='urn:xmpp:jingle:app:rtp:1'>
         <payload-type id='97' name='speex' clockrate='8000'/>
-        <payload-type id='18' name='G729'/>
-        <payload-type id='0' name='PCMU' clockrate='8000'/>
       </description>
       <transport xmlns='urn:xmpp:jingle:transport:raw-udp'>
         <candidate ip='192.0.2.101' port='49172' generation='0'/>
