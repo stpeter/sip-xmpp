@@ -23,7 +23,31 @@
         <email>psaintan@cisco.com</email>
       </address>
     </author>
-
+    <author initials="S." surname="Ibarra" fullname="Saul Ibarra Corretge">
+      <organization>AG Projects</organization>
+      <address>
+        <postal>
+          <street>Dr. Leijdsstraat 92</street>
+          <code>2021RK</code>
+          <city>Haarlem</city>
+          <country>The Netherlands</country>
+         </postal>
+        <email>saul@ag-projects.com</email>
+      </address>
+    </author>
+    <author initials='E.' surname='Ivov' fullname='Emil Ivov'>
+      <organization abbrev='Jitsi'>Jitsi</organization>
+      <address>
+        <postal>
+          <street></street>
+          <city>Strasbourg</city>
+          <code>67000</code>
+          <country>France</country>
+        </postal>
+        <phone>+33-177-624-330</phone>
+        <email>emcho@jitsi.org</email>
+      </address>
+    </author>
     <date year="2013" month="February" day="20"/>
     <area>Applications</area>
     <keyword>SIP</keyword>
