@@ -1,0 +1,599 @@
+<?xml version="1.0"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?rfc compact="yes"?>
+<?rfc sortrefs="yes"?>
+<?rfc strict="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="1"?>
+<rfc category='std' docName='draft-ietf-stox-im-09' ipr='trust200902'>
+
+  <front>
+    <title abbrev="SIP-XMPP Interworking: IM">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Instant Messaging</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization>&amp;yet</organization>
+      <address>
+        <postal>
+          <street>P.O. Box 787</street>
+          <city>Parker</city>
+          <region>CO</region>
+          <code>80134</code>
+          <country>USA</country>
+        </postal>
+        <email>peter@andyet.com</email>
+      </address>
+    </author>
+    <author initials="A." surname="Houri" fullname="Avshalom Houri">
+      <organization>IBM</organization>
+      <address>
+        <postal>
+          <street>Rorberg Building, Pekris 3</street>
+          <city>Rehovot</city>
+          <code>76123</code>
+          <country>Israel</country>
+        </postal>
+        <email>avshalom@il.ibm.com</email>
+      </address>
+    </author>
+    <author initials="J." surname="Hildebrand" fullname="Joe Hildebrand">
+      <organization>Cisco Systems, Inc.</organization>
+      <address>
+        <postal>
+          <street>1899 Wynkoop Street, Suite 600</street>
+          <city>Denver</city>
+          <region>CO</region>
+          <code>80202</code>
+          <country>USA</country>
+        </postal>
+        <email>jhildebr@cisco.com</email>
+      </address>
+    </author>
+    <date/>
+    <area>RAI</area>
+    <keyword>XMPP</keyword>
+    <keyword>Jabber</keyword>
+    <keyword>SIP</keyword>
+    <keyword>SIMPLE</keyword>
+    <keyword>IM</keyword>
+    <keyword>Instant Messaging</keyword>
+
+    <abstract>
+      <t>This document defines a bidirectional protocol mapping for the exchange of single instant messages between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t>
+    </abstract>
+  </front>
+
+  <middle>
+
+    <section title="Introduction" anchor="intro">
+      <t>In order to help ensure interworking between instant messaging (IM) systems that conform to the instant messaging / presence requirements <xref target="RFC2779"/>, it is important to clearly define protocol mappings between such systems.  Within the IETF, work has proceeded on two instant messaging technologies:</t>
+      <t>
+        <list style='symbols'>
+          <t>Various extensions to the Session Initiation Protocol (<xref target="RFC3261"/>) for instant messaging, in particular the MESSAGE method extension <xref target='RFC3428'/>.</t>
+          <t>The Extensible Messaging and Presence Protocol (XMPP), which consists of a formalization of the core XML streaming protocols developed originally by the Jabber open-source community; the relevant specifications are <xref target='RFC6120'/> for the XML streaming layer and <xref target='RFC6121'/> for basic presence and instant messaging extensions.</t>
+        </list>
+      </t>
+      <t>One approach to helping ensure interworking between these protocols is to map each protocol to the abstract semantics described in <xref target="RFC3860"/>; that is the approach taken by <xref target="I-D.ietf-simple-cpim-mapping"/> and <xref target="RFC3922"/>.  By contrast, the approach taken in this document is to directly map semantics from one protocol to another (i.e., from SIP/SIMPLE to XMPP and vice-versa), since that is how existing systems solve the interworking problem.</t>
+      <t>Both XMPP and IM-capable SIP systems enable entities to exchange "instant messages".  The term "instant message" usually refers to a message sent between two entities for delivery in close to real time (rather than a message that is stored and forwarded to the intended recipient upon request).  This document covers single messages only (sometimes called "pager-mode" messaging), since they form the lowest common denominator for IM.  Separate documents cover one-to-one chat sessions <xref target='I-D.ietf-stox-chat'/> and multi-party groupchat <xref target='I-D.ietf-stox-groupchat'/>.</t>
+      <t>The architectural assumptions underlying such direct mappings are provided in <xref target='RFC7247'/>, including mapping of addresses and error conditions.  The mappings specified in this document cover basic instant messaging functionality, i.e., the exchange of a single instant message between a SIP user and an XMPP user in either direction.  Mapping of more advanced functionality is out of scope for this document, but other documents in this "series" cover such topics.</t>
+    </section>
+
+    <section title="Intended Audience" anchor="audience">
+      <t>The documents in this series are intended for use by software developers who have an existing system based on one of these technologies (e.g., SIP), and would like to enable communication from that existing system to systems based on the other technology (e.g., XMPP).  We assume that readers are familiar with the core specifications for both SIP <xref target='RFC3261'/> and XMPP <xref target='RFC6120'/>, with the base document for this series <xref target='RFC7247'/>, and with the following IM-related specifications:</t>
+      <t>
+        <list style='symbols'>
+          <t>Session Initiation Protocol (SIP) Extension for Instant Messaging <xref target='RFC3428'/></t>
+          <t>Extensible Messaging and Presence Protocol: Instant Messaging and Presence <xref target='RFC6121'/></t>
+        </list>
+      </t>
+    </section>
+
+    <section title="Terminology" anchor="terms">
+      <t>A number of terms used here are explained in <xref target='RFC3261'/>, <xref target='RFC3428'/>, <xref target='RFC6120'/>, and <xref target='RFC6121'/>.</t>
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
+    </section>
+
+    <section title="XMPP to SIP" anchor="xmpp2sip">
+      <t>As described in <xref target="RFC6121"/>, a single instant message is an XML &lt;message/&gt; stanza of type "normal" sent over an XML stream (since "normal" is the default for the 'type' attribute of the &lt;message/&gt; stanza, the attribute is often omitted).</t>
+      <t>When the XMPP user Juliet &lt;juliet@example.com&gt; wants to send an instant message to Romeo, she interacts with her XMPP client, which generates an XMPP &lt;message/&gt; stanza.  The syntax of the &lt;message/&gt; stanza, including required and optional elements and attributes, is defined in <xref target="RFC6121"/> (for single instant messages, the value of the 'to' address SHOULD be a "bare JID" of the form "localpart@domainpart").  The following is an example of such a stanza:</t>
+      <figure>
+        <preamble>Example 1: XMPP user sends message</preamble>
+        <artwork><![CDATA[
+|  <message from='juliet@example.com/balcony'
+|           to='romeo@example.net'>
+|    <body>Art thou not Romeo, and a Montague?</body>
+|  </message>
+        ]]></artwork>
+      </figure>
+      <t>Upon receiving such a message stanza, the XMPP server needs to determine the identity of the domainpart in the 'to' address, which it does by following the procedures explained in Section 5 of <xref target='RFC7247'/>.  If the domain is a SIP domain, the XMPP server will hand off the message stanza to an XMPP-to-SIP gateway that natively communicates with IM-aware SIP servers.</t>
+      <t>The XMPP-to-SIP gateway is then responsible for translating the XMPP message stanza into a SIP MESSAGE request from the XMPP user to the SIP user:</t>
+      <figure>
+        <preamble>Example 2: XMPP user sends message (SIP transformation)</preamble>
+        <artwork><![CDATA[
+|  MESSAGE sip:romeo@example.net SIP/2.0
+|  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bK776sgdkse
+|  Max-Forwards: 70
+|  To: sip:romeo@example.net
+|  From: <sip:juliet@example.com;gr=balcony>;tag=12345
+|  Call-ID: D9AA95FD-2BD5-46E2-AF0F-6CFAA96BDDFA
+|  CSeq: 1 MESSAGE
+|  Content-Type: text/plain
+|  Content-Length: 35
+|
+|  Art thou not Romeo, and a Montague?
+        ]]></artwork>
+      </figure>
+      <t>The destination SIP server is responsible for delivering the message to the intended recipient, and the recipient is responsible for generating a response (e.g., 200 OK).</t>
+      <figure>
+        <preamble>Example 3: SIP user agent indicates receipt of message</preamble>
+        <artwork><![CDATA[
+|  SIP/2.0 200 OK
+|  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bK776sgdkse
+|  From: sip:romeo@example.net;tag=vwxyz
+|  To: sip:juliet@example.com;tag=12345
+|  Call-ID: D9AA95FD-2BD5-46E2-AF0F-6CFAA96BDDFA
+|  CSeq: 1 MESSAGE
+|  Content-Length: 0
+        ]]></artwork>
+      </figure>
+      <t>As described in <xref target='RFC3428'/>, a downstream proxy could fork a MESSAGE request, but it would return only one 200 OK to the gateway.</t>
+      <t><list style='empty'><t>Note: This document does not specify handling of the 200 OK by the XMPP-to-SIP gateway (e.g., to enable message acknowledgements).  See <xref target='I-D.ietf-stox-chat'/> for a mapping of message acknowledgements in the context of one-to-one chat sessions.</t></list></t> 
+      <t>The mapping of XMPP syntax to SIP syntax SHOULD be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-chat'/>.)</t>
+      <figure>
+        <preamble>Table 1: Message syntax mapping from XMPP to SIP</preamble>
+        <artwork><![CDATA[
+   +-----------------------------+--------------------------+
+   |  XMPP Element or Attribute  |  SIP Header or Contents  |
+   +-----------------------------+--------------------------+
+   |  <body/>                    |  body of MESSAGE         |
+   |  <subject/>                 |  Subject                 |
+   |  <thread/>                  |  Call-ID                 |
+   |  from                       |  From (1)                |
+   |  id                         |  (no mapping)            |
+   |  to                         |  To or Request-URI       |
+   |  type                       |  (no mapping) (2)        | 
+   |  xml:lang                   |  Content-Language        |
+   +-----------------------------+--------------------------+
+        ]]></artwork>
+      </figure>
+      <t>
+        <list style='numbers'>
+          <t>As shown in the foregoing example and described in <xref target='RFC7247'/>, the XMPP-to-SIP gateway SHOULD map the bare JID ("localpart@domainpart") of the XMPP sender to the SIP From header and include the resourcepart of the full JID as the GRUU portion <xref target='RFC5627'/> of the SIP URI.</t>
+          <t>Because there is no SIP header field that matches the meaning of the XMPP message 'type' values ("normal", "chat", "groupchat", "headline", "error"), no general mapping is possible here.</t>
+        </list>
+      </t>
+    </section>
+
+    <section title="SIP to XMPP" anchor="sip2xmpp">
+      <t>As described in <xref target="RFC3428"/>, a single instant message is a SIP MESSAGE request sent from a SIP user agent to an intended recipient who is most generally referenced by an Instant Message URI of the form &lt;im:user@domain&gt; but who might be referenced by a SIP or SIPS URI of the form &lt;sip:user@domain&gt; or &lt;sips:user@domain&gt;.</t>
+      <t>When the SIP user Romeo &lt;sip:romeo@example.net&gt; wants to send an instant message to Juliet, he interacts with his SIP user agent, which generates a SIP MESSAGE request.  The syntax of the MESSAGE request is defined in <xref target="RFC3428"/>.  The following is an example of such a request:</t>
+      <figure>
+        <preamble>Example 4: SIP user sends message</preamble>
+        <artwork><![CDATA[
+|  MESSAGE sip:juliet@example.com SIP/2.0
+|  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKeskdgs677
+|  Max-Forwards: 70
+|  To: sip:juliet@example.com
+|  From: sip:romeo@example.net;tag=vwxyz
+|  Call-ID: 9E97FB43-85F4-4A00-8751-1124FD4C7B2E
+|  CSeq: 1 MESSAGE
+|  Content-Type: text/plain
+|  Content-Length: 44
+|
+|  Neither, fair saint, if either thee dislike.
+        ]]></artwork>
+      </figure>
+      <t>Section 5 of <xref target="RFC3428"/> stipulates that a SIP User Agent presented with an im: URI should resolve it to a sip: or sips: URI.  Therefore we assume that the Request-URI of a request received by an IM-capable SIP-to-XMPP gateway will contain a sip: or sips: URI.  Upon receiving the MESSAGE, the SIP server needs to determine the identity of the domain portion of the Request-URI or To header, which it does by following the procedures explained in Section 5 of <xref target='RFC7247'/>.  If the domain is an XMPP domain, the SIP server will hand off the MESSAGE to an associated SIP-to-XMPP gateway that natively communicates with XMPP servers.</t>
+      <t>The SIP-to-XMPP gateway is then responsible for translating the request into an XMPP message stanza from the SIP user to the XMPP user and returning a SIP "200 OK" message to the sender:</t>
+      <figure>
+        <preamble>Example 5: SIP user sends message (XMPP transformation)</preamble>
+        <artwork><![CDATA[
+|  <message from='romeo@example.net/orchard'
+|           to='juliet@example.com'>
+|    <body>Neither, fair saint, if either thee dislike.</body>
+|  </message>
+        ]]></artwork>
+      </figure>
+      <t>Note that the stanza handling rules specified in <xref target='RFC6121'/> allow the receiving XMPP server to deliver a message stanza whose 'to' address is a bare JID ("localpart@domainpart") to multiple connected devices.  This is similar to the "forking" of messages in SIP.</t>
+      <t>The mapping of SIP syntax to XMPP syntax SHOULD be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-chat'/>.)</t>
+      <figure>
+        <preamble>Table 2: Message syntax mapping from SIP to XMPP</preamble>
+        <artwork><![CDATA[
+   +--------------------------+-----------------------------+
+   |  SIP Header or Contents  |  XMPP Element or Attribute  |
+   +--------------------------+-----------------------------+
+   |  Call-ID                 |  <thread/>                  |
+   |  Content-Language        |  xml:lang                   |
+   |  CSeq                    |  (no mapping)               |
+   |  From                    |  from (1)                   |
+   |  Subject                 |  <subject/>                 |
+   |  Request-URI or To       |  to                         |
+   |  body of MESSAGE         |  <body/>                    |
+   +--------------------------+-----------------------------+
+        ]]></artwork>
+      </figure>
+      <t>
+        <list style='numbers'>
+          <t>As shown in the foregoing example and described in <xref target='RFC7247'/>, if the IM-capable SIP-to-XMPP gateway has information about the GRUU <xref target='RFC5627'/> of the particular endpoint that sent the SIP message then it SHOULD map the sender's address to a full JID ("localpart@domainpart/resourcepart") in the 'from' attribute of the XMPP stanza and include the GRUU as the resourcepart.</t>
+        </list>
+      </t>
+      <t>When transforming SIP pager-mode messages, an IM-capable SIP-to-XMPP gateway SHOULD specify no XMPP 'type' attribute or, equivalently, a 'type' attribute whose value is "normal" <xref target='RFC6121'/>.</t>
+      <t>See <xref target='content'/> of this document about the handling of SIP message bodies that contain content types other than plain text.</t>
+    </section>
+
+    <section title='Content Types' anchor="content">
+      <t>SIP requests of type MESSAGE are allowed to contain essentially any content type.  The recommended procedures for SIP-to-XMPP gateways to use in handling these content types are as follows.</t>
+      <t>An IM-aware SIP-to-XMPP gateway MUST process SIP messages that contain message bodies of type "text/plain" and MUST encapsulate such message bodies as the XML character data of the XMPP &lt;body/&gt; element.</t>
+      <t>An IM-aware SIP-to-XMPP gateway SHOULD process SIP messages that contain message bodies of type "text/html"; if so, a gateway MUST transform the "text/html" content into XHTML content that conforms to the XHTML-IM Integration Set specified in <xref target='XEP-0071'/>.</t>
+      <t>Although an IM-aware SIP-to-XMPP gateway MAY process SIP messages that contain message bodies of types other than "text/plain" and "text/html", the handling of such content types is a matter of implementation.</t>
+    </section>
+
+    <section title="Internationalization Considerations" anchor="i18n">
+      <t>Both XMPP and SIP support the UTF-8 encoding <xref target='RFC3629'/> of Unicode characters <xref target='UNICODE'/> within messages, and signalling of the language for a particular message (in XMPP via the 'xml:lang' attribute and in SIP via the Content-Language header).  Several examples follow, using the "XML Notation" <xref target='RFC3987'/> for Unicode characters outside the ASCII range.</t>
+      <figure>
+        <preamble>Example 6: SIP user sends message</preamble>
+        <artwork><![CDATA[
+|  MESSAGE sip:juliet@example.com SIP/2.0
+|  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKeskdgs677
+|  Max-Forwards: 70
+|  To: sip:juliet@example.com
+|  From: sip:romeo@example.net;tag=vwxyz
+|  Call-ID: 9E97FB43-85F4-4A00-8751-1124FD4C7B2E
+|  CSeq: 1 MESSAGE
+|  Content-Type: text/plain
+|  Content-Length: 45
+|  Content-Language: cs
+|
+|  Nic z ob&#xC3A9;ho, m&#xC3A1; d&#xC49B;vo spanil&#xC3A1;, 
+|  nenavid&#xC3AD;&#xC5A1;-li jedno nebo druh&#xC3A9;.
+        ]]></artwork>
+      </figure>
+      <figure>
+        <preamble>Example 7: SIP user sends message (XMPP transformation)</preamble>
+        <artwork><![CDATA[
+|  <message from='romeo@example.net'
+|           to='juliet@example.com'
+|           xml:lang='cs'>
+|    <body>
+|  Nic z ob&#xC3A9;ho, m&#xC3A1; d&#xC49B;vo spanil&#xC3A1;, 
+|  nenavid&#xC3AD;&#xC5A1;-li jedno nebo druh&#xC3A9;.
+|    </body>
+|  </message>
+        ]]></artwork>
+      </figure>
+    </section>
+
+    <section title="IANA Considerations" anchor="iana">
+      <t>This document requests no actions of IANA.</t>
+    </section>
+
+    <section title='Security Considerations' anchor="sec">
+      <t>Detailed security considerations for instant messaging protocols are given in <xref target='RFC2779'/>, for SIP-based instant messaging in <xref target="RFC3428"/> (see also <xref target="RFC3261"/>), and for XMPP-based instant messaging in <xref target="RFC6121"/> (see also <xref target="RFC6120"/>).  The security considerations provided in <xref target='RFC7247'/> also apply.</t>
+      <t>This document specifies methods for exchanging instant messages through a gateway that translates between SIP and XMPP.  Such a gateway MUST be compliant with the minimum security requirements of the instant messaging protocols for which it translates (i.e., SIP and XMPP).  The addition of gateways to the security model of instant messaging specified in <xref target="RFC2779"/> introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between instant messaging user agents that interface through an IM-capable SIP-to-XMPP gateway can be provided only if common formats are supported.  Specification of those common formats is out of scope for this document, although it is preferred to use <xref target="RFC3862"/> for instant messages.</t>
+    </section>
+
+  </middle>
+
+  <back>
+
+    <references title="Normative References">
+
+<reference anchor='I-D.ietf-stox-chat'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): One-to-One Text Chat Sessions</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
+    <organization />
+</author>
+<date month='June' day='7' year='2014' />
+<abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a one-to-one chat session between a user of the Session Initiation Protocol (SIP) and a user of the Extensible Messaging and Presence Protocol (XMPP). Specifically for SIP text chat, this document specifies a mapping to the Message Session Relay Protocol (MSRP).</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-chat-07' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-chat-07.txt' />
+</reference>
+
+<reference anchor='RFC7247'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Architecture, Addresses, and Error Handling</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<author initials='A.' surname='Houri' fullname='A. Houri'>
+<organization /></author>
+<author initials='J.' surname='Hildebrand' fullname='J. Hildebrand'>
+<organization /></author>
+<date year='2014' month='May' />
+<abstract>
+<t>As a foundation for the definition of bidirectional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t></abstract></front>
+<seriesInfo name='RFC' value='7247' />
+<format type='TXT' octets='57218' target='http://www.rfc-editor.org/rfc/rfc7247.txt' />
+</reference>
+
+<reference anchor='RFC2119'>
+  <front>
+    <title abbrev='RFC Key Words'>Key words for use in RFCs to Indicate Requirement Levels</title>
+    <author initials='S.' surname='Bradner' fullname='Scott Bradner'>
+      <organization>Harvard University</organization>
+      <address>
+        <postal>
+          <street>1350 Mass. Ave.</street>
+          <street>Cambridge</street>
+          <street>MA 02138</street>
+        </postal>
+        <phone>- +1 617 495 3864</phone>
+        <email>-</email>
+      </address>
+    </author>
+    <date month='March' year='1997'></date>
+    <area>General</area>
+    <keyword>keyword</keyword>
+    <abstract>
+      <t>In many standards track documents several words are used to signify the requirements in the specification.  These words are often capitalized.  This document defines these words as they should be interpreted in IETF documents.  Authors who follow these guidelines should incorporate this phrase near the beginning of their document:
+        <list>
+          <t>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in RFC 2119.</t>
+        </list>
+      </t>
+      <t>Note that the force of these words is modified by the requirement level of the document in which they are used.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='BCP' value='14' />
+  <seriesInfo name='RFC' value='2119' />
+</reference>
+
+<reference anchor='RFC3261'>
+<front>
+<title>SIP: Session Initiation Protocol</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='G.' surname='Camarillo' fullname='G. Camarillo'>
+<organization /></author>
+<author initials='A.' surname='Johnston' fullname='A. Johnston'>
+<organization /></author>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'>
+<organization /></author>
+<author initials='R.' surname='Sparks' fullname='R. Sparks'>
+<organization /></author>
+<author initials='M.' surname='Handley' fullname='M. Handley'>
+<organization /></author>
+<author initials='E.' surname='Schooler' fullname='E. Schooler'>
+<organization /></author>
+<date month='June' year='2002' /></front>
+<seriesInfo name='RFC' value='3261' />
+<format type='TXT' octets='647976' target='ftp://ftp.isi.edu/in-notes/rfc3261.txt' />
+</reference>
+
+<reference anchor="RFC3428">
+<front>
+<title>Session Initiation Protocol (SIP) Extension for Instant Messaging</title>
+<author initials='B.' surname='Campbell' fullname='B. Campbell'>
+<organization /></author>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='C.' surname='Huitema' fullname='C. Huitema'>
+<organization /></author>
+<author initials='D.' surname='Gurle' fullname='D. Gurle'>
+<organization /></author>
+<date month='December' year='2002' /></front>
+<seriesInfo name='RFC' value='3428' />
+<format type='TXT' octets='41475' target='ftp://ftp.isi.edu/in-notes/rfc3428.txt' />
+</reference>
+
+<reference anchor='RFC5627'>
+<front>
+<title>Obtaining and Using Globally Routable User Agent URIs (GRUUs) in the Session Initiation Protocol (SIP)</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<date year='2009' month='October' />
+<abstract>
+<t>Several applications of the Session Initiation Protocol (SIP) require a user agent (UA) to construct and distribute a URI that can be used by anyone on the Internet to route a call to that specific UA instance.  A URI that routes to a specific UA instance is called a Globally Routable UA URI (GRUU).  This document describes an extension to SIP for obtaining a GRUU from a registrar and for communicating a GRUU to a peer within a dialog. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='5627' />
+<format type='TXT' octets='94790' target='http://www.rfc-editor.org/rfc/rfc5627.txt' />
+</reference>
+
+<reference anchor='RFC6120'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Core</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>The Extensible Messaging and Presence Protocol (XMPP) is an application profile of the Extensible Markup Language (XML) that enables the near-real-time exchange of structured yet extensible data between any two or more network entities.  This document defines XMPP's core protocol methods: setup and teardown of XML streams, channel encryption, authentication, error handling, and communication primitives for messaging, network availability ("presence"), and request-response interactions.  This document obsoletes RFC 3920. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6120' />
+<format type='TXT' octets='451942' target='http://www.rfc-editor.org/rfc/rfc6120.txt' />
+</reference>
+
+<reference anchor='RFC6121'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Instant Messaging and Presence</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>This document defines extensions to core features of the Extensible Messaging and Presence Protocol (XMPP) that provide basic instant messaging (IM) and presence functionality in conformance with the requirements in RFC 2779.  This document obsoletes RFC 3921. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6121' />
+<format type='TXT' octets='244800' target='http://www.rfc-editor.org/rfc/rfc6121.txt' />
+</reference>
+
+<reference anchor="XEP-0071">
+  <front>
+    <title>XHTML-IM</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <date day="28" month="November" year="2012"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0071"/>
+  <format type="HTML" target="http://www.xmpp.org/extensions/xep-0071.html"/>
+</reference>
+
+    </references>
+
+    <references title="Informative References">
+
+<reference anchor="I-D.ietf-simple-cpim-mapping">
+<front>
+<title>CPIM Mapping of SIMPLE Presence and Instant Messaging</title>
+<author initials="J" surname="Rosenberg" fullname="Jonathan  Rosenberg">
+    <organization />
+</author>
+<author initials="B" surname="Campbell" fullname="Ben Campbell">
+    <organization />
+</author>
+<date month="June" day="28" year="2002" />
+</front>
+<seriesInfo name="Internet-Draft" value="draft-ietf-simple-cpim-mapping-01" />
+<format type="TXT"
+        target="http://www.ietf.org/internet-drafts/draft-ietf-simple-cpim-mapping-01.txt" />
+</reference>
+
+<reference anchor='I-D.ietf-stox-groupchat'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Groupchat</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<author initials='S' surname='Corretge' fullname='Saul Corretge'>
+    <organization />
+</author>
+<author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
+    <organization />
+</author>
+<date month='March' day='25' year='2014' />
+<abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a multiparty chat session among users of the Session Initiation Protocol (SIP) and users of the Extensible Messaging and Presence Protocol (XMPP). Specifically, this document defines a mapping between the SIP-based Message Session Relay Protocol (MSRP) and the XMPP Multi-User Chat (MUC) extension.</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-groupchat-04' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-groupchat-04.txt' />
+</reference>
+
+<reference anchor="RFC2779">
+<front>
+<title abbrev='Instant Messaging/Presence Protocol'>Instant Messaging / Presence Protocol Requirements</title>
+<author initials='M.' surname='Day' fullname='Mark Day'>
+<organization>SightPath, Inc.</organization>
+<address>
+<postal>
+<street>135 Beaver Street</street>
+<city>Waltham</city>
+<region>MA</region>
+<code>02452</code>
+<country>US</country></postal>
+<email>mday@alum.mit.edu</email></address></author>
+<author initials='S.' surname='Aggarwal' fullname='Sonu Aggarwal'>
+<organization>Microsoft Corporation</organization>
+<address>
+<postal>
+<street>One Microsoft Way</street>
+<city>Redmond</city>
+<region>WA</region>
+<code>98052</code>
+<country>US</country></postal>
+<email>sonuag@microsoft.com</email></address></author>
+<author initials='J.' surname='Vincent' fullname='Jesse Vincent'>
+<organization>Into Networks, Inc.</organization>
+<address>
+<postal>
+<street>150 Cambridgepark Drive</street>
+<city>Cambridge</city>
+<region>MA</region>
+<code>02140</code>
+<country>US</country></postal>
+<email>jesse@intonet.com</email></address></author>
+<date month='February' year='2000' />
+<abstract>
+<t>Presence and Instant Messaging have recently emerged as a new medium of communications over the Internet.  Presence is a means for finding, retrieving, and subscribing to changes in the presence information (e.g.  "online" or "offline") of other users.  Instant messaging is a means for sending small, simple messages that are delivered immediately to online users.</t>
+<t>Applications of presence and instant messaging currently use independent, non-standard and non-interoperable protocols developed by various vendors.  The goal of the Instant Messaging and Presence Protocol (IMPP) Working Group is to define a standard protocol so that independently developed applications of instant messaging and/or   presence can interoperate across the Internet.  This document defines a minimal set of requirements that IMPP must meet.</t></abstract></front>
+<seriesInfo name='RFC' value='2779' />
+<format type='TXT' octets='47420' target='ftp://ftp.isi.edu/in-notes/rfc2779.txt' />
+</reference>
+
+<reference anchor='RFC3629'>
+<front>
+<title>UTF-8, a transformation format of ISO 10646</title>
+<author initials='F.' surname='Yergeau' fullname='F. Yergeau'>
+<organization /></author>
+<date year='2003' month='November' />
+<abstract>
+<t>ISO/IEC 10646-1 defines a large character set called the Universal Character Set (UCS) which encompasses most of the world's writing systems.  The originally proposed encodings of the UCS, however, were not compatible with many current applications and protocols, and this has led to the development of UTF-8, the object of this memo.  UTF-8 has the characteristic of preserving the full US-ASCII range, providing compatibility with file systems, parsers and other software that rely on US-ASCII values but are transparent to other values.  This memo obsoletes and replaces RFC 2279.</t></abstract></front>
+<seriesInfo name='STD' value='63' />
+<seriesInfo name='RFC' value='3629' />
+<format type='TXT' octets='33856' target='http://www.rfc-editor.org/rfc/rfc3629.txt' />
+</reference>
+
+<reference anchor="RFC3860">
+<front>
+<title>Common Profile for Instant Messaging (CPIM)</title>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'>
+<organization /></author>
+<date year='2004' month='August' /></front>
+<seriesInfo name='RFC' value='3860' />
+<format type='TXT' octets='26486' target='ftp://ftp.isi.edu/in-notes/rfc3860.txt' />
+</reference>
+
+<reference anchor="RFC3862">
+<front>
+<title>Common Presence and Instant Messaging (CPIM): Message Format</title>
+<author initials='G.' surname='Klyne' fullname='G. Klyne'>
+<organization /></author>
+<author initials='D.' surname='Atkins' fullname='D. Atkins'>
+<organization /></author>
+<date year='2004' month='August' /></front>
+<seriesInfo name='RFC' value='3862' />
+<format type='TXT' octets='56133' target='ftp://ftp.isi.edu/in-notes/rfc3862.txt' />
+</reference>
+
+<reference anchor="RFC3922">
+  <front>
+    <title>Mapping the Extensible Messaging and Presence Protocol (XMPP) to Common Presence and Instant Messaging (CPIM)</title>
+    <author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+      <organization>Jabber Software Foundation</organization>
+    </author>
+    <date year='2004' month='October' />
+  </front>
+  <seriesInfo name='RFC' value='3922' />
+  <format type='TXT' octets='70790' target='ftp://ftp.isi.edu/in-notes/rfc3922.txt' />
+</reference>
+
+<reference anchor='RFC3987'>
+<front>
+<title>Internationalized Resource Identifiers (IRIs)</title>
+<author initials='M.' surname='Duerst' fullname='M. Duerst'>
+<organization /></author>
+<author initials='M.' surname='Suignard' fullname='M. Suignard'>
+<organization /></author>
+<date year='2005' month='January' />
+<abstract>
+<t>This document defines a new protocol element, the Internationalized Resource Identifier (IRI), as a complement of the Uniform Resource Identifier (URI). An IRI is a sequence of characters from the Universal Character Set (Unicode/ISO 10646). A mapping from IRIs to URIs is defined, which means that IRIs can be used instead of URIs, where appropriate, to identify resources.&lt;/t>&lt;t> The approach of defining a new protocol element was chosen instead of extending or changing the definition of URIs. This was done in order to allow a clear distinction and to avoid incompatibilities with existing software. Guidelines are provided for the use and deployment of IRIs in various protocols, formats, and software components that currently deal with URIs.</t></abstract></front>
+<seriesInfo name='RFC' value='3987' />
+<format type='TXT' octets='111190' target='http://www.rfc-editor.org/rfc/rfc3987.txt' />
+</reference>
+
+<reference anchor="UNICODE" target="http://www.unicode.org/versions/Unicode6.3.0/">
+  <front>
+    <title>The Unicode Standard, Version 6.3</title>
+    <author>
+      <organization>The Unicode Consortium</organization>
+    </author>
+    <date year="2013" />
+  </front>
+</reference>
+
+    </references>
+
+    <section title="Acknowledgements" anchor="ack">
+      <t>The authors wish to thank the following individuals for their feedback: Mary Barnes, Dave Cridland, Dave Crocker, Adrian Georgescu, Christer Holmberg, Saul Ibarra Corretge, Olle Johansson, Paul Kyzivat, Salvatore Loreto, Daniel-Constantin Mierla, and Tory Patnoe.</t>
+      <t>The authors gratefully acknowledge the assistance of Markus Isomaki and Yana Stamcheva as the working group chairs and Gonzalo Camarillo and Alissa Cooper as the sponsoring Area Directors.</t>
+      <t>Peter Saint-Andre wishes to acknowledge Cisco Systems, Inc., for employing him during his work on earlier versions of this document.</t>
+    </section>
+
+  </back>
+
+</rfc>

@@ -1,0 +1,1060 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+ <!ENTITY rfc768 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.0768.xml">
+ <!ENTITY rfc793 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.0793.xml">
+ <!ENTITY rfc2119 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+ <!ENTITY rfc2616 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2616.xml">
+ <!ENTITY rfc3261 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3261.xml">
+ <!ENTITY rfc3264 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3264.xml">
+ <!ENTITY rfc3550 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3550.xml">
+ <!ENTITY rfc3551 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3551.xml">
+ <!ENTITY rfc4855 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4855.xml">
+ <!ENTITY rfc3711 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
+ <!ENTITY rfc3959 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3959.xml">
+ <!ENTITY rfc3960 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3960.xml">
+ <!ENTITY rfc4566 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4566.xml">
+ <!ENTITY rfc4733 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4733.xml">
+ <!ENTITY rfc4585 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4585.xml">
+ <!ENTITY rfc5124 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5124.xml">
+ <!ENTITY rfc5245 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5245.xml">
+ <!ENTITY rfc5888 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5888.xml">
+ <!ENTITY rfc6120 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6120.xml">
+ <!ENTITY rfc7081 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7081.xml">
+]>
+
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+
+<?rfc comments="yes" ?>
+<?rfc inline="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<?rfc iprnotified="no" ?>
+<?rfc sortrefs="yes"?>
+<?rfc strict="yes" ?>
+<?rfc symrefs="yes" ?>
+<?rfc toc="yes" ?>
+<?rfc tocdepth="1"?>
+
+<rfc category='std' docName='draft-ietf-stox-media-04' ipr='trust200902'>
+
+  <front>
+    <title abbrev="SIP-XMPP Interworking: Media Sessions">
+      Interworking between the Session Initiation Protocol (SIP) and the
+      Extensible Messaging and Presence Protocol (XMPP): Media Sessions
+    </title>
+    <author initials='P.' surname='Saint-Andre'
+            fullname='Peter Saint-Andre'>
+      <organization>&amp;yet</organization>
+      <address>
+        <postal>
+          <street>P.O. Box 787</street>
+          <city>Parker</city>
+          <region>CO</region>
+          <code>80134</code>
+          <country>USA</country>
+        </postal>
+        <email>ietf@stpeter.im</email>
+      </address>
+    </author>
+    <author initials="S." surname="Ibarra"
+            fullname="Saul Ibarra Corretge">
+      <organization>AG Projects</organization>
+      <address>
+        <postal>
+          <street>Dr. Leijdsstraat 92</street>
+          <code>2021RK</code>
+          <city>Haarlem</city>
+          <country>The Netherlands</country>
+        </postal>
+        <email>saul@ag-projects.com</email>
+      </address>
+    </author>
+    <author initials='E.' surname='Ivov' fullname='Emil Ivov'>
+      <organization abbrev='Jitsi'>Jitsi</organization>
+      <address>
+        <postal>
+          <street></street>
+          <city>Strasbourg</city>
+          <code>67000</code>
+          <country>France</country>
+        </postal>
+        <phone>+33-177-624-330</phone>
+        <email>emcho@jitsi.org</email>
+      </address>
+    </author>
+    <date/>
+    <area>Applications</area>
+    <keyword>SIP</keyword>
+    <keyword>XMPP</keyword>
+    <keyword>Jingle</keyword>
+    <abstract>
+      <t>
+        This document defines a bidirectional protocol mapping for use
+        by gateways that enable the exchange of media signalling
+        messages between systems that implement the Session Initiation 
+        Protocol (SIP) and systems that implement the Jingle extensions to
+        the Extensible Messaging and Presence Protocol (XMPP).
+      </t>
+    </abstract>
+  </front>
+
+  <middle>
+
+    <section title="Introduction" anchor="intro">
+      <t>The Session Initiation Protocol <xref target="RFC3261"/> is a widely-deployed technology for the management of media sessions (such as voice and video calls) over the Internet. SIP itself provides a signalling channel via TCP <xref target='RFC0793'/> or UDP <xref target='RFC0768'/>, over which two or more parties can exchange messages for the purpose of negotiating a media session that uses a dedicated media channel such as the Real-time Transport Protocol (RTP) <xref target='RFC3550'/>.  The Extensible Messaging and Presence Protocol (XMPP) <xref target='RFC6120'/> also provides a signalling channel, typically via TCP (although HTTP and WebSocket bindings also exist).</t>
+      <t>Given the significant differences between XMPP and SIP, traditionally it was difficult to combine the two technologies in a single user agent (although nowadays such implementations are not uncommon, as described in <xref target='RFC7081'/>).  As a result, in 2005 some developers wishing to add media session capabilities to XMPP clients defined a set of XMPP-specific session negotiation protocol extensions called Jingle <xref target='XEP-0166'/>.</t>
+      <t>Thankfully, Jingle was designed to easily map to SIP for communication through gateways or other transformation mechanisms.  Nevertheless, given the significantly different technology assumptions underlying XMPP and SIP, Jingle is naturally different from SIP in several important respects:</t>
+      <t>
+        <list style='symbols'>
+          <t>Base SIP messages and headers use a plaintext format similar in some ways to the Hypertext Transport Protocol <xref target='RFC2616'/>, whereas Jingle messages are pure XML. Mappings between SIP headers and Jingle message syntax are provided below.</t>
+          <t>The SIP payloads defining session semantics use the Session Description Protocol <xref target='RFC4566'/>, whereas the equivalent Jingle payloads are defined as XML child elements of the Jingle &lt;content/&gt; element.  However, the Jingle specifications defining such child elements specify mappings to SDP for all Jingle syntax, making the mapping relatively straightforward.</t>
+          <t>The SIP signalling channel has historically often been transported over UDP, whereas the signalling channel for Jingle is XMPP over TCP. Mapping between the transport layers typically happens within a gateway using techniques below the application level, and therefore is not addressed in this specification.</t>
+        </list>
+      </t>
+      <t>Consistent with existing specifications for mapping between SIP and XMPP (see <xref target='I-D.ietf-stox-core'/> and other related specifications), this document describes a bidirectional protocol mapping for use by gateways that enable the exchange of media signalling messages between systems that implement SIP and systems that implement the XMPP Jingle extensions.</t>
+      <t>It is important to note that SIP and Jingle sessions can be gatewayed in a rather simple fashion if all media was always routed and potentially even transcoded through a gateway.  This specification defines a mapping that allows gateways to (wherever possible) only intervene at the signalling level, letting user agents exchange media in an end-to-end manner. Such gateways focus on handling handling RTP session establishment and control within the context of what users would perceive as "calls". This document is hence primarily dealing with calling scenarios as opposed to generic media sessions with SIP.</t>
+      <t>The discussion venue for this document is the mailing list of the STOX WG; visit https://www.ietf.org/mailman/listinfo/stox for subscription information and discussion archives.</t>
+    </section>
+
+    <section title="Intended Audience" anchor="audience">
+      <t>The documents in this series are intended for use by software developers who have an existing system based on one of these technologies (e.g., SIP), and would like to enable communication from that existing system to systems based on the other technology (e.g., XMPP).  We assume that readers are familiar with the core specifications for both SIP <xref target='RFC3261'/> and XMPP <xref target='RFC6120'/>, with the base document for this series <xref target='I-D.ietf-stox-core'/>, and with the following media-related specifications:</t>
+      <t>
+        <list style='symbols'>
+          <t>RTP Profile for Audio and Video Conferences with Minimal Control <xref target='RFC3551'/></t>
+          <t>The Secure Real-time Transport Protocol (SRTP) <xref target='RFC3711'/></t>
+          <t>SDP: Session Description Protocol <xref target='RFC4566'/></t>
+          <t>Interactive Connectivity Establishment (ICE): A Protocol for Network Address Translator (NAT) Traversal for Offer/Answer Protocols <xref target='RFC5245'/></t>
+          <t>Jingle <xref target='XEP-0166'/></t>
+          <t>Jingle RTP Sessions <xref target='XEP-0167'/></t>
+          <t>Jingle ICE-UDP Transport Method <xref target='XEP-0176'/></t>
+          <t>Jingle Raw UDP Transport Method <xref target='XEP-0177'/></t>
+        </list>
+      </t>
+    </section>
+
+    <section title="Terminology" anchor="terms">
+      <t>A number of technical terms used here are defined in <xref target="RFC3261"/>, <xref target="RFC6120"/>, <xref target='XEP-0166'/>, and <xref target='XEP-0167'/>.  The term "JID" is short for "Jabber Identifier".</t>
+      <t>In flow diagrams, SIP traffic is shown using arrows such as "***&gt;" whereas XMPP traffic is shown using arrows such as "...&gt;".</t>
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
+    </section>
+
+    <section title="Compatibility with Offer/Answer Model" anchor="jingle-oacompat">
+      <t>Even if Jingle semantics have many similarities with those used in SIP, there are some use cases that cannot be handled in exactly the same way due to the Offer/Answer model used in SIP in conjunction with SDP.</t>
+      <t>More specifically, mapping SIP and SDP Offer/Answer to XMPP is often complicated due to the difference in how each handles backward compatibility. Jingle, as most other XMPP extensions, relies heavily on the XMPP extension for service discovery <xref target='XEP-0030'/>. In other words, XMPP entities are able to verify the capabilities of their intended peer before actually attempting to establish a session with it.</t>
+      <t>SDP Offer/Answer on the other hand uses a least common denominator approach where every SDP offer has to be understandable by legacy endpoints. Newer, unsupported aspects in this offer can therefore only appear as optional, or their use needs to be limited to subsequent Offer/Answer exchanges once their support has been confirmed.</t>
+      <t>Use of "trickle ICE" (see <xref target='I-D.ietf-mmusic-trickle-ice'/> and <xref target='I-D.ivov-mmusic-trickle-ice-sip'/>) is one example where this issue occurs. SIP endpoints need to always behave like so-called "vanilla ICE" agents when sending their first offer and make sure they gather all candidates before sending a SIP INVITE. This is necessary because otherwise ICE agents with no support for trickle can prematurely declare failure. Jingle endpoints, on the other hand, can verify support for trickle ICE prior to engaging in a session and adapt their behavior accordingly.</t>
+      <t>In order to work around this disparity in relation to communication of transport candidates, <xref target='XEP-0176'/> defines an Offer/Answer support mode through the "urn:ietf:rfc:3264" feature tag. When an XMPP entity such as a client (or, significantly, a gateway to a SIP system) advertises support for this feature, the entity indicates that it needs to receive multiple transport candidates in the initial offer, instead of receiving them in a continuous trickle over time.  Although implementations conforming to this specification MUST support the Offer/Answer model with Jingle, such endpoints are not required to actually declare support for the "urn:ietf:rfc:3264" service discovery feature since this would mean that they too would be reachable only through Offer/Answer semantics not also through trickle-ICE semantics.)</t>
+    </section>
+
+    <section title="Syntax Mappings" anchor="jingle-syntax">
+      <section title="Generic Jingle Syntax" anchor="jingle-syntax-generic">
+        <t>Jingle is designed in a modular fashion, so that session description data is generally carried in a payload within the generic Jingle elements, i.e., the &lt;jingle/&gt; element and its &lt;content/&gt; child. The following example illustrates this structure, where the XMPP stanza is a request to initiate an audio session (via the &lt;content/&gt; and &lt;description/&gt; elements) using a transport of RTP over raw UDP (via the &lt;transport/&gt; element).</t>
+        <figure>
+          <preamble>Example 1: Structure of a Jingle session initiation request</preamble>
+          <artwork><![CDATA[
+| <iq from='romeo@example.net/v3rsch1kk3l1jk' 
+|     id='ne91v36s'
+|     to='juliet@example.com/t3hr0zny'
+|     type='set'>
+|   <jingle xmlns='urn:xmpp:jingle:1'
+|           action='session-initiate'
+|           initiator='romeo@example.net/v3rsch1kk3l1jk'
+|           sid='a73sjjvkla37jfea'>
+|     <content creator='initiator'
+|              media='audio'
+|              name='this-is-the-audio-content'
+|              senders='both'>
+|       <description xmlns='urn:xmpp:jingle:app:rtp:1'>
+|         <payload-type id='96' name='speex' clockrate='16000'/>
+|         <payload-type id='97' name='speex' clockrate='8000'/>
+|         <payload-type id='18' name='G729'/>
+|         <payload-type channels='2'
+|                       clockrate='16000'
+|                       id='103'
+|                       name='L16'/>
+|         <payload-type id='98' name='x-ISAC' clockrate='8000'/>
+|       </description>
+|       <transport xmlns='urn:xmpp:jingle:transport:raw-udp'>
+|         <candidate id='v3c18fgg' ip='10.1.1.104' 
+|                    port='13540' generation='0'/>
+|       </transport>
+|     </content>
+|   </jingle>
+| </iq>
+          ]]></artwork>
+        </figure>
+        <t>In the foregoing example, the syntax and semantics of the &lt;jingle/&gt; and &lt;content/&gt; elements are defined in the core Jingle specification <xref target='XEP-0166'/>, the syntax and semantics of the &lt;description/&gt; element qualified by the 'urn:xmpp:jingle:app:rtp:1' namespace are defined in the Jingle RTP specification <xref target='XEP-0167'/>, and the syntax and semantics of the &lt;transport/&gt; element qualified by the 'urn:xmpp:jingle:transport:raw-udp' namespace are defined in the Jingle Raw UDP specification <xref target='XEP-0177'/>. Other &lt;description/&gt; elements are defined in specifications for the appropriate application types (see for example <xref target='XEP-0234'/> for file transfer) and other &lt;transport/&gt; elements are defined in the specifications for appropriate transport methods (see for example <xref target='XEP-0176'/>, which defines an XMPP profile of ICE <xref target='RFC5245'/>).</t>
+        <t>At the core Jingle layer, the following mappings are defined.</t>
+        <figure>
+          <preamble>Table 1: High-Level Mapping from XMPP to SIP</preamble>
+          <artwork><![CDATA[
++--------------------------------+--------------------------------+
+|           Jingle               |             SIP                |
++--------------------------------+--------------------------------+
+| <jingle/> 'action'             | [ see next table ]             |
++--------------------------------+--------------------------------+
+| <jingle/> 'initiator'          | [ no mapping ]                 |
++--------------------------------+--------------------------------+
+| <jingle/> 'responder'          | [ no mapping ]                 |
++--------------------------------+--------------------------------+
+| <jingle/> 'sid'                | local-part of Dialog ID        |
++--------------------------------+--------------------------------+
+| local-part of 'initiator'      | <username> in SDP o= line      |
++--------------------------------+--------------------------------+
+| <content/> 'creator'           | [ no mapping ]                 |
++--------------------------------+--------------------------------+
+| <content/> 'name'              | no mandatory mapping *         |
++--------------------------------+--------------------------------+
+| <content/> 'senders' value of  | a= line of sendrecv, recvonly, |
+| both, initiator, responder, or | sendonly, or inactive          |
+| none                           |                                |
++--------------------------------+--------------------------------+
+          ]]></artwork>
+        </figure>
+        <t>* In can be appropriate to map to the a=mid value defined in <xref target='RFC5888'/>.</t>
+        <t>The 'senders' attribute is optional in Jingle, with a default value of "both"; thus in case the attribute is absent the SDP direction value MUST be considered as 'sendrecv'.</t>
+        <t>The 'action' attribute of the &lt;jingle/&gt; element has 15 allowable values. In general they should be mapped as shown in the following table, with some exceptions as described below.</t>
+        <figure>
+          <preamble>Table 2: Mapping of Jingle Actions to SIP Methods</preamble>
+          <artwork><![CDATA[
++-------------------+------------------------------+
+| Jingle Action     | SIP Method                   |
++-------------------+------------------------------+
+| content-accept    | INVITE response (1xx or 2xx) |
++-------------------+------------------------------+
+| content-add       | INVITE request               |
++-------------------+------------------------------+
+| content-modify    | INVITE request               |
++-------------------+------------------------------+
+| content-reject    | unused in this mapping       |
++-------------------+------------------------------+
+| content-remove    | INVITE request               |
++-------------------+------------------------------+
+| description-info  | unused in this mapping       |
++-------------------+------------------------------+
+| security-info     | unused in this mapping       |
++-------------------+------------------------------+
+| session-accept    | INVITE response (1xx or 2xx) |
++-------------------+------------------------------+
+| session-info      | [varies]                     |
++-------------------+------------------------------+
+| session-initiate  | INVITE request               |
++-------------------+------------------------------+
+| session-terminate | BYE                          |
++-------------------+------------------------------+
+| transport-accept  | unused in this mapping       |
++-------------------+------------------------------+
+| transport-info    | unused in this mapping       |
++-------------------+------------------------------+
+| transport-reject  | unused in this mapping       |
++-------------------+------------------------------+
+| transport-replace | unused in this mapping       |
++-------------------+------------------------------+
+          ]]></artwork>
+        </figure>
+      </section>
+
+      <section title="Application Formats" anchor="jingle-syntax-application-formats">
+        <t>Jingle application formats for audio and video exchange via RTP are specified in <xref target='XEP-0167'/>. These application formats effectively map to the "RTP/AVP" profile specified in <xref target='RFC3551'/> and the "RTP/SAVP" profile specified in <xref target='RFC3711'/>, where the media types are "audio" and "video" and the specific mappings to SDP syntax are provided in <xref target='XEP-0167'/>.</t>
+        <t>(As stated in <xref target='XEP-0167'/>, future versions of that specification might define how to use other RTP profiles such as "RTP/AVPF" and "RTP/SAVPF" as defined in <xref target='RFC4585'/> and <xref target='RFC5124'/> respectively.)</t>
+      </section>
+
+      <section title="Raw UDP Transport Method" anchor="jingle-syntax-udp">
+        <t>A basic Jingle transport method for exchanging media over UDP is specified in <xref target='XEP-0177'/>. This transport method involves the negotiation of an IP address and port only. It does not provide NAT traversal, effectively leaving the task to intermediary entities. The Jingle 'ip' attribute maps to the connection-address parameter of the SDP c= line and the 'port' attribute maps to the port parameter of the SDP m= line. Use of SIP without ICE would generally map to use of Raw UDP on the XMPP side of a session.</t>
+      </section>
+
+      <section title="ICE-UDP Transport Method" anchor="jingle-syntax-ice">
+        <t>A more advanced Jingle transport method for exchanging media over UDP is specified in <xref target='XEP-0176'/>.  Under ideal conditions this transport method provides NAT traversal by following the Interactive Connectivity Exchange methodology specified in <xref target='RFC5245'/>.</t>
+        <t>The relevant SDP mappings are provided in <xref target='XEP-0176'/>, however there are a few syntax incompatibilities which need to be addressed by gateways conforming to this specification:</t>
+        <t>
+          <list style='symbols'>
+            <t>
+              The 'foundation' attribute is defined as a number in
+              Jingle (unsigned byte) whereas ICE
+              <xref target='RFC5245'/> defines it as a string, which
+              can contain letters, digits and the '+' and '/' symbols.
+              Gateway applications MUST therefore convert ICE
+              originating foundations into integer numbers and they
+              MUST guarantee that such a conversion preserves
+              foundation uniqueness. The exact mechanism for the
+              conversion is undefined.
+            </t>
+            <t>
+              Jingle defines a 'generation' attribute which is used
+              to determine if an ICE restart is required. This
+              attribute has no counterpart in SIP as ICE restarts are
+              initiated by detecting a change in the ICE ufrag and
+              password. Gateways MUST therefore increase the
+              generation number when they detect such changes.
+            </t>
+            <t>
+              The 'id' attribute defined by Jingle has no SIP
+              counterpart thus applications are free to choose means
+              to generate unique identifiers across the different
+              candidates of an ICE generation.
+            </t>
+            <t>The 'network' attribute defined by Jingle has no
+              counterpart in SIP and SHOULD be ignored.
+            </t>
+          </list>
+        </t>
+<t>[[OPEN ISSUE: describe handling of ICE restarts.]]</t>
+      </section>
+    </section>
+
+    <section title="Call Hold" anchor="call-hold">
+      <t><xref target="RFC3264"/> stipulates that streams are placed on hold by setting their direction to "sendonly". A session is placed on hold by doing this for all the streams it contains.  The same semantics are also supported by Jingle through the "senders" element and its "initiator" and "responder" values (XEP-0166 also defines a value of "none", which maps to an a= value of "inactive").</t>
+      <t>The following example shows how the responder would put the call on hold (i.e., temporarily stop listening to media sent by the initiator) using a Jingle content-modify action and a modified value for the 'senders' attribute (here "responder" to indicate that the responder might continue to send media, such as hold music).</t>
+        <figure>
+          <preamble>Example 2: Call hold via 'senders' attribute</preamble>
+          <artwork><![CDATA[
+| <iq from='juliet@capulet.lit/balcony'
+|     id='hz73n2l9'
+|     to='romeo@montague.lit/orchard'
+|     type='set'>
+|   <jingle xmlns='urn:xmpp:jingle:1'
+|           action='content-modify'
+|           initiator='romeo@montague.lit/orchard'
+|           sid='a73sjjvkla37jfea'>
+|     <content creator='initiator'
+|              media='audio'
+|              name='this-is-the-audio-content'
+|              senders='responder'/>
+|   </jingle>
+| </iq>
+          ]]></artwork>
+        </figure>
+      <t>In addition to these semantics, however, the Jingle RTP Sessions specification <xref target='XEP-0167'/> also defines a more concise way for achieving the same end, which consists in sending a "hold" command within a "session-info" action, as shown in the following example.</t>
+        <figure>
+          <preamble>Example 3: Call hold via session-info action</preamble>
+          <artwork><![CDATA[
+| <iq from='juliet@capulet.lit/balcony'
+|     id='xv39z423'
+|     to='romeo@montague.lit/orchard'
+|     type='set'>
+|   <jingle xmlns='urn:xmpp:jingle:1'
+|           action='session-info'
+|           initiator='romeo@montague.lit/orchard'
+|           sid='a73sjjvkla37jfea'>
+|     <hold xmlns='urn:xmpp:jingle:apps:rtp:info:1'/>
+|   </jingle>
+| </iq>
+          ]]></artwork>
+        </figure>
+      <t>Gateways that receive a "hold" command from their Jingle side MUST generate a new offer on their SIP side, placing all streams in a "sendonly" state.</t>
+      <t>When relaying offers from SIP to XMPP however, gateways are not required to translate "sendonly" attributes into a "hold" command as this would not always be possible (e.g. when not all streams have the same direction). Additionally such conversions might introduce complications in case further offers placing a session on hold also contain other session modifications.</t>
+      <t>It is possible that, after one entity has put the other on hold, the second entity might put the first entity on hold.  In this case, the effective direction would then be "inactive" in SDP and "none" in Jingle.</t> 
+    </section>
+
+    <section title="Early Media" anchor="early-media">
+      <t><xref target="RFC3959"/> and <xref target="RFC3960"/> describe a number of scenarios relying on "early media". While similar attempts have also been made for XMPP, support for early media is not currently widely supported in Jingle implementations. Therefore, gateways SHOULD NOT forward SDP answers from SIP to Jingle until a final response has been received, except in cases where the gateway is in a position to confirm specific support for early media by the endpoint (one approach to such support can be found in <xref target="XEP-0269"/> but it has not yet been standardized).</t>
+      <t>Gateways MUST however store early media SDP answers when they are sent inside a reliable provisional response. In such cases, a subsequent final response can follow without an actual answer and the one from the provisional response will need to be forwarded to the Jingle endpoint.</t>
+    </section>
+    
+    <section title="Detecting Endless Loops" anchor="loops">
+      <t><xref target="RFC3261"/> defines a "Max-Forwards" header that allows intermediate entities such as SIP proxies to detect and prevent loops from occurring. The specifics of XMPP make such a prevention mechanism unnecessary for XMPP-only environments.  With the introduction of SIP-to-XMPP gatewaying, however, it would be possible for loops to occur where messages are being repeatedly forwarded from XMPP to SIP to XMPP to SIP, etc.</t>
+      <t>To compensate for the lack of a "Max-Forwards" header in SIP, gateways MUST therefore keep track of all SIP transactions and Jingle sessions that they are currently serving and they MUST block re-entrant messages.</t>
+
+<t>[[OPEN ISSUE: In order for this to work, we need a consistent way of translating dialog IDs into Jingle sessions, and vice versa, so that the following can be verified: jingleSessID == toJingleSessID(toSipCallID( jingleSessID )).  We need to mention mention spirals here as well. Alice could call Bob, but Bob forwards his call to Romeo. A spiral on the SIP side could end up becoming a loop if the gateway is in between.]]</t>
+
+    </section>
+
+    <section title="SDP Format-Specific Parameters" anchor="fmtp">
+      <t><xref target="RFC4566"/> defines "a=fmtp" attributes for the transmission of format specific parameters as a single transparent string. Such strings can be used to convey either a single value or a sequence of parameters, separated by semi-colons, commas or whatever delimiters are chosen by a particular payload type specification.</t>
+      <t><xref target="XEP-0167"/> on the other hand defines a &lt;parameter/&gt; element as follows:</t>
+        <figure>
+          <artwork><![CDATA[
+  <parameter name="paramName" value="paramValue"/>
+          ]]></artwork>
+        </figure>
+      <t>A sequence of parameters is thus transmitted as an array of distinct name/value couples, at least in the context of the Jingle RTP extension.</t>
+      <t>These differences make it impossible to devise a generic mechanism that accurately translates format parameters from Jingle RTP to SDP without the specifics of the payload being known to the gateway. In general this is not a major problem because many or most of the media type definitions supported in existing Jingle implementations follow the normal semicolon-separated parameter model. One likely exception is the RTP Payload for DTMF Digits, Telephony Tones, and Telephony Signals <xref target='RFC4733'/>.</t>
+      <t>For implementations that wish to provide a general-purpose translation method, this specification makes the following recommendations:</t>
+      <t>
+        <list style='numbers'>
+          <t>Gateways that are aware of the formats in use SHOULD parse all format parameters and generate &lt;parameter/&gt; arrays and "a=fmtp" values accordingly.</t>
+          <t>When translating Jingle RTP to SIP, gateways that have no explicit support for the formats that are being negotiated SHOULD convert the list of &lt;parameter/&gt; elements into a single string, containing a sequence of "name=value" pairs, separated by a semi-colon and a space (i.e. "; ").</t>
+          <t>When translating SIP to Jingle RTP, gateways that have no explicit support for the formats that are being negotiated SHOULD tokenize the "a=fmtp" format string using one delimiter from the following list: ";", "; ", ",", ", ". The resulting tokens SHOULD then be parsed as "name=value" pairs. If this process does actually yield any such pairs, they SHOULD be used for generating the respective &lt;parameter/&gt; elements. If some of the tokens cannot be parsed into a "name=value" pair because they do not conform to the convention suggested in <xref target='RFC4855'/>, or in case the format string couldn't be tokenized with the above delimiters, the remaining strings SHOULD be used as a value for the "value" attribute of the &lt;parameter/&gt; element and the corresponding "name" attribute SHOULD be left empty.</t>
+        </list>
+      </t>
+      <t>Here is an example of the foregoing transformations, using the aforementioned example of DTMF digits:</t>
+      <figure>
+        <preamble>SDP with format data</preamble>
+        <artwork><![CDATA[
+      a=rtpmap:100 telephone-event/8000
+      a=fmtp:100 0-15,66,70
+        ]]></artwork>
+      </figure>
+      <figure>
+        <preamble>Jingle transformation</preamble>
+        <artwork><![CDATA[
+  <parameter name="" value="0-15,66-70"/>
+        ]]></artwork>
+      </figure>
+    </section>
+
+    <section title="Dialog Forking" anchor="forking">
+      <t><xref target="RFC3261"/> defines semantics for dialog forking.  Such semantics have not been defined for Jingle and need to be hidden from XMPP endpoints.</t>
+      <t>To achieve this, a SIP-to-XMPP gateway MUST NOT forward more than one provisional response on the Jingle side. Typically they would do so only for the first provisional response they receive and ignore the rest. This provisional response SHOULD be forwarded as if it originated from a "user@host" address (i.e., a "bare JID") corresponding to the AOR URI found in the "From" header of the SIP provisional response. The gateway MUST NOT attempt to translate GRUUs into full JIDs because it cannot know at this stage which of the dialogs established by these provisional responses will be used for the actual session.</t>
+      <t>Likewise, a gateway conforming to this specification MUST NOT forward more than a single final response received through SIP to the Jingle side.  The gateway SHOULD terminate the SIP sessions whose received final response wasn't forwarded to the Jingle side.</t>
+    </section>
+
+    <section title="Sample Scenarios" anchor="jingle-scenarios">
+      <t>The following sections provide sample scenarios (or "call flows") that illustrate the principles of interworking from Jingle to SIP. These scenarios are not exhaustive.</t>
+
+      <section title="Basic Voice Chat" anchor="jingle-scenarios-basic">
+        <t>The protocol flow for a basic voice chat for which an XMPP user (juliet@example.com) is the initiator and a SIP user (romeo@example.net) is the responder. The voice chat is consummated through a gateway. To simplify the example, the Jingle transport method negotiated is "raw user datagram protocol" as specified in <xref target='XEP-0177'/>.</t>
+        <figure>
+          <artwork><![CDATA[
+XMPP       XMPP      XMPP-to-SIP    SIP-to-XMPP     SIP         SIP
+User      Server      Gateway        Gateway       Server       User
+ |           |            |              |            |          |
+ | (F1) XMPP |            |              |            |          |
+ | session-  |            |              |            |          |
+ | initiate  |            |              |            |          |
+ |..........>|            |              |            |          |
+ |           | (F2) XMPP  |              |            |          |
+ |           | session-   |              |            |          |
+ |           | initiate   |              |            |          |
+ |           |...........>|              |            |          |
+ |           | (F3) XMPP  |              |            |          |
+ |           | IQ-result  |              |            |          |
+ |           |<...........|              |            |          |
+ | (F4) XMPP |            |              |            |          |
+ | IQ-result |            |              |            |          |
+ |<..........|            |              |            |          |
+ |           |            | (F5) SIP INVITE           |          |
+ |           |            |**************************>|          |
+ |           |            |              |            | (F6) SIP |
+ |           |            |              |            | INVITE   |
+ |           |            |              |            |*********>|
+ |           |            |              |            | (F7) SIP |
+ |           |            |              |            | 180      |
+ |           |            |              |            | ringing  |
+ |           |            |              |            |<*********|
+ |           |            |              | (F8) SIP   |          |
+ |           |            |              | 180 ringing|          |
+ |           |            |              |<***********|          |
+ |           | (F9) XMPP session-info    |            |          |
+ |           | (ringing)                 |            |          |
+ |           |<..........................|            |          |
+ | (F10) XMPP|            |              |            |          |
+ | session-  |            |              |            |          |
+ | info      |            |              |            |          |
+ | (ringing) |            |              |            |          |
+ |<..........|            |              |            |          |
+ | (F11) XMPP|            |              |            |          |
+ | IQ-result |            |              |            |          |
+ |..........>|            |              |            |          |
+ |           | (F12) XMPP |              |            |          |
+ |           | IQ-result  |              |            |          |
+ |           |...........x|              |            |          |
+ |           |            |              |            | (F13) SIP|
+ |           |            |              |            | 200 OK   |
+ |           |            |              |            |<*********|
+ |           |            |              | (F14) SIP  |          |
+ |           |            |              | 200 OK     |          |
+ |           |            |              |<***********|          |
+ |           | (F15) XMPP session-accept |            |          |
+ |           |<..........................|            |          |
+ | (F16) XMPP|            |              |            |          |
+ | session-  |            |              |            |          |
+ | accept    |            |              |            |          |
+ |<..........|            |              |            |          |
+ | (F17) XMPP|            |              |            |          |
+ | IQ-result |            |              |            |          |
+ |..........>|            |              |            |          |
+ |           | (F18) XMPP |              |            |          |
+ |           | IQ-result  |              |            |          |
+ |           |...........>|              |            |          |
+ |           |            | (F19) SIP ACK             |          |
+ |           |            |**************************>|          |
+ |           |            |              |            | (F20) SIP|
+ |           |            |              |            | ACK      |
+ |           |            |              |            |*********>|
+ |           |            |              |            |          |
+ |<====================MEDIA SESSION OVER RTP===================>|
+ |           |            |              |            |          |
+ |           |            |              |            | (F21) SIP|
+ |           |            |              |            | BYE      |
+ |           |            |              |            |<*********|
+ |           |            |              | (F22) SIP  |          |
+ |           |            |              | BYE        |          |
+ |           |            |              |<***********|          |
+ |           | (F23) XMPP session-       |            |          |
+ |           | terminate                 |            |          |
+ |           |<..........................|            |          |
+ | (F24) XMPP|            |              |            |          |
+ | session-  |            |              |            |          |
+ | terminate |            |              |            |          |
+ |<..........|            |              |            |          |
+ | (F25) XMPP|            |              |            |          |
+ | IQ-result |            |              |            |          |
+ |..........>|            |              |            |          |
+ |           | (F26) XMPP |              |            |          |
+ |           | IQ-result  |              |            |          |
+ |           |...........x|              |            |          |
+          ]]></artwork>
+        </figure>
+        <t>The packet flow is as follows.</t>
+        <t>First the XMPP user sends a Jingle session-initiation request to the SIP user.</t>
+        <figure>
+          <preamble>Example 4: Jingle session-initiate (F1)</preamble>
+          <artwork><![CDATA[
+|   <iq from='juliet@example.com/t3hr0zny'
+|       id='hu2s61f4'
+|       from='romeo@example.net/v3rsch1kk3l1jk'
+|       type='set'>
+|     <jingle xmlns='urn:xmpp:jingle:1'
+|             action='session-initiate'
+|             initiator='juliet@example.com/t3hr0zny'
+|             sid='a73sjjvkla37jfea'>
+|       <content creator='initiator'
+|                media='audio'
+|                name='this-is-the-audio-content'>
+|         <description xmlns='urn:xmpp:jingle:app:rtp:1'>
+|           <payload-type id='96' name='speex' clockrate='16000'/>
+|           <payload-type id='97' name='speex' clockrate='8000'/>
+|           <payload-type id='18' name='G729'/>
+|         </description>
+|         <transport xmlns='urn:xmpp:jingle:transport:raw-udp'>
+|           <candidate component='1' generation='0' id='u3gscv289p'
+|                      ip='192.0.2.101' port='49172'/>
+|         </transport>
+|       </content>
+|     </jingle>
+|   </iq>
+        ]]></artwork>
+        </figure>
+        <t>The gateway returns an XMPP IQ-result to the initiator on behalf of the responder.</t>
+        <figure>
+          <preamble>Example 5: XMPP IQ-result from gateway (F3)</preamble>
+          <artwork><![CDATA[
+|   <iq from='juliet@example.com/t3hr0zny'
+|       id='hu2s61f4'
+|       to='romeo@example.net/v3rsch1kk3l1jk'
+|       type='result'/>
+        ]]></artwork>
+        </figure>
+        <t>The gateway transforms the Jingle session-initiate action into a SIP INVITE.</t>
+        <figure>
+          <preamble>Example 6: SIP transformation of Jingle session-initiate (F5)</preamble>
+          <artwork><![CDATA[
+|   INVITE sip:romeo@example.net SIP/2.0
+|   Via: SIP/2.0/TCP client.example.com:5060;branch=z9hG4bK74bf9
+|   Max-Forwards: 70
+|   From: Juliet Capulet <sip:juliet@example.com>;tag=t3hr0zny
+|   To: Romeo Montague <sip:romeo@example.net>
+|   Call-ID: 3848276298220188511@example.com
+|   CSeq: 1 INVITE
+|   Contact: <sip:juliet@client.example.com;transport=tcp>
+|   Content-Type: application/sdp
+|   Content-Length: 184
+
+|   v=0
+|   o=alice 2890844526 2890844526 IN IP4 client.example.com
+|   s=-
+|   c=IN IP4 192.0.2.101
+|   t=0 0
+|   m=audio 49172 RTP/AVP 18 96 97
+|   a=rtpmap:96 sppex/16000
+|   a=rtpmap:97 speex/8000
+|   a=rtpmap:18 G729
+        ]]></artwork>
+        </figure>
+        <t>The responder returns a SIP 180 Ringing message.</t>
+        <figure>
+          <preamble>Example 7: SIP 180 Ringing message (F7)</preamble>
+          <artwork><![CDATA[
+|   SIP/2.0 180 Ringing
+|   Via: SIP/2.0/TCP client.example.com:5060;branch=z9hG4bK74bf9;\
+|        received=192.0.2.101
+|   From: Juliet Capulet <sip:juliet@example.com>;tag=t3hr0zny
+|   To: Romeo Montague <sip:romeo@example.net>;tag=v3rsch1kk3l1jk
+|   Call-ID: 3848276298220188511@example.com
+|   CSeq: 1 INVITE
+|   Contact: <sip:romeo@client.example.net;transport=tcp>
+|   Content-Length: 0
+        ]]></artwork>
+        </figure>
+        <t>The gateway transforms the ringing message into XMPP syntax.</t>
+        <figure>
+          <preamble>Example 8: XMPP transformation of SIP 180 Ringing message (F7)</preamble>
+          <artwork><![CDATA[
+|   <iq from='romeo@montague.net/v3rsch1kk3l1jk'
+|       id='ol3ba71g'
+|       to='juliet@example.com/t3hr0zny'
+|       type='set'>
+|     <jingle xmlns='urn:xmpp:jingle:1'
+|             action='session-info'
+|             initiator='juliet@example.com/t3hr0zny'
+|             sid='a73sjjvkla37jfea'>
+|       <ringing xmlns='urn:xmpp:jingle:apps:rtp:info:1'/>
+|     </jingle>
+|   </iq>
+        ]]></artwork>
+        </figure>
+        <t>The initiator returns an IQ-result acknowledging receipt of the ringing message, which is used only by the gateway and not transformed into SIP syntax.</t>
+        <figure>
+          <preamble>Example 9: XMPP entity acknowledges ringing message (F11)</preamble>
+          <artwork><![CDATA[
+|  <iq from='juliet@example.com/t3hr0zny'
+|      id='ol3ba71g'
+|      to='romeo@example.net/v3rsch1kk3l1jk'
+|      type='result'/>
+        ]]></artwork>
+        </figure>
+        <t>The responder sends a SIP 200 OK to the initiator in order to accept the session initiation request.</t>
+        <figure>
+          <preamble>Example 10: SIP user accepts session request (F13)</preamble>
+          <artwork><![CDATA[
+|   SIP/2.0 200 OK
+|   Via: SIP/2.0/TCP client.example.com:5060;branch=z9hG4bK74bf9;\
+|        received=192.0.2.101
+|   From: Juliet Capulet <sip:juliet@example.com>;tag=t3hr0zny
+|   To: Romeo Montague <sip:romeo@example.net>;tag=v3rsch1kk3l1jk
+|   Call-ID: 3848276298220188511@example.com
+|   CSeq: 1 INVITE
+|   Contact: <sip:romeo@client.example.net;transport=tcp>
+|   Content-Type: application/sdp
+|   Content-Length: 147
+| 
+|   v=0
+|   o=romeo 2890844527 2890844527 IN IP4 client.example.net
+|   s=-
+|   c=IN IP4 192.0.2.201
+|   t=0 0
+|   m=audio 3456 RTP/AVP 97
+|   a=rtpmap:97 speex/8000
+        ]]></artwork>
+        </figure>
+        <t>The gateway transforms the 200 OK into a Jingle session-accept action.</t>
+        <figure>
+          <preamble>Example 11: XMPP transformation of SIP 200 OK (F15)</preamble>
+          <artwork><![CDATA[
+|   <iq from='romeo@example.net/v3rsch1kk3l1jk'
+|       id='pd1bf839'
+|       to='juliet@example.com/t3hr0zny'
+|       type='set'>
+|     <jingle xmlns='urn:xmpp:jingle:1'
+|             action='session-accept'
+|             initiator='juliet@example.com/t3hr0zny'
+|             responder='romeo@example.net/v3rsch1kk3l1jk'
+|             sid='a73sjjvkla37jfea'>
+|       <content creator='initiator'
+|                media='audio'
+|                name='this-is-the-audio-content'>
+|         <description xmlns='urn:xmpp:jingle:app:rtp:1'>
+|           <payload-type id='97' name='speex' clockrate='8000'/>
+|         </description>
+|         <transport xmlns='urn:xmpp:jingle:transport:raw-udp'>
+|           <candidate id='9eg13am7' ip='192.0.2.101' 
+|                      port='49172' generation='0'/>
+|         </transport>
+|       </content>
+|     </jingle>
+|   </iq>
+        ]]></artwork>
+        </figure>
+        <t>If the payload types and transport candidate can be successfully used by both parties, then the initiator acknowledges the session-accept action.</t>
+        <figure>
+          <preamble>Example 12: XMPP user acknowledges session-accept (F17)</preamble>
+          <artwork><![CDATA[
+|   <iq from='romeo@example.net/v3rsch1kk3l1jk'
+|       id='pd1bf839'
+|       to='juliet@example.com/t3hr0zny'
+|       type='result'/>
+        ]]></artwork>
+        </figure>
+        <t>The parties now begin to exchange media. In this case they would exchange audio using the Speex codec at a clockrate of 8000 since that is the highest-priority codec for the responder (as determined by the XML order of the &lt;payloadtype/&gt; children).</t>
+        <t>The parties can continue the session as long as desired.</t>
+        <t>Eventually, one of the parties (in this case the responder) terminates the session.</t>
+        <figure>
+          <preamble>Example 13: SIP user ends session (F21)</preamble>
+          <artwork><![CDATA[
+|   BYE sip:juliet@client.example.com SIP/2.0
+|   Via: SIP/2.0/TCP client.example.net:5060;branch=z9hG4bKnashds7
+|   Max-Forwards: 70
+|   From: Romeo Montague <sip:romeo@example.net>;tag=8321234356
+|   To: Juliet Capulet <sip:juliet@example.com>;tag=9fxced76sl
+|   Call-ID: 3848276298220188511@example.com
+|   CSeq: 1 BYE
+|   Content-Length: 0
+        ]]></artwork>
+        </figure>
+        <t>The gateway transforms the SIP BYE into XMPP syntax.</t>
+        <figure>
+          <preamble>Example 14: XMPP transformation of SIP BYE (F23)</preamble>
+          <artwork><![CDATA[
+| <iq from='romeo@example.net/v3rsch1kk3l1jk'
+|     id='rv301b47'
+|     to='juliet@example.com/t3hr0zny'
+|     type='set'>
+|   <jingle xmlns='urn:xmpp:jingle:1'
+|           action='session-terminate'
+|           initiator='juliet@example.com/t3hr0zny'
+|           sid='a73sjjvkla37jfea'/>
+|     <reason>
+|       <success/>
+|     </reason>
+|   </jingle>
+| </iq>
+        ]]></artwork>
+        </figure>
+        <t>The initiator returns an IQ-result acknowledging receipt of the session termination, which is used only by the gateway and not transformed into SIP syntax.</t>
+        <figure>
+          <preamble>Example 15: XMPP user acknowledges end of session (F25)</preamble>
+          <artwork><![CDATA[
+  <iq from='romeo@example.net/v3rsch1kk3l1jk'
+    id='rv301b47'
+    to='juliet@example.com/t3hr0zny'
+    type='result'/>
+        ]]></artwork>
+        </figure>
+      </section>
+    </section>
+
+    <section title='IANA Considerations' anchor="iana">
+      <t>This document has no actions for the IANA.</t>
+    </section>
+
+    <section title='Security Considerations' anchor="sec">
+      <t>Detailed security considerations for session management are given for SIP in <xref target='RFC3261'/> and for XMPP in <xref target='XEP-0166'/> (see also <xref target='RFC6120'/>).  The security considerations provided in <xref target='I-D.ietf-stox-core'/> also apply.</t>
+    </section>
+
+  </middle>
+
+  <back>
+
+    <references title="Normative References">
+
+      <reference anchor='I-D.ietf-stox-core'>
+        <front>
+          <title>Interworking between the Session Initiation Protocol
+            (SIP) and the Extensible Messaging and Presence Protocol
+            (XMPP): Core
+          </title>
+          <author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+            <organization/>
+          </author>
+          <author initials='A' surname='Houri' fullname='Avshalom Houri'>
+            <organization/>
+          </author>
+          <author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
+            <organization/>
+          </author>
+          <date month='February' day='11' year='2014'/>
+          <abstract>
+            <t>As a foundation for the definition of
+              application-specific, bidirectional protocol mappings
+              between the Session Initiation Protocol (SIP) and the
+              Extensible Messaging and Presence Protocol (XMPP), this
+              document specifies the architectural assumptions
+              underlying such mappings as well as the mapping of
+              addresses and error conditions.
+            </t>
+          </abstract>
+        </front>
+        <seriesInfo name='Internet-Draft' value='draft-ietf-stox-core-11'/>
+        <format type='TXT'
+                target='http://www.ietf.org/internet-drafts/draft-ietf-stox-core-11.txt'/>
+      </reference>
+
+      &rfc2119;
+      &rfc3261;
+      &rfc3551;
+      &rfc4855;
+      &rfc3711;
+      &rfc4566;
+      &rfc4733;
+      &rfc5245;
+      &rfc6120;
+
+      <reference anchor="XEP-0030">
+        <front>
+          <title>Service Discovery</title>
+          <author initials="J." surname="Hildebrand" fullname="Joe Hildebrand">
+            <organization/>
+            <address>
+              <email>jhildebr@cisco.com</email>
+            </address>
+          </author>
+          <author initials="R." surname="Eatmon" fullname="Ryan Eatmon">
+            <organization/>
+            <address>
+              <email>reatmon@jabber.org</email>
+            </address>
+          </author>
+          <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+            <organization/>
+            <address>
+              <email>stpeter@jabber.org</email>
+            </address>
+          </author>
+          <date day="6" month="June" year="2008"/>
+        </front>
+        <seriesInfo name="XSF XEP" value="0030"/>
+        <format type="HTML" target="http://xmpp.org/extensions/xep-0030.html"/>
+      </reference>
+
+      <reference anchor="XEP-0166">
+        <front>
+          <title>Jingle</title>
+          <author initials="S." surname="Ludwig" fullname="Scott Ludwig">
+            <organization/>
+            <address>
+              <email>scottlu@google.com</email>
+            </address>
+          </author>
+          <author initials="J." surname="Beda" fullname="Joe Beda">
+            <organization/>
+            <address>
+              <email>jbeda@google.com</email>
+            </address>
+          </author>
+          <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+            <organization/>
+            <address>
+              <email>stpeter@jabber.org</email>
+            </address>
+          </author>
+          <author initials="R." surname="McQueen" fullname="Robert McQueen">
+            <organization/>
+            <address>
+              <email>robert.mcqueen@collabora.co.uk</email>
+            </address>
+          </author>
+          <author initials="S." surname="Egan" fullname="Sean Egan">
+            <organization/>
+            <address>
+              <email>seanegan@google.com</email>
+            </address>
+          </author>
+          <author initials="J." surname="Hildebrand" fullname="Joe Hildebrand">
+            <organization/>
+            <address>
+              <email>jhildebr@cisco.com</email>
+            </address>
+          </author>
+          <date day="20" month="June" year="2007"/>
+        </front>
+        <seriesInfo name="XSF XEP" value="0166"/>
+        <format type="HTML" target="http://xmpp.org/extensions/xep-0166.html"/>
+      </reference>
+
+      <reference anchor="XEP-0167">
+        <front>
+          <title>Jingle RTP Sessions</title>
+          <author initials="S." surname="Ludwig" fullname="Scott Ludwig">
+            <organization/>
+            <address>
+              <email>scottlu@google.com</email>
+            </address>
+          </author>
+          <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+            <organization/>
+            <address>
+              <email/>
+            </address>
+          </author>
+          <author initials="S." surname="Egan" fullname="Sean Egan">
+            <organization/>
+            <address>
+              <email>seanegan@google.com</email>
+            </address>
+          </author>
+          <author initials="R." surname="McQueen" fullname="Robert McQueen">
+            <organization/>
+            <address>
+              <email>robert.mcqueen@collabora.co.uk</email>
+            </address>
+          </author>
+          <date day="17" month="February" year="2009"/>
+        </front>
+        <seriesInfo name="XSF XEP" value="0167"/>
+        <format type="HTML" target="http://xmpp.org/extensions/xep-0167.html"/>
+      </reference>
+
+      <reference anchor="XEP-0176">
+        <front>
+          <title>Jingle ICE-UDP Transport Method</title>
+          <author initials="J." surname="Beda" fullname="Joe Beda">
+            <organization/>
+            <address>
+              <email>jbeda@google.com</email>
+            </address>
+          </author>
+          <author initials="S." surname="Ludwig" fullname="Scott Ludwig">
+            <organization/>
+            <address>
+              <email>scottlu@google.com</email>
+            </address>
+          </author>
+          <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+            <organization/>
+            <address>
+              <email/>
+            </address>
+          </author>
+          <author initials="J." surname="Hildebrand" fullname="Joe Hildebrand">
+            <organization/>
+            <address>
+              <email>jhildebrand@jabber.com</email>
+            </address>
+          </author>
+          <author initials="S." surname="Egan" fullname="Sean Egan">
+            <organization/>
+            <address>
+              <email>seanegan@google.com</email>
+            </address>
+          </author>
+          <date day="26" month="February" year="2009"/>
+        </front>
+        <seriesInfo name="XSF XEP" value="0176"/>
+        <format type="HTML" target="http://xmpp.org/extensions/xep-0176.html"/>
+      </reference>
+
+      <reference anchor="XEP-0177">
+        <front>
+          <title>Jingle Raw UDP Transport</title>
+          <author initials="J." surname="Beda" fullname="Joe Beda">
+            <organization/>
+            <address>
+              <email>jbeda@google.com</email>
+            </address>
+          </author>
+          <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+            <organization/>
+            <address>
+              <email/>
+            </address>
+          </author>
+          <author initials="S." surname="Ludwig" fullname="Scott Ludwig">
+            <organization/>
+            <address>
+              <email>scottlu@google.com</email>
+            </address>
+          </author>
+          <author initials="J." surname="Hildebrand" fullname="Joe Hildebrand">
+            <organization/>
+            <address>
+              <email>jhildebrand@jabber.com</email>
+            </address>
+          </author>
+          <author initials="S." surname="Egan" fullname="Sean Egan">
+            <organization/>
+            <address>
+              <email>seanegan@google.com</email>
+            </address>
+          </author>
+          <date day="11" month="February" year="2009"/>
+        </front>
+        <seriesInfo name="XSF XEP" value="0177"/>
+        <format type="HTML" target="http://xmpp.org/extensions/xep-0177.html"/>
+      </reference>
+
+    </references>
+
+    <references title="Informative References">
+
+<reference anchor='I-D.ietf-mmusic-trickle-ice'>
+<front>
+<title>Trickle ICE: Incremental Provisioning of Candidates for the Interactive Connectivity Establishment (ICE) Protocol</title>
+<author initials='E' surname='Ivov' fullname='Emil Ivov'>
+    <organization />
+</author>
+<author initials='E' surname='Rescorla' fullname='Eric Rescorla'>
+    <organization />
+</author>
+<author initials='J' surname='Uberti' fullname='Justin Uberti'>
+    <organization />
+</author>
+<date month='February' day='7' year='2014' />
+<abstract><t>This document describes an extension to the Interactive Connectivity Establishment (ICE) protocol that allows ICE agents to send and receive candidates incrementally rather than exchanging complete lists.  With such incremental provisioning, ICE agents can begin connectivity checks while they are still gathering candidates and considerably shorten the time necessary for ICE processing to complete.  The above mechanism is also referred to as "trickle ICE".</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ietf-mmusic-trickle-ice-01' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-mmusic-trickle-ice-01.txt' />
+</reference>
+
+<reference anchor='I-D.ivov-mmusic-trickle-ice-sip'>
+<front>
+<title>A Session Initiation Protocol (SIP) usage for Trickle ICE</title>
+<author initials='E' surname='Ivov' fullname='Emil Ivov'>
+    <organization />
+</author>
+<author initials='E' surname='Marocco' fullname='Enrico Marocco'>
+    <organization />
+</author>
+<author initials='C' surname='Holmberg' fullname='Christer Holmberg'>
+    <organization />
+</author>
+<date month='October' day='13' year='2013' />
+<abstract><t>The Interactive Connectivity Establishment (ICE) protocol describes a Network Address Translator (NAT) traversal for UDP-based multimedia sessions established with the offer/answer model.  The ICE extension for Incremental Provisioning of Candidates (Trickle ICE) defines a mechanism that allows ICE agents to shorten session establishment delays by making the candidate gathering and connectivity checking phases of ICE non-blocking.  This document defines usage semantics for Trickle ICE with SIP.</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ivov-mmusic-trickle-ice-sip-01' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ivov-mmusic-trickle-ice-sip-01.txt' />
+</reference>
+
+      &rfc768;
+      &rfc793;
+      &rfc2616;
+      &rfc3264;
+      &rfc3550;
+      &rfc3959;
+      &rfc3960;
+      &rfc4585;
+      &rfc5124;
+      &rfc5888;
+      &rfc7081;
+
+<reference anchor="XEP-0234">
+  <front>
+    <title>Jingle File Transfer</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <date day="08" month="February" year="2012"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0234"/>
+  <format type="HTML" target="http://xmpp.org/extensions/xep-0234.html"/>
+</reference>
+
+      <reference anchor="XEP-0269">
+        <front>
+          <title>Jingle Early Media</title>
+          <author initials="D." surname="Cionoiu"
+                  fullname="Diana Cionoiu">
+            <organization/>
+            <address>
+              <email>diana@null.ro</email>
+            </address>
+          </author>
+          <author initials="P." surname="Saint-Andre"
+                  fullname="Peter Saint-Andre">
+            <organization/>
+            <address>
+              <email>stpeter@jabber.org</email>
+            </address>
+          </author>
+          <date day="19" month="May" year="2009"/>
+        </front>
+        <seriesInfo name="XSF XEP" value="0269"/>
+        <format type="HTML" target="http://xmpp.org/extensions/xep-0269.html"/>
+      </reference>
+
+    </references>
+
+    <section title="Acknowledgements" anchor="acks">
+      <t>Thanks to Dave Crocker, Philipp Hancke, Paul Kyzivat, and Jonathan Lennox for their feedback.</t>
+      <t>The authors gratefully acknowledge the assistance of Markus Isomaki and Yana Stamcheva as the working group chairs and Gonzalo Camarillo and Alissa Cooper as the sponsoring Area Directors.</t>
+      <t>Peter Saint-Andre wishes to acknowledge Cisco Systems, Inc., for employing him during his work on earlier versions of this document.</t>
+    </section>
+
+  </back>
+
+</rfc>

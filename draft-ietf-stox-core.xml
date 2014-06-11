@@ -1,0 +1,1079 @@
+<?xml version="1.0"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?rfc compact="yes"?>
+<?rfc sortrefs="no"?>
+<?rfc strict="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="3"?>
+<rfc category='std' docName='draft-ietf-stox-core-11' ipr='trust200902'>
+
+  <front>
+    <title abbrev="SIP-XMPP Interworking: Core">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Architecture, Addresses, and Error Handling</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization>&amp;yet</organization>
+      <address>
+        <postal>
+          <street>P.O. Box 787</street>
+          <city>Parker</city>
+          <region>CO</region>
+          <code>80134</code>
+          <country>USA</country>
+        </postal>
+        <email>ietf@stpeter.im</email>
+      </address>
+    </author>
+    <author initials="A." surname="Houri" fullname="Avshalom Houri">
+      <organization>IBM</organization>
+      <address>
+        <postal>
+          <street>Rorberg Building, Pekris 3</street>
+          <city>Rehovot</city>
+          <code>76123</code>
+          <country>Israel</country>
+        </postal>
+        <email>avshalom@il.ibm.com</email>
+      </address>
+    </author>
+    <author initials="J." surname="Hildebrand" fullname="Joe Hildebrand">
+      <organization>Cisco Systems, Inc.</organization>
+      <address>
+        <postal>
+          <street>1899 Wynkoop Street, Suite 600</street>
+          <city>Denver</city>
+          <region>CO</region>
+          <code>80202</code>
+          <country>USA</country>
+        </postal>
+        <email>jhildebr@cisco.com</email>
+      </address>
+    </author>
+    <date/>
+    <area>RAI</area>
+    <keyword>XMPP</keyword>
+    <keyword>SIP</keyword>
+    <abstract>
+      <t>As a foundation for the definition of bidirectional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t>
+    </abstract>
+  </front>
+
+  <middle>
+
+    <section title="Introduction" anchor="intro">
+      <t>The IETF has worked on two signalling technologies that can be used for multimedia session negotiation, messaging, presence, capabilities discovery, notifications, and other application-level functionality:</t>
+      <t>
+        <list style='symbols'>
+          <t>The Session Initiation Protocol <xref target="RFC3261"/>, along with various SIP extensions developed within the SIP for Instant Messaging and Presence Leveraging Extensions (SIMPLE) Working Group.</t>
+          <t>The Extensible Messaging and Presence Protocol <xref target='RFC6120'/>, along with various XMPP extensions developed by the IETF as well as by the XMPP Standards Foundation (XSF).</t>
+        </list>
+      </t>
+      <t>Because these technologies are widely deployed, it is important to clearly define mappings between them for the sake of interworking.  This document provides the basis for a series of SIP-XMPP interworking specifications by defining architectural assumptions, address translation methods, and error condition mappings.  Other documents in this series define mappings for presence, messaging, and media sessions.</t>
+      <t>The guidelines in this series are based on implementation and deployment experience, and describe techniques that have worked well in the field with existing systems.  In practice, interworking has been achieved through direct protocol mappings, not through mapping to an abstract model as described in, for example, <xref target='RFC3859'/> and <xref target='RFC3860'/>.  Therefore this series describes the direct mapping approach in enough detail for developers of new implementations to achieve practical interworking between SIP systems and XMPP systems.</t>
+    </section>
+
+    <section title="Intended Audience" anchor="audience">
+      <t>The documents in this series are intended for use by software developers who have an existing system based on one of these technologies (e.g., SIP), and would like to enable communication from that existing system to systems based on the other technology (e.g., XMPP).  With regard to this document we assume that readers are familiar with the core specifications for both SIP and XMPP, and with regard to the other documents in this series we assume that readers are familiar with the relevant SIP and XMPP extensions.</t>
+    </section>
+
+    <section title="Terminology" anchor="terms">
+      <t>A number of terms used here are explained in <xref target='RFC3261'/> and <xref target='RFC6120'/>.</t>
+      <t>Several examples use the "XML Notation" from the IRI specification <xref target='RFC3987'/> to represent Unicode characters outside the ASCII range (e.g., the string "&#xFC;" stands for the Unicode character LATIN SMALL LETTER U WITH DIAERESIS, U+00FC).</t>
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
+    </section>
+
+    <section title="Architectural Assumptions" anchor="intro-arch">
+      <t>Protocol translation between SIP and XMPP could occur in a number of different entities, depending on the architecture of real-time communication deployments.  For example, protocol translation could occur within a multi-protocol server (which uses protocol-specific connection managers to initiate traffic to and accept traffic from clients or other servers natively using SIP/SIMPLE, XMPP, etc.), within a multi-protocol client (which enables a user to establish connections natively with various servers using SIP/SIMPLE, XMPP, etc.), or within a gateway that acts as a dedicated protocol translator (which takes one protocol as input and provides another protocol as output).</t>
+      <t>This document assumes that the protocol translation will occur within a gateway, specifically:</t>
+      <t>
+        <list style='symbols'>
+          <t>When information needs to flow from an XMPP-based system to a SIP-based system, protocol translation will occur within an "XMPP-to-SIP gateway" that translates XMPP syntax and semantics on behalf of an "XMPP server" (together, these two logical functions comprise an "XMPP service").</t>
+          <t>When information needs to flow from a SIP-based system to an XMP-based system, protocol translation will occur within a "SIP-to-XMPP gateway" that translates SIP syntax and semantics on behalf of a "SIP server" (together, these two logical functions comprise a "SIP service").</t>
+        </list>
+      </t>
+      <t>Naturally, these logical functions could occur in one and the same actual entity; we differentiate between them mainly for explanatory purposes (although, in practice, such gateways are indeed fairly common).</t>
+      <t><list style='empty'><t>Note: This assumption is not meant to discourage protocol translation within multi-protocol clients or servers; instead, this assumption is followed mainly to clarify the discussion and examples so that the protocol translation principles can be more easily understood and can be applied by client and server implementors with appropriate modifications to the examples and terminology.</t></list></t>
+      <t>This document assumes that a gateway will translate directly from one protocol to the other.  For the sake of the examples, we further assume that protocol translation will occur within a gateway in the source domain, so that information generated by the user of an XMPP system will be translated by a gateway within the trust domain of that XMPP system, and information generated by the user of a SIP system will be translated by a gateway within the trust domain of that SIP system.  However, nothing in this document ought to be taken as recommending against protocol translation at the destination domain.</t>
+      <t>An architectural diagram for a possible gateway deployment is shown below, where the entities have the following significance and the "#" character is used to show the boundary of a trust domain:</t>
+      <t>
+        <list style='symbols'>
+          <t>romeo@example.net -- a SIP user.</t>
+          <t>example.net -- a SIP server with an associated gateway ("S2X GW") to XMPP.</t>
+          <t>juliet@example.com -- an XMPP user.</t>
+          <t>example.com -- an XMPP server with an associated gateway ("X2S GW") to SIP.</t>
+        </list>
+      </t>
+      <figure anchor='figure-1' title='Possible Gateway Deployment Architecture'>
+        <artwork><![CDATA[
+   #########################################################
+   #                                                       #
+   #                 +-----+                               #
+   #                 | S2X |                               #
+   #   +-------------+ GW  |<...........>+-------------+   #
+   #   | SIP Server  +-----+             | XMPP Server |   #
+   #   | example.net |             +-----+ example.com |   #
+   #   +-------------+<***********>| X2S +-------------+   #
+   #         *                     | GW  |  :              #
+   #         *                     +-----+  :              #
+   #         *                              :              #
+   #    romeo@example.net             juliet@example.com   #
+   #                                                       #
+   #########################################################
+
+         Legend:
+           XMPP = ... or :
+            SIP = *
+        ]]></artwork>
+      </figure>
+      <t>Note that bidirectional communication between the SIP server and the XMPP server can be established either over SIP or over XMPP.  If the XMPP user initiates the interaction, then the XMPP server would invoke its XMPP-to-SIP gateway and thus the communication would occur over SIP.  If the SIP user initiates the interaction, then the SIP server would invoke its SIP-to-XMPP gateway on thus the communication would occur over XMPP.</t>
+    </section>
+
+    <section title="Interdomain Federation" anchor="fed">
+      <t>The architectural assumptions underlying this document imply that communication between a SIP system and an XMPP system will take place using interdomain federation: the SIP server invokes its associated SIP-to-XMPP gateway, which communicates with the XMPP server using native XMPP server-to-server methods; similarly, the XMPP server invokes its associated XMPP-to-SIP gateway, which communicates with the SIP server using native SIP server-to-server methods.</t>
+      <t>When an XMPP server receives an XMPP stanza whose 'to' address specifies or includes a domain other than the domain of the XMPP server, it needs to determine whether the destination domain communicates via XMPP or SIP.  To do so, it performs one or more DNS SRV lookups <xref target="RFC2782"/> for "_xmpp-server" records as specified in <xref target="RFC6120"/>.  If the response returns a hostname, the XMPP server can attempt XMPP communication.  If not, it can determine the appropriate location for SIP communication at the target domain using the procedures specified in <xref target='RFC3263'/>.</t>
+      <t>Similarly, when a SIP server receives a SIP message whose Request-URI specifies or includes a domain other than the domain of the SIP server, it needs to determine whether the destination domain communicates via SIP or XMPP.  To do so, it uses the procedures specified in <xref target='RFC3263'/>.   If that response returns a hostname, the SIP server can attempt SIP communication.  If not, it can perform one or more DNS SRV lookups <xref target="RFC2782"/> for "_xmpp-server" records as specified in <xref target="RFC6120"/>.</t>
+      <t>In both cases, the server in question might have previously determined that the foreign domain communicates via SIP or XMPP, in which case it would not need to perform the relevant DNS lookups.  The caching of such information is a matter of implementation and local service policy, and is therefore out of scope for this document.</t>
+      <t>Existing SIP and XMPP server implementations do not typically include the ability to communicate using the other technology (XMPP for SIP implementations, SIP for XMPP implementations).  One common architectural pattern is to associate a gateway with the core server implementation (e.g., in XMPP such a gateway might be called a "connection manager").  How exactly such a gateway interacts with the core server to complete tasks such as address lookups and communication with systems that use the other technology is a matter of implementation (e.g., the gateway might be an add-on module that is trusted by the core server to act as a fallback delivery mechanism if the remote domain does not support the server's native communication technology).</t>
+      <t>Because <xref target='RFC6120'/> specifies a binding of XMPP to TCP, a gateway from SIP to XMPP will need to support TCP as the underlying transport protocol.  By contrast, as specified in <xref target='RFC3261'/>, either TCP or UDP can be used as the underlying transport for SIP messages, and a given SIP deployment might support only UDP; therefore, a gateway from XMPP to SIP might need to communicate with a SIP server using either TCP or UDP.</t>
+    </section>
+
+    <section title="Address Mapping" anchor="addr">
+      <section title="Overview" anchor="addr-over">
+        <t>The basic SIP address format is a 'sip' or 'sips' URI as specified in <xref target='RFC3261'/>.  When a SIP entity supports extensions for instant messaging it might be identified by an 'im' URI as specified in the Common Profile for Instant Messaging <xref target="RFC3860"/> (see <xref target="RFC3428"/>) and when a SIP entity supports extensions for presence it might be identified by a 'pres' URI as specified in the Common Profile for Presence <xref target="RFC3859"/> (see <xref target="RFC3856"/>).  SIP entities typically also support the 'tel' URI scheme <xref target='RFC3966'/> and might support other URI schemes as well.</t>
+        <t>The XMPP address format is specified in <xref target="RFC6122"/> (although note that XMPP URIs <xref target='RFC5122'/> are not used natively on the XMPP network); in addition, <xref target="RFC6121"/> encourages instant messaging and presence applications of XMPP to also support 'im' and 'pres' URIs as specified in <xref target="RFC3860"/> and <xref target="RFC3859"/> respectively, although such support might simply involve leaving resolution of such addresses up to an XMPP server.</t>
+        <t>In this document we primarily describe mappings for addresses of the form &lt;user@domain&gt;; however, we also provide guidelines for mapping the addresses of specific user agent instances, which take the form of Globally Routable User Agent URIs (GRUUs) in SIP and "resourceparts" in XMPP.  Mapping of protocol-specific identifiers (such as telephone numbers) is out of scope for this specification.  In addition, we have ruled the mapping of domain names as out of scope for now since that is a matter for the Domain Name System; specifically, the issue for interworking between SIP and XMPP relates to the translation of fully internationalized domain names (IDNs) into non-internationalized domain names (IDNs are not allowed in the SIP address format, but are allowed in the XMPP address via Internationalized Domain Names in Applications, see <xref target="RFC6122"/> and <xref target='I-D.ietf-xmpp-6122bis'/>).  Therefore, in the following sections we focus primarily on the local part of an address (these are called variously "usernames", "instant inboxes", "presentities", and "localparts" in the protocols at issue), secondarily on the instance-specific part of an address, and not at all on the domain-name part of an address.</t>
+        <t>The sip:/sips:, im:/pres:, and XMPP address schemes allow different sets of characters (although all three allow alphanumeric characters and disallow both spaces and control characters).  In some cases, characters allowed in one scheme are disallowed in others; these characters need to be mapped appropriately in order to ensure interworking across systems.</t>
+      </section>
+      <section title="Local Part Mapping" anchor="addr-localpart">
+        <t>The local part of a sip:/sips: URI inherits from the "userinfo" rule in <xref target="RFC3986"/> with several changes; here we discuss the SIP "user" rule only:</t>
+        <figure>
+          <artwork><![CDATA[
+   user             =  1*( unreserved / escaped / user-unreserved )
+   user-unreserved  =  "&" / "=" / "+" / "$" / "," / ";" / "?" / "/"
+   unreserved       =  alphanum / mark
+   mark             =  "-" / "_" / "." / "!" / "~" / "*" / "'"
+                       / "(" / ")"
+          ]]></artwork>
+        </figure>
+        <t>Here we make the simplifying assumption that the local part of an im:/pres: URI inherits from the "dot-atom-text" rule in <xref target="RFC5322"/> rather than the more complicated "local-part" rule:</t>
+        <figure>
+          <artwork><![CDATA[
+   dot-atom-text =  1*atext *("." 1*atext)
+   atext         =  ALPHA / DIGIT /    ; Any character except 
+                    "!" / "#" / "$" /  ; controls, SP, and 
+                    "%" / "&" / "'" /  ; specials. Used for 
+                    "*" / "+" / "-" /  ; atoms.
+                    "/" / "=" / "?" /
+                    "^" / "_" / "`" / 
+                    "{" / "|" / "}" /
+                    "~"
+          ]]></artwork>
+        </figure>
+        <t>The local part of an XMPP address allows any ASCII character except space, controls, and the " &amp; ' / : &lt; &gt; @ characters.</t>
+        <t>To summarize the foregoing information, the following table lists the allowed and disallowed characters in the local part of identifiers for each protocol (aside from the alphanumeric, space, and control characters), in order by hexadecimal character number (where each "A" row shows the allowed characters and each "D" row shows the disallowed characters).</t>
+        <figure>
+          <preamble>Table 1: Allowed and disallowed characters</preamble>
+          <artwork><![CDATA[
++---+----------------------------------+
+| SIP/SIPS CHARACTERS                  |
++---+----------------------------------+
+| A | !  $ &'()*+,-./ ; = ?     _    ~ |
+| D |  "# %          : < > @[\]^ `{|}  |
++---+----------------------------------+
+| IM/PRES CHARACTERS                   |
++---+----------------------------------+
+| A | ! #$%&'  *+ - /   = ?    ^_`{|}~ |
+| D |  "     ()  , . :;< > @[\]        |
++---+----------------------------------+
+| XMPP CHARACTERS                      |
++---+----------------------------------+
+| A | ! #$%  ()*+,-.  ; = ? [\]^_`{|}~ |
+| D |  "   &'       /: < > @           |
++---+----------------------------------+
+          ]]></artwork>
+        </figure>
+        <t>When transforming the local part of an address from one scheme to another, an application SHOULD proceed as follows:</t>
+        <t>
+          <list style='numbers'>
+            <t>Unescape any escaped characters in the source address (e.g., from SIP to XMPP unescape "%23" to "#" per <xref target='RFC3986'/> and from XMPP to SIP unescape "\27" to "'" per <xref target='XEP-0106'/>).</t>
+            <t>Leave unmodified any characters that are allowed in the destination scheme.</t>
+            <t>Escape any characters that are allowed in the source scheme but reserved in the destination scheme, as escaping is defined for the destination scheme.  In particular:
+              <list style='symbols'>
+                <t>Where the destination scheme is a URI (i.e., an im:, pres:, sip:, or sips: URI), each reserved character MUST be percent-encoded to "%hexhex" as specified in Section 2.5 of <xref target='RFC3986'/> (e.g., when transforming from XMPP to SIP, encode "#" as "%23").</t>
+                <t>Where the destination scheme is a native XMPP address, each reserved character MUST be encoded to "\hexhex" as specified in <xref target='XEP-0106'/> (e.g., when transforming from SIP to XMPP, encode "'" as "\27").</t>
+              </list>
+            </t>
+          </list>
+        </t>
+      </section>
+      <section title="Instance-Specific Mapping" anchor="addr-instance">
+        <t>The meaning of a resourcepart in XMPP (i.e., the portion of a JID after the slash character, such as "foo" in "user@example.com/foo") matches that of a Globally Routable User Agent URI (GRUU) in SIP <xref target='RFC5627'/>.  In both cases, these constructs identify a particular device associated with the bare JID ("localpart@domainpart") of an XMPP entity or with the Address of Record (AOR) of a SIP entity. Therefore, it is reasonable to map the value of a "gr" URI parameter to an XMPP resourcepart, and vice-versa.</t>
+        <t>The mapping described here does not apply to temporary GRUUs, only to GRUUs associated with an Address of Record.</t>
+        <t>The "gr" URI parameter in SIP can contain only characters from the ASCII range (although characters outside the ASCII range can be percent-encoded in accordance with <xref target='RFC3986'/>), whereas an XMPP resourcepart can contain nearly any Unicode character <xref target='UNICODE'/>.  Therefore Unicode characters outside the ASCII range need to be mapped to characters in the ASCII range, as described below.</t>
+      </section>
+      <section title="SIP to XMPP" anchor="addr-sip">
+        <t>The following is a high-level algorithm for mapping a sip:, sips:, im:, or pres: URI to an XMPP address:</t>
+        <t>
+          <list style='numbers'>
+            <t>Remove URI scheme.</t>
+            <t>Split at the first '@' character into local part and hostname (mapping the latter is out of scope).</t>
+            <t>Translate any percent-encoded strings ("%hexhex") to percent-decoded octets.</t>
+            <t>Treat result as a UTF-8 string.</t>
+            <t>Translate "&amp;" to "\26", "'" to "\27", and "/" to "\2f" respectively in order to properly handle the characters disallowed in XMPP addresses but allowed in sip:/sips: URIs and im:/pres: URIs as shown in Table 1 above (this is consistent with <xref target="XEP-0106"/>).</t>
+            <t>Apply Nodeprep profile of Stringprep <xref target="RFC3454"/> or its replacement (see <xref target="RFC6122"/> and <xref target='I-D.ietf-xmpp-6122bis'/>) for canonicalization (OPTIONAL).</t>
+            <t>Recombine local part with mapped hostname to form a bare JID ("localpart@domainpart").</t>
+            <t>If the (SIP) address contained a "gr" URI parameter, append a slash character "/" and the "gr" value to the bare JID to form a full JID ("localpart@domainpart/resourcepart").</t>
+          </list>
+        </t>
+        <t>Several examples follow, illustrating steps 3, 5, and 8 described above.</t>
+        <figure>
+          <artwork><![CDATA[
+   +----------------------------+--------------------------+
+   | SIP URI                    |  XMPP Address            |
+   +----------------------------+--------------------------+
+   | sip:f%C3%BC@sip.example    |  f&#xFC;@sip.example     |
+   +----------------------------+--------------------------+
+   | sip:o'malley@sip.example   |  o\27malley@sip.example  |
+   +----------------------------+--------------------------+
+   | sip:foo@sip.example;gr=bar |  foo@sip.example/bar     |
+   +----------------------------+--------------------------+
+          ]]></artwork>
+        </figure>
+        <t>In the first example the string "%C3%BC" is a percent-encoded representation of the UTF-8-encoded Unicode character LATIN SMALL LETTER U WITH DIAERESIS (U+00FC), whereas the string "&amp;#xFC;" is the same character shown for documentation purposes using the XML Notation defined in <xref target='RFC3987'/> (in XMPP it would be sent directly as a UTF-8-encoded Unicode character and not percent-encoded as in a SIP URI to comply with the URI syntax defined in <xref target='RFC3986'/>).</t>
+      </section>
+      <section title="XMPP to SIP" anchor="addr-xmpp">
+        <t>The following is a high-level algorithm for mapping an XMPP address to a sip:, sips:, im:, or pres: URI:</t>
+        <t>
+          <list style='numbers'>
+            <t>Split XMPP address into localpart (mapping described in remaining steps), domainpart (hostname; mapping is out of scope), and resourcepart (specifier for particular device or connection, for which an OPTIONAL mapping is described below).</t>
+            <t>Apply Nodeprep profile of <xref target="RFC3454"/> or its replacement (see <xref target="RFC6122"/> and <xref target='I-D.ietf-xmpp-6122bis'/>) for canonicalization of the XMPP localpart (OPTIONAL).</t>
+            <t>Translate "\26" to "&amp;", "\27" to "'", and "\2f" to "/" respectively (this is consistent with <xref target="XEP-0106"/>).</t>
+            <t>Determine if the foreign domain supports im: and pres: URIs (discovered via <xref target="RFC2782"/> lookup as specified in <xref target="RFC6121"/>), else assume that the foreign domain supports sip:/sips: URIs.</t>
+            <t>If converting into im: or pres: URI, for each byte, if the byte is in the set (),.;[\] or is a UTF-8 character outside the ASCII range then percent-encode that byte to "%hexhex" format.  If converting into sip: or sips: URI, for each byte, if the byte is in the set #%[\]^`{|} or is a UTF-8 character outside the ASCII range then percent-encode that byte to "%hexhex" format.</t>
+            <t>Combine resulting local part with mapped hostname to form local@domain address.</t>
+            <t>Prepend with 'im:' scheme (for XMPP &lt;message/&gt; stanzas) or 'pres:' scheme (for XMPP &lt;presence/&gt; stanzas) if foreign domain supports these, else prepend with 'sip:' or 'sips:' scheme according to local service policy.</t>
+            <t>If the XMPP address included a resourcepart and the destination URI scheme is 'sip:' or 'sips:', optionally append the slash character '/' and then append the resourcepart (making sure to percent-encode any UTF-8 characters outside the ASCII range) as the "gr" URI parameter.</t>
+          </list>
+        </t>
+        <t>Several examples follow, illustrating steps 3, 5, and 8 described above.</t>
+        <figure>
+          <artwork><![CDATA[
+   +---------------------------+---------------------------------+
+   | XMPP Address              |  SIP URI                        |
+   +---------------------------+---------------------------------+
+   | m\26m@xmpp.example        |  sip:m&m@xmpp.example           |
+   +---------------------------+---------------------------------+
+   | tsch&#xFC;ss@xmpp.example |  sip:tsch%C3%BCss@xmpp.example  |
+   +---------------------------+---------------------------------+
+   | baz@xmpp.example/qux      |  sip:baz@xmpp.example;gr=qux    |
+   +---------------------------+---------------------------------+
+          ]]></artwork>
+        </figure>
+        <t>As above, in the first example the string "&amp;#xFC;" is the Unicode character LATIN SMALL LETTER U WITH DIAERESIS (U+00FC) shown for documentation purposes using the XML Notation defined in <xref target='RFC3987'/> (in XMPP it would be sent directly as a UTF-8-encoded Unicode character and not percent-encoded, whereas the string "%C3%BC" is a percent-encoded representation of the of the same character.</t>
+      </section>
+    </section>
+
+    <section title='Error Mapping' anchor="errors">
+
+      <t>Various differences between XMPP error conditions and SIP response codes make it hard to provide a comprehensive and consistent mapping between the protocols:</t>
+      <t>
+        <list style='symbols'>
+          <t>Whereas the set of XMPP error conditions is fixed in the core XMPP specification (and supplemented where needed by application-specific extensions), the set of SIP response codes is more open to change, as evidenced by the IANA registry of SIP response codes.</t>
+          <t>XMPP has defined fewer error conditions related to stanza handling (22 are defined in <xref target='RFC6120'/>) than SIP has defined response codes related to message handling (at the date of this writing, 71 SIP response codes are registered with IANA as defined in <xref target='RFC3261'/> and numerous SIP extensions).</t>
+          <t>In many cases, the SIP response codes are more specific than the XMPP error conditions (e.g., from an XMPP perspective the SIP codes "413 Request Entity Too Large" and "414 Request-URI Too Long" are just two forms of a bad request, and the SIP codes "415 Unsupported Media Type" and "416 Unsupported URI Scheme" are just two forms of a request that is not acceptable).</t>
+          <t>SIP differentiates between responses about a particular endpoint or resource (the 4xx series) and responses about a user, i.e., all of a user's endpoints or resources (the 6xx series).  There is no such distinction in XMPP, since the same error condition can be returned in relation to the "bare JID" (localpart@domainpart) of a user or the "full JID" (localpart@domainpart/resourcepart) of a particular endpoint or resource, depending on the 'to' address of the original request.</t>
+        </list>
+      </t>
+      <t>As a result of these and other factors, the mapping of error conditions and response codes is more of an art than a science.  This document provides suggested mappings, but implementations are free to deviate from these mappings if needed.  Also, because no XMPP error conditions are equivalent to the provisional (1xx) and successful (2xx) response codes in SIP, this document suggests mappings only for the SIP redirection (3xx), request failure (4xx), server failure (5xx), and global failure (6xx) response code families.</t>
+      <t>Supplementary information about SIP response codes can be expressed in the "Reason-Phrase" in the Status-Line header, and detailed information about XMPP error conditions can be expressed in the &lt;text/&gt; child of the &lt;error/&gt; element.  Although the semantics of these constructs are specified in a slightly different way, it is reasonable for a gateway to map these constructs to each other if they are found in a SIP response or XMPP error stanza.</t>
+
+      <section title="XMPP to SIP" anchor="errors-xmpp">
+        <t>The mapping of specific XMPP error conditions to SIP response codes SHOULD be as described in the following table.</t>
+        <figure>
+          <preamble>Table 2: Mapping of XMPP error conditions to SIP response codes</preamble>
+          <artwork><![CDATA[
+   +------------------------------+---------------------+
+   |  XMPP Error Condition        |  SIP Response Code  |
+   +------------------------------+---------------------+
+   |  <bad-request/>              | 400                 |
+   +------------------------------+---------------------+
+   |  <conflict/>                 | 400                 |
+   +------------------------------+---------------------+
+   |  <feature-not-implemented/>  | 405 or 501 (1)      |
+   +------------------------------+---------------------+
+   |  <forbidden/>                | 403 or 603 (2)      |
+   +------------------------------+---------------------+
+   |  <gone/>                     | 301 or 410 (3)      |
+   +------------------------------+---------------------+
+   |  <internal-server-error/>    | 500                 |
+   +------------------------------+---------------------+
+   |  <item-not-found/>           | 404 or 604 (2)      |
+   +------------------------------+---------------------+
+   |  <jid-malformed/>            | 400                 |
+   +------------------------------+---------------------+
+   |  <not-acceptable/>           | 406 or 606 (2)      |
+   +------------------------------+---------------------+
+   |  <not-allowed/>              | 403                 |
+   +------------------------------+---------------------+
+   |  <not-authorized/>           | 401                 |
+   +------------------------------+---------------------+
+   |  <policy-violation/>         | 403                 |
+   +------------------------------+---------------------+
+   |  <recipient-unavailable/>    | 480 or 600 (2)      |
+   +------------------------------+---------------------+
+   |  <redirect/>                 | 302                 |
+   +------------------------------+---------------------+
+   |  <registration-required/>    | 407                 |
+   +------------------------------+---------------------+
+   |  <remote-server-not-found/>  | 404 or 408 (4)      |
+   +------------------------------+---------------------+
+   |  <remote-server-timeout/>    | 408                 |
+   +------------------------------+---------------------+
+   |  <resource-constraint/>      | 500                 |
+   +------------------------------+---------------------+
+   |  <service-unavailable/>      | see note (5) below  |
+   +------------------------------+---------------------+
+   |  <subscription-required/>    | 400                 |
+   +------------------------------+---------------------+
+   |  <undefined-condition/>      | 400                 |
+   +------------------------------+---------------------+
+   |  <unexpected-request/>       | 491 or 400          |
+   +------------------------------+---------------------+
+          ]]></artwork>
+        </figure>
+        <t>
+          <list style='numbers'>
+            <t>If the error relates to a "full JID" (localpart@domainpart/resourcepart), the SIP 405 response code is RECOMMENDED.  If the error relates to a "bare JID" (localpart@domainpart), the SIP 501 response code is RECOMMENDED.</t>
+            <t>If the error relates to a "full JID" (localpart@domainpart/resourcepart), the SIP response code from the 4xx series is RECOMMENDED.  If the error relates to a "bare JID" (localpart@domainpart), the SIP response code from the 6xx series is RECOMMENDED.</t>
+            <t>If the &lt;gone/&gt; element includes XML character data specifying the new address, the error MUST be mapped to SIP 301; if not, it MUST be mapped to SIP 410.</t>
+            <t>The XMPP &lt;remote-server-not-found/&gt; error can mean either that the remote server (a) does not exist or (b) cannot be resolved.  SIP has two different response codes here, 404 to cover (a) and 408 to cover (b).</t>
+            <t>The XMPP &lt;service-unavailable/&gt; error condition is widely used to inform the requesting entity that the intended recipient does not support the relevant feature, to signal that a server cannot perform the requested service either generally or in relation to a particular user, and to avoid disclosing whether a given account exists at all.  This is quite different from the semantics of the SIP 503 Service Unavailable response code, which is used to signal that communication with a server is impossible (e.g., even if the XMPP &lt;service-unavailable/&gt; error condition is returned in relation to a specific user, the SIP 503 response code will be interpreted as applying to all future requests to this server, not just requests for the specific user).  Therefore, mapping the XMPP &lt;service-unavailable/&gt; error condition to the SIP 503 Service Unavailable response code is NOT RECOMMENDED.  Although no precise mapping is available, the SIP 403 Forbidden and 405 Method Not Allowed response codes are closest in meaning to the XMPP &lt;service-unavailable/&gt; error condition.</t>
+          </list>
+        </t>
+      </section>
+      <section title="SIP to XMPP" anchor="errors-sip">
+        <t>The mapping of SIP response codes to XMPP error conditions SHOULD be as described in the following table.  If a gateway encounters a SIP response code that is not listed below, it SHOULD map a 3xx-series code to &lt;redirect/&gt;, a 4xx-series code to &lt;bad-request/&gt;, a 5xx-series code to &lt;internal-server-error&gt;, and a 6xx-series code to &lt;recipient-unavailable/&gt;.</t>
+        <figure>
+          <preamble>Table 3: Mapping of SIP response codes to XMPP error conditions</preamble>
+          <artwork><![CDATA[
+   +---------------------+---------------------------------+
+   |  SIP Response Code  |  XMPP Error Condition           |
+   +---------------------+---------------------------------+
+   |  3xx                |  <redirect/>                    |
+   +---------------------+---------------------------------+
+   |  300                |  <redirect/>                    |
+   +---------------------+---------------------------------+
+   |  301                |  <gone/> (1)                    |
+   +---------------------+---------------------------------+
+   |  302                |  <redirect/>                    |
+   +---------------------+---------------------------------+
+   |  305                |  <redirect/>                    |
+   +---------------------+---------------------------------+
+   |  380                |  <not-acceptable/>              |
+   +---------------------+---------------------------------+
+   |  4xx                |  <bad-request/>                 |
+   +---------------------+---------------------------------+
+   |  400                |  <bad-request/>                 |
+   +---------------------+---------------------------------+
+   |  401                |  <not-authorized/>              |
+   +---------------------+---------------------------------+
+   |  402                |  <bad-request/> (2)             |
+   +---------------------+---------------------------------+
+   |  403                |  <forbidden/> (3)               |
+   +---------------------+---------------------------------+
+   |  404                |  <item-not-found/> (4)          |
+   +---------------------+---------------------------------+
+   |  405                |  <feature-not-implemented/>     |
+   +---------------------+---------------------------------+
+   |  406                |  <not-acceptable/>              |
+   +---------------------+---------------------------------+
+   |  407                |  <registration-required/>       |
+   +---------------------+---------------------------------+
+   |  408                |  <remote-server-timeout/> (5)   |
+   +---------------------+---------------------------------+
+   |  410                |  <gone/> (1)                    |
+   +---------------------+---------------------------------+
+   |  413                |  <policy-violation/>            |
+   +---------------------+---------------------------------+
+   |  414                |  <policy-violation/>            |
+   +---------------------+---------------------------------+
+   |  415                |  <not-acceptable/>              |
+   +---------------------+---------------------------------+
+   |  416                |  <not-acceptable/>              |
+   +---------------------+---------------------------------+
+   |  420                |  <feature-not-implemented/>     |
+   +---------------------+---------------------------------+
+   |  421                |  <not-acceptable/>              |
+   +---------------------+---------------------------------+
+   |  423                |  <resource-constraint/>         |
+   +---------------------+---------------------------------+
+   |  430                |  <recipient-unavailable/> (6)   |
+   +---------------------+---------------------------------+
+   |  439                |  <feature-not-implemented/> (6) |
+   +---------------------+---------------------------------+
+   |  440                |  <policy-violation/> (7)        |
+   +---------------------+---------------------------------+
+   |  480                |  <recipient-unavailable/>       |
+   +---------------------+---------------------------------+
+   |  481                |  <item-not-found/>              |
+   +---------------------+---------------------------------+
+   |  482                |  <not-acceptable/>              |
+   +---------------------+---------------------------------+
+   |  483                |  <not-acceptable/>              |
+   +---------------------+---------------------------------+
+   |  484                |  <item-not-found/>              |
+   +---------------------+---------------------------------+
+   |  485                |  <item-not-found/>              |
+   +---------------------+---------------------------------+
+   |  486                |  <recipient-unavailable/>       |
+   +---------------------+---------------------------------+
+   |  487                |  <recipient-unavailable/>       |
+   +---------------------+---------------------------------+
+   |  488                |  <not-acceptable/>              |
+   +---------------------+---------------------------------+
+   |  489                |  <policy-violation/> (8)        |
+   +---------------------+---------------------------------+
+   |  491                |  <unexpected-request/>          |
+   +---------------------+---------------------------------+
+   |  493                |  <bad-request/>                 |
+   +---------------------+---------------------------------+
+   |  5xx                |  <internal-server-error/>       |
+   +---------------------+---------------------------------+
+   |  500                |  <internal-server-error/>       |
+   +---------------------+---------------------------------+
+   |  501                |  <feature-not-implemented/>     |
+   +---------------------+---------------------------------+
+   |  502                |  <remote-server-not-found/>     |
+   +---------------------+---------------------------------+
+   |  503                |  <internal-server-error/> (9)   |
+   +---------------------+---------------------------------+
+   |  504                |  <remote-server-timeout/>       |
+   +---------------------+---------------------------------+
+   |  505                |  <not-acceptable/>              |
+   +---------------------+---------------------------------+
+   |  513                |  <policy-violation/>            |
+   +---------------------+---------------------------------+
+   |  6xx                |  <recipient-unavailable/>       |
+   +---------------------+---------------------------------+
+   |  600                |  <recipient-unavailable/>       |
+   +---------------------+---------------------------------+
+   |  603                |  <recipient-unavailable/>       |
+   +---------------------+---------------------------------+
+   |  604                |  <item-not-found/>              |
+   +---------------------+---------------------------------+
+   |  606                |  <not-acceptable/>              |
+   +---------------------+---------------------------------+
+          ]]></artwork>
+        </figure>
+        <t>
+          <list style='numbers'>
+            <t>When mapping SIP 310 to XMPP &lt;gone/&gt;, the &lt;gone/&gt; element MUST include XML character data specifying the new address.  When mapping SIP 410 to XMPP &lt;gone/&gt;, the &lt;gone/&gt; element MUST NOT include XML character data specifying a new address.</t>
+            <t>The XMPP &lt;payment-required/&gt; error condition was removed in <xref target='RFC6120'/>.  Therefore, a mapping to XMPP &lt;bad-request/&gt;.</t>
+            <t>Depending on the scenario, other possible translations for SIP 403 are &lt;not-allowed/&gt; and &lt;policy-violation/&gt;.</t>
+            <t>Depending on the scenario, another possible translation for SIP 404 is &lt;remote-sever-not-found/&gt;.</t>
+            <t>Depending on the scenario, another possible translation for SIP 408 is &lt;remote-server-not-found/&gt;.</t>
+            <t>Codes 430 and 439 are defined in <xref target='RFC5626'/>.</t>
+            <t>Code 440 is defined in <xref target='RFC5393'/>.</t>
+            <t>Code 489 is defined in <xref target='RFC6665'/>.</t>
+            <t>Regarding the semantic mismatch between XMPP &lt;service-unavailable/&gt; and SIP code 503, see note under Section 6.1 of this document.</t>
+          </list>
+        </t>
+      </section>
+    </section>
+
+    <section title="IANA Considerations" anchor="iana">
+      <t>This document makes no requests of IANA.</t>
+    </section>
+
+    <section title='Security Considerations' anchor="sec">
+      <t>Detailed security considerations for SIP are given in <xref target="RFC3261"/> and for XMPP in <xref target="RFC6120"/>.</t>
+      <t>To protect information sent between SIP and XMPP systems, deployed gateways SHOULD use Transport Layer Security (TLS) <xref target='RFC5246'/> when communicating over TCP and Datagram Transport Layer Security (DTLS) <xref target='RFC6347'/> when communicating over UDP.</t>
+      <t>As specified in Section 26.4.4 of <xref target='RFC3261'/> and updated by <xref target='RFC5630'/>, a To header or a Request-URI containing a SIPS URI is used to indicate that all hops in a communication path need to be protected using TLS.  Because XMPP lacks a way to signal that all hops need to be protected, if the To header or Request-URI of a SIP message is a SIPS URI then the SIP-to-XMPP gateway MUST NOT translate the SIP message into an XMPP stanza and MUST NOT route it to the destination XMPP server (there might be exceptions to such a policy, such as explicit agreement among two operators to enforce per-hop security, but currently they are quite rare).</t>
+      <t>A gateway between SIP and XMPP (in either direction) effectively acts as a SIP back-to-back user agent ("B2BUA").  The amplification vulnerability described in <xref target='RFC5393'/> can manifest itself with B2BUAs (see also <xref target='I-D.ietf-straw-b2bua-loop-detection'/>), and a gateway SHOULD implement the loop-detection methods defined in that specification to help mitigate the possibility of amplification attacks.  Note that, although it would be possible to signal the Max-Forwards and Max-Breadth SIP headers over XMPP using the Stanza Headers and Internet Metadata (SHIM) extension <xref target='XEP-0131'/>, that extension is not widely implemented; therefore, defenses against excessive looping and amplification attacks when messages pass back and forth through SIP and XMPP networks is out of scope for this document.  However, it ought to be addressed in the future, and implementations are strongly encouraged to incorporate appropriate counter measures wherever possible.</t>
+      <t>The ability to use a wide range of Unicode characters <xref target='UNICODE'/> can lead to security issues, especially the possibility of user confusion over identifiers containing visually similar characters (also called "confusable characters" or "confusables").  The PRECIS framework specification <xref target='I-D.ietf-precis-framework'/> describes some of these security issues, and additional guidance can be found in <xref target='UTS39'/>.</t>
+    </section>
+
+  </middle>
+
+  <back>
+
+    <references title="Normative References">
+
+<reference anchor='RFC2119'>
+  <front>
+    <title abbrev='RFC Key Words'>Key words for use in RFCs to Indicate Requirement Levels</title>
+    <author initials='S.' surname='Bradner' fullname='Scott Bradner'>
+      <organization>Harvard University</organization>
+      <address>
+        <postal>
+          <street>1350 Mass. Ave.</street>
+          <street>Cambridge</street>
+          <street>MA 02138</street>
+        </postal>
+        <phone>- +1 617 495 3864</phone>
+        <email>-</email>
+      </address>
+    </author>
+    <date month='March' year='1997'></date>
+    <area>General</area>
+    <keyword>keyword</keyword>
+    <abstract>
+      <t>In many standards track documents several words are used to signify the requirements in the specification.  These words are often capitalized.  This document defines these words as they should be interpreted in IETF documents.  Authors who follow these guidelines should incorporate this phrase near the beginning of their document:
+        <list>
+          <t>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in RFC 2119.</t>
+        </list>
+      </t>
+      <t>Note that the force of these words is modified by the requirement level of the document in which they are used.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='BCP' value='14' />
+  <seriesInfo name='RFC' value='2119' />
+</reference>
+
+<reference anchor='RFC3261'>
+<front>
+<title>SIP: Session Initiation Protocol</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='G.' surname='Camarillo' fullname='G. Camarillo'>
+<organization /></author>
+<author initials='A.' surname='Johnston' fullname='A. Johnston'>
+<organization /></author>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'>
+<organization /></author>
+<author initials='R.' surname='Sparks' fullname='R. Sparks'>
+<organization /></author>
+<author initials='M.' surname='Handley' fullname='M. Handley'>
+<organization /></author>
+<author initials='E.' surname='Schooler' fullname='E. Schooler'>
+<organization /></author>
+<date month='June' year='2002' /></front>
+<seriesInfo name='RFC' value='3261' />
+<format type='TXT' octets='647976' target='ftp://ftp.isi.edu/in-notes/rfc3261.txt' />
+</reference>
+
+<reference anchor='RFC3263'>
+<front>
+<title>Session Initiation Protocol (SIP): Locating SIP Servers</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<date year='2002' month='June' />
+<abstract>
+<t>The Session Initiation Protocol (SIP) uses DNS procedures to allow a client to resolve a SIP Uniform Resource Identifier (URI) into the IP address, port, and transport protocol of the next hop to contact.  It also uses DNS to allow a server to send a response to a backup client if the primary client has failed.  This document describes those DNS procedures in detail. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='3263' />
+<format type='TXT' octets='42310' target='http://www.rfc-editor.org/rfc/rfc3263.txt' />
+</reference>
+
+<reference anchor='RFC3986'>
+<front>
+<title abbrev='URI Generic Syntax'>Uniform Resource Identifier (URI): Generic Syntax</title>
+<author initials='T.' surname='Berners-Lee' fullname='Tim Berners-Lee'>
+<organization abbrev='W3C/MIT'>World Wide Web Consortium</organization>
+<address>
+<postal>
+<street>Massachusetts Institute of Technology</street>
+<street>77 Massachusetts Avenue</street>
+<city>Cambridge</city>
+<region>MA</region>
+<code>02139</code>
+<country>USA</country></postal>
+<phone>+1-617-253-5702</phone>
+<facsimile>+1-617-258-5999</facsimile>
+<email>timbl@w3.org</email>
+<uri>http://www.w3.org/People/Berners-Lee/</uri></address></author>
+<author initials='R.' surname='Fielding' fullname='Roy T. Fielding'>
+<organization abbrev='Day Software'>Day Software</organization>
+<address>
+<postal>
+<street>5251 California Ave., Suite 110</street>
+<city>Irvine</city>
+<region>CA</region>
+<code>92617</code>
+<country>USA</country></postal>
+<phone>+1-949-679-2960</phone>
+<facsimile>+1-949-679-2972</facsimile>
+<email>fielding@gbiv.com</email>
+<uri>http://roy.gbiv.com/</uri></address></author>
+<author initials='L.' surname='Masinter' fullname='Larry Masinter'>
+<organization abbrev='Adobe Systems'>Adobe Systems Incorporated</organization>
+<address>
+<postal>
+<street>345 Park Ave</street>
+<city>San Jose</city>
+<region>CA</region>
+<code>95110</code>
+<country>USA</country></postal>
+<phone>+1-408-536-3024</phone>
+<email>LMM@acm.org</email>
+<uri>http://larry.masinter.net/</uri></address></author>
+<date year='2005' month='January' />
+<area>Applications</area>
+<keyword>uniform resource identifier</keyword>
+<keyword>URI</keyword>
+<keyword>URL</keyword>
+<keyword>URN</keyword>
+<keyword>WWW</keyword>
+<keyword>resource</keyword>
+<abstract>
+<t>
+A Uniform Resource Identifier (URI) is a compact sequence of characters
+that identifies an abstract or physical resource.  This specification
+defines the generic URI syntax and a process for resolving URI references
+that might be in relative form, along with guidelines and security
+considerations for the use of URIs on the Internet.
+The URI syntax defines a grammar that is a superset of all valid URIs,
+allowing an implementation to parse the common components of a URI
+reference without knowing the scheme-specific requirements of every
+possible identifier.  This specification does not define a generative
+grammar for URIs; that task is performed by the individual
+specifications of each URI scheme.
+</t></abstract></front>
+<seriesInfo name='STD' value='66' />
+<seriesInfo name='RFC' value='3986' />
+<format type='TXT' octets='141811' target='ftp://ftp.isi.edu/in-notes/rfc3986.txt' />
+<format type='HTML' octets='200858' target='http://xml.resource.org/public/rfc/html/rfc3986.html' />
+<format type='XML' octets='165759' target='http://xml.resource.org/public/rfc/xml/rfc3986.xml' />
+</reference>
+
+<reference anchor='RFC3987'>
+<front>
+<title>Internationalized Resource Identifiers (IRIs)</title>
+<author initials='M.' surname='Duerst' fullname='M. Duerst'>
+<organization /></author>
+<author initials='M.' surname='Suignard' fullname='M. Suignard'>
+<organization /></author>
+<date year='2005' month='January' />
+<abstract>
+<t>This document defines a new protocol element, the Internationalized Resource Identifier (IRI), as a complement of the Uniform Resource Identifier (URI). An IRI is a sequence of characters from the Universal Character Set (Unicode/ISO 10646). A mapping from IRIs to URIs is defined, which means that IRIs can be used instead of URIs, where appropriate, to identify resources.&lt;/t>&lt;t> The approach of defining a new protocol element was chosen instead of extending or changing the definition of URIs. This was done in order to allow a clear distinction and to avoid incompatibilities with existing software. Guidelines are provided for the use and deployment of IRIs in various protocols, formats, and software components that currently deal with URIs.</t></abstract></front>
+<seriesInfo name='RFC' value='3987' />
+<format type='TXT' octets='111190' target='http://www.rfc-editor.org/rfc/rfc3987.txt' />
+</reference>
+
+<reference anchor='RFC5246'>
+<front>
+<title>The Transport Layer Security (TLS) Protocol Version 1.2</title>
+<author initials='T.' surname='Dierks' fullname='T. Dierks'>
+<organization /></author>
+<author initials='E.' surname='Rescorla' fullname='E. Rescorla'>
+<organization /></author>
+<date year='2008' month='August' />
+<abstract>
+<t>This document specifies Version 1.2 of the Transport Layer Security (TLS) protocol.  The TLS protocol provides communications security over the Internet.  The protocol allows client/server applications to communicate in a way that is designed to prevent eavesdropping, tampering, or message forgery. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='5246' />
+<format type='TXT' octets='222395' target='http://www.rfc-editor.org/rfc/rfc5246.txt' />
+</reference>
+
+<reference anchor='RFC5393'>
+<front>
+<title>Addressing an Amplification Vulnerability in Session Initiation Protocol (SIP) Forking Proxies</title>
+<author initials='R.' surname='Sparks' fullname='R. Sparks'>
+<organization /></author>
+<author initials='S.' surname='Lawrence' fullname='S. Lawrence'>
+<organization /></author>
+<author initials='A.' surname='Hawrylyshen' fullname='A. Hawrylyshen'>
+<organization /></author>
+<author initials='B.' surname='Campen' fullname='B. Campen'>
+<organization /></author>
+<date year='2008' month='December' />
+<abstract>
+<t>This document normatively updates RFC 3261, the Session Initiation Protocol (SIP), to address a security vulnerability identified in SIP proxy behavior. This vulnerability enables an attack against SIP networks where a small number of legitimate, even authorized, SIP requests can stimulate massive amounts of proxy-to-proxy traffic.&lt;/t>&lt;t> This document strengthens loop-detection requirements on SIP proxies when they fork requests (that is, forward a request to more than one destination). It also corrects and clarifies the description of the loop-detection algorithm such proxies are required to implement. Additionally, this document defines a Max-Breadth mechanism for limiting the number of concurrent branches pursued for any given request. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='5393' />
+<format type='TXT' octets='48722' target='http://www.rfc-editor.org/rfc/rfc5393.txt' />
+</reference>
+
+<reference anchor='RFC5627'>
+<front>
+<title>Obtaining and Using Globally Routable User Agent URIs (GRUUs) in the Session Initiation Protocol (SIP)</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<date year='2009' month='October' />
+<abstract>
+<t>Several applications of the Session Initiation Protocol (SIP) require a user agent (UA) to construct and distribute a URI that can be used by anyone on the Internet to route a call to that specific UA instance.  A URI that routes to a specific UA instance is called a Globally Routable UA URI (GRUU).  This document describes an extension to SIP for obtaining a GRUU from a registrar and for communicating a GRUU to a peer within a dialog. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='5627' />
+<format type='TXT' octets='94790' target='http://www.rfc-editor.org/rfc/rfc5627.txt' />
+</reference>
+
+<reference anchor='RFC5630'>
+<front>
+<title>The Use of the SIPS URI Scheme in the Session Initiation Protocol (SIP)</title>
+<author initials='F.' surname='Audet' fullname='F. Audet'>
+<organization /></author>
+<date year='2009' month='October' />
+<abstract>
+<t>This document provides clarifications and guidelines concerning the use of the SIPS URI scheme in the Session Initiation Protocol (SIP).  It also makes normative changes to SIP. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='5630' />
+<format type='TXT' octets='114513' target='http://www.rfc-editor.org/rfc/rfc5630.txt' />
+</reference>
+
+<reference anchor='RFC6120'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Core</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>The Extensible Messaging and Presence Protocol (XMPP) is an application profile of the Extensible Markup Language (XML) that enables the near-real-time exchange of structured yet extensible data between any two or more network entities.  This document defines XMPP's core protocol methods: setup and teardown of XML streams, channel encryption, authentication, error handling, and communication primitives for messaging, network availability ("presence"), and request-response interactions.  This document obsoletes RFC 3920. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6120' />
+<format type='TXT' octets='451942' target='http://www.rfc-editor.org/rfc/rfc6120.txt' />
+</reference>
+
+<reference anchor='RFC6122'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Address Format</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>This document defines the format for addresses used in the Extensible Messaging and Presence Protocol (XMPP), including support for non-ASCII characters.  This document updates RFC 3920. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6122' />
+<format type='TXT' octets='50646' target='http://www.rfc-editor.org/rfc/rfc6122.txt' />
+</reference>
+
+<reference anchor='RFC6347'>
+<front>
+<title>Datagram Transport Layer Security Version 1.2</title>
+<author initials='E.' surname='Rescorla' fullname='E. Rescorla'>
+<organization /></author>
+<author initials='N.' surname='Modadugu' fullname='N. Modadugu'>
+<organization /></author>
+<date year='2012' month='January' />
+<abstract>
+<t>This document specifies version 1.2 of the Datagram Transport Layer Security (DTLS) protocol.  The DTLS protocol provides communications privacy for datagram protocols.  The protocol allows client/server applications to communicate in a way that is designed to prevent eavesdropping, tampering, or message forgery.  The DTLS protocol is based on the Transport Layer Security (TLS) protocol and provides equivalent security guarantees.  Datagram semantics of the underlying transport are preserved by the DTLS protocol.  This document updates DTLS 1.0 to work with TLS version 1.2. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6347' />
+<format type='TXT' octets='73546' target='http://www.rfc-editor.org/rfc/rfc6347.txt' />
+</reference>
+
+<reference anchor="UNICODE" target="http://www.unicode.org/versions/Unicode6.3.0/">
+  <front>
+    <title>The Unicode Standard, Version 6.3</title>
+    <author>
+      <organization>The Unicode Consortium</organization>
+    </author>
+    <date year="2013" />
+  </front>
+</reference>
+
+    </references>
+
+    <references title="Informative References">
+
+<reference anchor='I-D.ietf-precis-framework'>
+<front>
+<title>Precis Framework: Handling Internationalized Strings in Protocols</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization>Cisco</organization>
+</author>
+<author initials='M' surname='Blanchet' fullname='Marc Blanchet'>
+    <organization>Viagenie</organization>
+</author>
+<date month='February' day='9' year='2014' />
+<abstract><t>Application protocols using Unicode code points in protocol strings need to prepare such strings in order to perform comparison operations (e.g., for purposes of authentication or authorization).  This document defines a framework enabling application protocols to handle various classes of strings in a way that depends on the properties of Unicode code points and that is agile with respect to versions of Unicode; as a result, this framework provides a more sustainable approach to the handling of internationalized strings than the previous framework, known as Stringprep (RFC 3454).  A specification that reuses this framework can either directly use the base string classes or subclass the base string classes as needed.  This framework takes an approach similar to the revised internationalized domain names in applications (IDNA) technology (RFC 5890, RFC 5891, RFC 5892, RFC 5893, RFC 5894) and thus adheres to the high-level design goals described in RFC 4690, albeit for application technologies other than the Domain Name System (DNS).  This document obsoletes RFC 3454.</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ietf-precis-framework-14' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-precis-framework-14.txt' />
+</reference>
+
+<reference anchor='I-D.ietf-straw-b2bua-loop-detection'>
+<front>
+<title>Loop Detection Mechanisms for Session Initiation Protocol (SIP) Back-to- Back User Agents (B2BUAs)</title>
+<author initials='H' surname='Kaplan' fullname='Hadriel Kaplan'>
+    <organization />
+</author>
+<author initials='V' surname='Pascual' fullname='Victor Pascual'>
+    <organization />
+</author>
+<date month='February' day='10' year='2014' />
+<abstract><t>SIP Back-to-Back User Agents (B2BUAs) can cause unending SIP request routing loops because, as User Agent Clients, they can generate SIP requests with new Max-Forwards values.  This document discusses the difficulties associated with loop detection for B2BUAs, and requirements for them to prevent infinite loops.</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ietf-straw-b2bua-loop-detection-04' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-straw-b2bua-loop-detection-04.txt' />
+</reference>
+
+<reference anchor='I-D.ietf-xmpp-6122bis'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Address Format</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<date month='January' day='23' year='2014' />
+<abstract><t>This document defines the address format for the Extensible Messaging and Presence Protocol (XMPP), including support for code points outside the ASCII range.  This document obsoletes RFC 6122.</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ietf-xmpp-6122bis-10' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-xmpp-6122bis-10.txt' />
+</reference>
+
+<reference anchor='RFC2782'>
+<front>
+<title abbrev='DNS SRV RR'>A DNS RR for specifying the location of services (DNS SRV)</title>
+<author initials='A.' surname='Gulbrandsen' fullname='Arnt Gulbrandsen'>
+<organization>Troll Tech</organization>
+<address>
+<postal>
+<street>Waldemar Thranes gate 98B</street>
+<city>Oslo</city>
+<region />
+<code>N-0175</code>
+<country>NO</country></postal>
+<phone>+47 22 806390</phone>
+<facsimile>+47 22 806380</facsimile>
+<email>arnt@troll.no</email></address></author>
+<author initials='P.' surname='Vixie' fullname='Paul Vixie'>
+<organization>Internet Software Consortium</organization>
+<address>
+<postal>
+<street>950 Charter Street</street>
+<city>Redwood City</city>
+<region>CA</region>
+<code>94063</code>
+<country>US</country></postal>
+<phone>+1 650 779 7001</phone></address></author>
+<author initials='L.' surname='Esibov' fullname='Levon Esibov'>
+<organization>Microsoft Corporation</organization>
+<address>
+<postal>
+<street>One Microsoft Way</street>
+<city>Redmond</city>
+<region>WA</region>
+<code>98052</code>
+<country>US</country></postal>
+<email>levone@microsoft.com</email></address></author>
+<date month='February' year='2000' />
+<abstract>
+<t>This document describes a DNS RR which specifies the location of the
+   server(s) for a specific protocol and domain.</t></abstract></front>
+<seriesInfo name='RFC' value='2782' />
+<format type='TXT' octets='24013' target='ftp://ftp.isi.edu/in-notes/rfc2782.txt' />
+</reference>
+
+<reference anchor="RFC3428">
+<front>
+<title>Session Initiation Protocol (SIP) Extension for Instant Messaging</title>
+<author initials='B.' surname='Campbell' fullname='B. Campbell'>
+<organization /></author>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='C.' surname='Huitema' fullname='C. Huitema'>
+<organization /></author>
+<author initials='D.' surname='Gurle' fullname='D. Gurle'>
+<organization /></author>
+<date month='December' year='2002' /></front>
+<seriesInfo name='RFC' value='3428' />
+<format type='TXT' octets='41475' target='ftp://ftp.isi.edu/in-notes/rfc3428.txt' />
+</reference>
+
+<reference anchor="RFC3454">
+<front>
+<title>Preparation of Internationalized Strings ("STRINGPREP")</title>
+<author initials='P.' surname='Hoffman' fullname='P.  Hoffman'>
+<organization /></author>
+<author initials='M.' surname='Blanchet' fullname='M.  Blanchet'>
+<organization /></author>
+<date month='December' year='2002' /></front>
+<seriesInfo name='RFC' value='3454' />
+<format type='TXT' octets='138684' target='ftp://ftp.isi.edu/in-notes/rfc3454.txt' />
+</reference>
+
+<reference anchor="RFC3856">
+<front>
+<title>A Presence Event Package for the Session Initiation Protocol (SIP)</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<date year='2004' month='August' /></front>
+<seriesInfo name='RFC' value='3856' />
+<format type='TXT' octets='62956' target='ftp://ftp.isi.edu/in-notes/rfc3856.txt' />
+</reference>
+
+<reference anchor="RFC3859">
+<front>
+<title>Common Profile for Presence (CPP)</title>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'>
+<organization /></author>
+<date year='2004' month='August' /></front>
+<seriesInfo name='RFC' value='3859' />
+<format type='TXT' octets='30537' target='ftp://ftp.isi.edu/in-notes/rfc3859.txt' />
+</reference>
+
+<reference anchor="RFC3860">
+<front>
+<title>Common Profile for Instant Messaging (CPIM)</title>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'>
+<organization /></author>
+<date year='2004' month='August' /></front>
+<seriesInfo name='RFC' value='3860' />
+<format type='TXT' octets='26486' target='ftp://ftp.isi.edu/in-notes/rfc3860.txt' />
+</reference>
+
+<reference anchor='RFC3966'>
+<front>
+<title>The tel URI for Telephone Numbers</title>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<date year='2004' month='December' />
+<abstract>
+<t>This document specifies the URI (Uniform Resource Identifier) scheme "tel".  The "tel" URI describes resources identified by telephone numbers.  This document obsoletes RFC 2806. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='3966' />
+<format type='TXT' octets='40783' target='http://www.rfc-editor.org/rfc/rfc3966.txt' />
+</reference>
+
+<reference anchor='RFC5122'>
+<front>
+<title>Internationalized Resource Identifiers (IRIs) and Uniform Resource Identifiers (URIs) for the Extensible Messaging and Presence Protocol (XMPP)</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2008' month='February' />
+<abstract>
+<t>This document defines the use of Internationalized Resource Identifiers (IRIs) and Uniform Resource Identifiers (URIs) in identifying or interacting with entities that can communicate via the Extensible Messaging and Presence Protocol (XMPP). [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='5122' />
+<format type='TXT' octets='55566' target='http://www.rfc-editor.org/rfc/rfc5122.txt' />
+</reference>
+
+<reference anchor='RFC5322'>
+<front>
+<title>Internet Message Format</title>
+<author initials='P.' surname='Resnick' fullname='Peter W. 
+Resnick' role='editor'>
+<organization>Qualcomm Incorporated</organization>
+<address>
+<postal>
+<street>5775 Morehouse Drive</street>
+<city>San Diego</city>
+<region>CA</region>
+<code>92121-1714</code>
+<country>US</country></postal>
+<phone>+1 858 651 4478</phone>
+<email>presnick@qualcomm.com</email>
+<uri>http://www.qualcomm.com/~presnick/</uri></address></author>
+<date year='2008' month='October' />
+<abstract>
+<t>This document specifies the Internet 
+Message Format (IMF), a syntax for text messages
+			that are sent between computer users, within 
+the framework of "electronic mail"
+			messages. This specification is a revision of 
+Request For Comments (RFC) 2822, which
+			itself superseded Request For Comments (RFC) 
+822, "Standard for the Format of ARPA
+			Internet Text Messages", updating it to 
+reflect current practice and incorporating
+			incremental changes that were specified in 
+other RFCs.</t></abstract></front>
+
+<seriesInfo name='RFC' value='5322' />
+<format type='TXT' octets='122322' target='http://www.rfc-editor.org/rfc/rfc5322.txt' />
+<format type='HTML' octets='213342' target='http://xml.resource.org/public/rfc/html/rfc5322.html' />
+<format type='XML' octets='174183' target='http://xml.resource.org/public/rfc/xml/rfc5322.xml' />
+</reference>
+
+<reference anchor='RFC5626'>
+<front>
+<title>Managing Client-Initiated Connections in the Session Initiation Protocol (SIP)</title>
+<author initials='C.' surname='Jennings' fullname='C. Jennings'>
+<organization /></author>
+<author initials='R.' surname='Mahy' fullname='R. Mahy'>
+<organization /></author>
+<author initials='F.' surname='Audet' fullname='F. Audet'>
+<organization /></author>
+<date year='2009' month='October' />
+<abstract>
+<t>The Session Initiation Protocol (SIP) allows proxy servers to initiate TCP connections or to send asynchronous UDP datagrams to User Agents in order to deliver requests.  However, in a large number of real deployments, many practical considerations, such as the existence of firewalls and Network Address Translators (NATs) or the use of TLS with server-provided certificates, prevent servers from connecting to User Agents in this way.  This specification defines behaviors for User Agents, registrars, and proxy servers that allow requests to be delivered on existing connections established by the User Agent.  It also defines keep-alive behaviors needed to keep NAT bindings open and specifies the usage of multiple connections from the User Agent to its registrar. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='5626' />
+<format type='TXT' octets='116344' target='http://www.rfc-editor.org/rfc/rfc5626.txt' />
+</reference>
+
+<reference anchor='RFC6121'>
+<front>
+<title>Extensible Messaging and Presence Protocol (XMPP): Instant Messaging and Presence</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<date year='2011' month='March' />
+<abstract>
+<t>This document defines extensions to core features of the Extensible Messaging and Presence Protocol (XMPP) that provide basic instant messaging (IM) and presence functionality in conformance with the requirements in RFC 2779.  This document obsoletes RFC 3921. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6121' />
+<format type='TXT' octets='244800' target='http://www.rfc-editor.org/rfc/rfc6121.txt' />
+</reference>
+
+<reference anchor='RFC6665'>
+<front>
+<title>SIP-Specific Event Notification</title>
+<author initials='A.B.' surname='Roach' fullname='A.B. Roach'>
+<organization /></author>
+<date year='2012' month='July' />
+<abstract>
+<t>This document describes an extension to the Session Initiation Protocol (SIP) defined by RFC 3261. The purpose of this extension is to provide an extensible framework by which SIP nodes can request notification from remote nodes indicating that certain events have occurred.&lt;/t>&lt;t> Note that the event notification mechanisms defined herein are NOT intended to be a general-purpose infrastructure for all classes of event subscription and notification.&lt;/t>&lt;t> This document represents a backwards-compatible improvement on the original mechanism described by RFC 3265, taking into account several years of implementation experience. Accordingly, this document obsoletes RFC 3265. This document also updates RFC 4660 slightly to accommodate some small changes to the mechanism that were discussed in that document. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='6665' />
+<format type='TXT' octets='125556' target='http://www.rfc-editor.org/rfc/rfc6665.txt' />
+</reference>
+
+<reference anchor="UTS39" target='http://unicode.org/reports/tr39/'>
+  <front>
+    <title>Unicode Technical Standard #39: Unicode Security Mechanisms</title>
+    <author>
+      <organization>The Unicode Consortium</organization>
+    </author>
+    <date month="November" year="2013" />
+  </front>
+</reference>
+
+<reference anchor="XEP-0106">
+  <front>
+    <title>JID Escaping</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <author initials="J." surname="Hildebrand" fullname="Joe Hildebrand">
+      <organization/>
+      <address>
+        <email>jhildebrand@jabber.com</email>
+      </address>
+    </author>
+    <date day="18" month="June" year="2007"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0106"/>
+  <format type="HTML" target="http://www.xmpp.org/extensions/xep-0106.html"/>
+</reference>
+
+<reference anchor="XEP-0131">
+  <front>
+    <title>Stanza Headers and Internet Metadata</title>
+    <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
+      <organization/>
+      <address>
+        <email>stpeter@jabber.org</email>
+      </address>
+    </author>
+    <author initials="J." surname="Hildebrand" fullname="Joe Hildebrand">
+      <organization/>
+      <address>
+        <email>jhildebr@cisco.com</email>
+      </address>
+    </author>
+    <date day="12" month="July" year="2006"/>
+  </front>
+  <seriesInfo name="XSF XEP" value="0131"/>
+  <format type="HTML" target="http://xmpp.org/extensions/xep-0131.html"/>
+</reference>
+
+    </references>
+
+    <section title="Acknowledgements" anchor="ack">
+      <t>The authors wish to thank the following individuals for their feedback: Mary Barnes, Dave Cridland, Dave Crocker, Mike De Vries, Fabio Forno, Adrian Georgescu, Philipp Hancke, Saul Ibarra Corretge, Markus Isomaki, Olle Johansson, Paul Kyzivat, Salvatore Loreto, Daniel-Constantin Mierla, Tory Patnoe, and Robert Sparks.</t>
+      <t>Dan Romascanu reviewed the document on behalf of the General Area Review Team.</t>
+      <t>During IESG review, Stephen Farrell, Ted Lemon, Pete Resnick, and Sean Turner caught several issues that needed to be addressed.</t>
+      <t>The authors gratefully acknowledge the assistance of Markus Isomaki and Yana Stamcheva as the working group chairs and Gonzalo Camarillo as the sponsoring Area Director.</t>
+      <t>Peter Saint-Andre wishes to acknowledge Cisco Systems, Inc., for employing him during his work on earlier versions of this document.</t>
+    </section>
+
+  </back>
+
+</rfc>
