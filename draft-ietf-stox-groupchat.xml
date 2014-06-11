@@ -20,7 +20,7 @@
           <code>80134</code>
           <country>USA</country>
         </postal>
-        <email>ietf@stpeter.im</email>
+        <email>peter@andyet.com</email>
       </address>
     </author>
     <author initials="S." surname="Ibarra" fullname="Saul Ibarra Corretge">
@@ -87,153 +87,200 @@
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
     </section>
 
+    <section title="Architectural Assumptions" anchor="arch">
+      <t>An architectural diagram for a possible gateway deployment is shown below, where the entities have the following significance and the "#" character is used to show the boundary of a trust domain:</t>
+      <t>
+        <list style='symbols'>
+          <t>verona@chat.example.org -- an MSRP conference.</t>
+          <t>chat.example.org -- an MSRP conference server with an associated gateway ("M2X GW") to XMPP.</t>
+          <t>juliet@example.com -- an XMPP user.</t>
+          <t>example.com -- an XMPP server with an associated gateway ("X2M GW") to SIP/MSRP.</t>
+        </list>
+      </t>
+      <figure anchor='figure-1' title='Possible Gateway Deployment Architecture'>
+        <artwork><![CDATA[
+   #########################################################
+   #                                                       #
+   #                 +-----+                               #
+   #                 | M2X |                               #
+   #   +-------------+ GW  |<...........>+-------------+   #
+   #   | MSRP Server +-----+             | XMPP Server |   #
+   #   | chat.example.org |        +-----+ example.com |   #
+   #   +------------------+<******>| X2M +-------------+   #
+   #         *                     | GW  |  :              #
+   #         *                     +-----+  :              #
+   #         *                              :              #
+   #    verona@chat.example.org       juliet@example.com   #
+   #                                                       #
+   #########################################################
+
+         Legend:
+           XMPP = ... or :
+    MSRP or SIP = *
+        ]]></artwork>
+      </figure>
+    </section>
+
     <section title="XMPP MUC to MSRP Multi-party Messaging Session" anchor="muc2msrp">
       <t>This section describes how to map an XMPP MUC session to an MSRP Multi-party Messaging session.  The following diagram outlines the overall protocol flow of a sample session, which includes some optional exchanges (such as sending messages, changing nickname, and inviting another user).</t>
       <figure>
         <artwork><![CDATA[
-XMPP        XMPP      XMPP-to-MSRP   MSRP-to-XMPP    MSRP
-User       Server       Gateway        Gateway    Conference
- |            |            |              |            |
- | (F1) XMPP  |            |              |            |
- | enter room |            |              |            |
- |...........>|            |              |            |
- |            | (F2) XMPP  |              |            |
- |            | enter room |              |            |
- |            |...........>|              |            |
- |            |            | (F3) SIP INVITE           |
- |            |            |**************************>|
- |            |            |              | (F4) SIP   |
- |            |            |              | 200 OK     |
- |            |            |              |<***********|
- |            |            |              | (F5) SIP   |
- |            |            |              | ACK        |
- |            |            |              |***********>|
- |            |            |              | (F6) MSRP  |
- |            |            |              | NICKNAME   |
- |            |            |              |***********>|
- |            |            |              | (F7) MSRP  |
- |            |            |              | 200 OK     |
- |            |            |              |<***********|
- |            |            |              | (F8) SIP   |
- |            |            |              | SUBSCRIBE  |
- |            |            |              | Event:     |
- |            |            |              | conference |
- |            |            |              |***********>|
- |            |            |              | (F0) SIP   |
- |            |            |              | 200 OK     |
- |            |            |              |<***********|
- |            |            |              | (F10) SIP  |
- |            |            |              | NOTIFY     |
- |            |            |              |<***********|
- |            |            |              | (F11) SIP  |
- |            |            |              | 200 OK     |
- |            |            |              |***********>|
- |            | (F12) XMPP presence       |            |
- |            |<..........................|            |
- | (F13) XMPP |            |              |            |
- | presence   |            |              |            |
- |<...........|            |              |            |
- | (F14) XMPP |            |              |            |
- | MUC subject|            |              |            |
- |<...........|            |              |            |
- .            .            .              .            .
- .            .            .              .            .
- | (F15) XMPP |            |              |            |
- | groupchat  |            |              |            |
- | message    |            |              |            |
- |...........>|            |              |            |
- |            | (F16) XMPP |              |            |
- |            | groupchat  |              |            |
- |            | message    |              |            |
- |            |...........>|              |            |
- |            |            | (F17) MSRP SEND           |
- |            |            |**************************>|
- |            |            |              | (F18) MSRP |
- |            |            |              | 200 OK     |
- |            |            |              |<***********|
- |            | (F19) XMPP groupchat      |            |
- |            | message                   |            |
- |            |<..........................|            |
- | (F20) XMPP |            |              |            |
- | groupchat  |            |              |            |
- | message    |            |              |            |
- |<...........|            |              |            |
- .            .            .              .            .
- .            .            .              .            .
- | (F21) XMPP |            |              |            |
- | private    |            |              |            |
- | message    |            |              |            |
- |...........>|            |              |            |
- |            | (F22) XMPP |              |            |
- |            | private    |              |            |
- |            | message    |              |            |
- |            |...........>|              |            |
- |            |            | (F23) MSRP SEND           |
- |            |            |**************************>|
- |            |            |              | (F24) MSRP |
- |            |            |              | 200 OK     |
- |            |            |              |<***********|
- .            .            .              .            .
- .            .            .              .            .
- | (F25) XMPP |            |              |            |
- | presence:  |            |              |            |
- | change nick|            |              |            |
- |...........>|            |              |            |
- |            | (F26) XMPP |              |            |
- |            | presence:  |              |            |
- |            | change nick|              |            |
- |            |...........>|              |            |
- |            |            | (F27) MSRP NICKNAME       |
- |            |            |**************************>|
- |            |            |              | (F28) MSRP |
- |            |            |              | 425 Error  |
- |            |            |              |<***********|
- |            | (F29) XMPP presence error |            |
- |            |<..........................|            |
- | (F30) XMPP |            |              |            |
- | presence   |            |              |            |
- | error      |            |              |            |
- |<...........|            |              |            |
- .            .            .              .            .
- .            .            .              .            .
- | (F31) XMPP |            |              |            |
- | message:   |            |              |            |
- | invite     |            |              |            |
- |...........>|            |              |            |
- |            | (F32) XMPP |              |            |
- |            | message:   |              |            |
- |            | invite     |              |            |
- |            |...........>|              |            |
- |            |            | (F33) SIP REFER           |
- |            |            |**************************>|
- |            |            |              | (F34) SIP  |
- |            |            |              | 200 OK     |
- |            |            |              |<***********|
- |            |            |              | (F35) SIP  |
- |            |            |              | NOTIFY     |
- |            |            |              |<***********|
- .            .            .              .            .
- .            .            .              .            .
- | (F36) XMPP |            |              |            |
- | presence:  |            |              |            |
- | exit room  |            |              |            |
- |...........>|            |              |            |
- |            | (F37) XMPP |              |            |
- |            | presence:  |              |            |
- |            | exit room  |              |            |
- |            |...........>|              |            |
- |            |            | (F38) SIP BYE             |
- |            |            |**************************>|
- |            |            |              | (F39) SIP  |
- |            |            |              | 200 OK     |
- |            |            |              |<***********|
- |            | (F40) presence unavailable|            |
- |            |<..........................|            |
- | (F41) XMPP |            |              |            |
- | presence   |            |              |            |
- | unavailable|            |              |            |
- |<...........|            |              |            |
- |            |            |              |            |
+XMPP           XMPP         XMPP-to-MSRP        MSRP
+User          Server          Gateway        Conference
+ |               |               |               |
+ | (F1) XMPP     |               |               |
+ | enter room    |               |               |
+ |..............>|               |               |
+ |               | (F2) XMPP     |               |
+ |               | enter room    |               |
+ |               |..............>|               |
+ |               |               | (F3) SIP      |
+ |               |               | INVITE        |
+ |               |               |**************>|
+ |               |               | (F4) SIP      |
+ |               |               | 200 OK        |
+ |               |               |<**************|
+ |               |               | (F5) SIP ACK  |
+ |               |               |**************>|
+ |               |               | (F6) MSRP     |
+ |               |               | NICKNAME      |
+ |               |               |**************>|
+ |               |               | (F7) MSRP     |
+ |               |               | 200 OK        |
+ |               |               |<**************|
+ |               |               | (F8) SIP      |
+ |               |               | SUBSCRIBE     |
+ |               |               | Event:        |
+ |               |               | conference    |
+ |               |               |**************>|
+ |               |               | (F9) SIP      |
+ |               |               | 200 OK        |
+ |               |               |<**************|
+ |               |               | (F10) SIP     |
+ |               |               | NOTIFY        |
+ |               |               |<**************|
+ |               |               | (F11) SIP     |
+ |               |               | 200 OK        |
+ |               |               |**************>|
+ |               | (F12) XMPP    |               |
+ |               | presence      |               |
+ |               |<..............|               |
+ | (F13) XMPP    |               |               |
+ | presence      |               |               |
+ |<..............|               |               |
+ |               | (F14) XMPP    |               |
+ |               | MUC subject   |               |
+ |               |<..............|               |
+ | (F15) XMPP    |               |               |
+ | MUC subject   |               |               |
+ |<..............|               |               |
+ .               .               .               .
+ .               .               .               .
+ | (F16) XMPP    |               |               |
+ | groupchat     |               |               |
+ | message       |               |               |
+ |..............>|               |               |
+ |               | (F17) XMPP    |               |
+ |               | groupchat     |               |
+ |               | message       |               |
+ |               |..............>|               |
+ |               |               | (F18) MSRP    |
+ |               |               | SEND          |
+ |               |               |**************>|
+ |               |               | (F19) MSRP    |
+ |               |               | 200 OK        |
+ |               |               |<**************|
+ |               | (F20) XMPP    |               |
+ |               | groupchat     |               |
+ |               | message       |               |
+ |               |<..............|               |
+ | (F21) XMPP    |               |               |
+ | groupchat     |               |               |
+ | message       |               |               |
+ |<..............|               |               |
+ .               .               .               .
+ .               .               .               .
+ | (F22) XMPP    |               |               |
+ | private       |               |               |
+ | message       |               |               |
+ |..............>|               |               |
+ |               | (F23) XMPP    |               |
+ |               | private       |               |
+ |               | message       |               |
+ |               |..............>|               |
+ |               |               | (F24) MSRP    |
+ |               |               | SEND          |
+ |               |               |**************>|
+ |               |               | (F25) MSRP    |
+ |               |               | 200 OK        |
+ |               |               |<**************|
+ .               .               .               .
+ .               .               .               .
+ | (F26) XMPP    |               |               |
+ | presence:     |               |               |
+ | change nick   |               |               |
+ |..............>|               |               |
+ |               | (F27) XMPP    |               |
+ |               | presence:     |               |
+ |               | change nick   |               |
+ |               |..............>|               |
+ |               |               | (F28) MSRP    |
+ |               |               | NICKNAME      |
+ |               |               |**************>|
+ |               |               | (F29) MSRP    |
+ |               |               | 425 Error     |
+ |               |               |<**************|
+ |               | (F30) XMPP    |               |
+ |               | presence      |               |
+ |               | error         |               |
+ |               |<..............|               |
+ | (F31) XMPP    |               |               |
+ | presence      |               |               |
+ | error         |               |               |
+ |<..............|               |               |
+ .               .               .               .
+ .               .               .               .
+ | (F32) XMPP    |               |               |
+ | message:      |               |               |
+ | invite        |               |               |
+ |..............>|               |               |
+ |               | (F33) XMPP    |               |
+ |               | message:      |               |
+ |               | invite        |               |
+ |               |..............>|               |
+ |               |               | (F34) SIP     |
+ |               |               | REFER         |
+ |               |               |**************>|
+ |               |               | (F35) SIP     |
+ |               |               | 200 OK        |
+ |               |               |<**************|
+ |               |               | (F36) SIP     |
+ |               |               | NOTIFY        |
+ |               |               |<**************|
+ .               .               .               .
+ .               .               .               .
+ | (F37) XMPP    |               |               |
+ | presence:     |               |               |
+ | exit room     |               |               |
+ |..............>|               |               |
+ |               | (F38) XMPP    |               |
+ |               | presence:     |               |
+ |               | exit room     |               |
+ |               |..............>|               |
+ |               |               | (F39) SIP BYE |
+ |               |               |**************>|
+ |               |               | (F40) SIP     |
+ |               |               | 200 OK        |
+ |               |               |<**************|
+ |               | (F41) XMPP    |               |
+ |               | presence      |               |
+ |               | unavailable   |               |
+ |               |<..............|               |
+ | (F42) XMPP    |               |               |
+ | presence      |               |               |
+ | unavailable   |               |               |
+ |<..............|               |               |
+ |               |               |               |
         ]]></artwork>
       </figure>
       <t>Detailed protocol flows and mappings are provided in the following sections.</t>
@@ -473,7 +520,7 @@ User       Server       Gateway        Gateway    Conference
         </figure>
         <t>Upon receiving such a response, the SIP-to-XMPP gateway MUST send a 200 OK to the MSRP conference server and translate the participant list into a series of XMPP presence stanzas.</t>
         <figure>
-          <preamble>Example 10: XMPP mapping of chatroom presence (F10)</preamble>
+          <preamble>Example 10: XMPP mapping of chatroom presence (F12)</preamble>
           <artwork><![CDATA[
 |  <presence from='verona@chat.example.org/Romeo'
 |            to='juliet@example.com/balcony'>
@@ -500,7 +547,7 @@ User       Server       Gateway        Gateway    Conference
         </figure>
         <t>If the NOTIFY included a subject, the gateway converts that into a separate XMPP message.</t>
         <figure>
-          <preamble>Example 11: XMPP mapping of chatroom subject (F11)</preamble>
+          <preamble>Example 11: XMPP mapping of chatroom subject (F14)</preamble>
           <artwork><![CDATA[
 |  <message from='verona@chat.example.com/mayor'
 |           to='juliet@example.com/balcony'
@@ -546,7 +593,7 @@ User       Server       Gateway        Gateway    Conference
           <t>When Juliet wants to sends a message to all other occupants in the room, she sends a message of type "groupchat" to the &lt;room@service&gt; itself (in our example, &lt;verona@chat.example.org&gt;).</t>
           <t>The following examples show an exchange of a public message.</t>
           <figure>
-            <preamble>Example 12: Juliet sends message to all occupants (F15)</preamble>
+            <preamble>Example 12: Juliet sends message to all occupants (F16)</preamble>
             <artwork><![CDATA[
 |  <message from='juliet@example.com/balcony'
 |           to='verona@chat.example.org'
@@ -558,7 +605,7 @@ User       Server       Gateway        Gateway    Conference
           </figure>
           <t>Upon receiving such a message, the XMPP-to-SIP gateway MUST translate it into an MSRP SEND message.</t> 
           <figure>
-            <preamble>Example 13: Gateway maps XMPP message to MSRP (F17)</preamble>
+            <preamble>Example 13: Gateway maps XMPP message to MSRP (F18)</preamble>
             <artwork><![CDATA[
 |  MSRP a786hjs2 SEND
 |  To-Path: msrp://s2x.example.org:12763/kjhd37s2s20w2a;tcp
@@ -578,7 +625,7 @@ User       Server       Gateway        Gateway    Conference
           </figure>
           <t>Upon receiving the SEND request, if the request either contains a Failure-Report header field value of "yes" or does not contain a Failure-Report header at all, the MSRP conference server MUST immediately generate and send a response.</t>
           <figure>
-            <preamble>Example 14: MSRP conference returns 200 OK (F18)</preamble>
+            <preamble>Example 14: MSRP conference returns 200 OK (F19)</preamble>
             <artwork><![CDATA[
 |  MSRP d93kswow 200 OK
 |  To-Path: msrp://x2s.example.com:7654/jshA7weztas;tcp
@@ -588,7 +635,7 @@ User       Server       Gateway        Gateway    Conference
           </figure>
           <t>Since an XMPP MUC room could be moderated and an XMPP user cannot be sure whether her message has been accepted or not without receiving it back from the server, <xref target="XEP-0045"/> states that the sender needs to receive the same message it has generated.  So in this scenario the XMPP-to-SIP gateway has to reflect the message back to the sender.  This prodedure only applies to XMPP endpoints.</t>
           <figure>
-            <preamble>Example 15: Gateway reflects message to XMPP user (F19)</preamble>
+            <preamble>Example 15: Gateway reflects message to XMPP user (F20)</preamble>
             <artwork><![CDATA[
 |  <message from='verona@chat.example.org/JuliC'
 |           to='verona@chat.example.org'
@@ -610,7 +657,7 @@ User       Server       Gateway        Gateway    Conference
           </figure>
           <t>The following examples show an exchange of a private message.</t>
           <figure>
-            <preamble>Example 16: Juliet sends private message (F21)</preamble>
+            <preamble>Example 16: Juliet sends private message (F22)</preamble>
             <artwork><![CDATA[
 |  <message from='juliet@example.com/balcony'
 |           to='verona@chat.example.org/Romeo'
@@ -622,7 +669,7 @@ User       Server       Gateway        Gateway    Conference
           </figure>
           <t>Upon receiving such a message, the XMPP-to-SIP gateway MUST translate it into an MSRP SEND message.</t> 
           <figure>
-            <preamble>Example 17: Gateway maps private message from XMPP to MSRP (F23)</preamble>
+            <preamble>Example 17: Gateway maps private message from XMPP to MSRP (F24)</preamble>
             <artwork><![CDATA[
 |  MSRP a786hjs2 SEND
 |  To-Path: msrp://s2x.example.org:12763/kjhd37s2s20w2a;tcp
@@ -640,7 +687,7 @@ User       Server       Gateway        Gateway    Conference
 |  -------a786hjs2$
             ]]></artwork>
           </figure>
-          <t>After acknowledging the message by sending a SIP 200 OK (step F25), the MSRP conference server is responsible for sending the message to the intended recipient (not shown in the protocol flow).  When doing so, it MUST modify the "From" header to the sender's address within the chatroom.</t>
+          <t>After acknowledging the message by sending an MSRP 200 OK (step F25), the MSRP conference server is responsible for sending the message to the intended recipient (not shown in the protocol flow).  When doing so, it MUST modify the "From" header to the sender's address within the chatroom.</t>
           <figure>
             <preamble>Example 18: MSRP conference sends private message to SIP user</preamble>
             <artwork><![CDATA[
@@ -667,7 +714,7 @@ User       Server       Gateway        Gateway    Conference
       <section title="Change Nickname" anchor="muc2msrp-nickChange">
         <t>The XMPP user might want to change her nickname.  She can do so by sending an updated presence stanza to the room, containing a new nickname.</t>
         <figure>
-          <preamble>Example 19: Juliet changes her nickname (F25)</preamble>
+          <preamble>Example 19: Juliet changes her nickname (F26)</preamble>
           <artwork><![CDATA[
 |  <presence from='juliet@example.com/balcony'
 |            to='verona@chat.example.org/CapuletGirl'/>
@@ -676,7 +723,7 @@ User       Server       Gateway        Gateway    Conference
         <t>So far we have assumed that the requested nickname did not conflict with any existing nicknames.  The following text describes the handling of a nickname conflict.</t>
         <t>The MSRP conference server analyzes the existing allocation of nicknames, and detects that the nickname proposal is already provided to another participant.  In this case the MSRP conference server answers with a 425 response.</t>
         <figure>
-          <preamble>Example 20: MSRP conference does not accept nickname proposal (F28)</preamble>
+          <preamble>Example 20: MSRP conference does not accept nickname proposal (F29)</preamble>
           <artwork><![CDATA[
 |  MSRP a786hjs2 425 Nickname usage failed
 |  To-Path: msrp://x2s.example.com:7654/jshA7weztas;tcp
@@ -705,7 +752,7 @@ User       Server       Gateway        Gateway    Conference
         <t>In XMPP there are two methods for inviting another user to a room: direct invitations <xref target='XEP-0249'/> (sent directly from the user's real JID outside the room to the invitee's real JID) and mediated invitations (sent through the room from the user's occupant JID to the invitee's JID).  In this document we cover mediated invitations only.</t>
         <t>For example, if Juliet decides to invite Benvolio to the room, she sends a message stanza with an invite and Benvolio's JID (which could be his real JID or an occupant JID in another room).</t>
         <figure>
-          <preamble>Example 22: Juliet invites Benvolio to the room (F31)</preamble>
+          <preamble>Example 22: Juliet invites Benvolio to the room (F32)</preamble>
           <artwork><![CDATA[
 |  <message from='juliet@example.com/balcony'
 |           id='nzd143v8'
@@ -718,7 +765,7 @@ User       Server       Gateway        Gateway    Conference
         </figure>
         <t>The SIP-to-XMPP gateway then sends a SIP REFER request to the MSRP conference server indicating who needs to be invited in the Refer-To header, as per <xref target='RFC4579'/> (sec 5.5)</t>
         <figure>
-          <preamble>Example 23: SIP mapping of invite (F33)</preamble>
+          <preamble>Example 23: SIP mapping of invite (F34)</preamble>
           <artwork><![CDATA[
 |  REFER sip:verona@chat.example.com SIP/2.0
 |  To: <sip:verona@chat.example.com>
@@ -735,7 +782,7 @@ User       Server       Gateway        Gateway    Conference
         <t>The MSRP conference server then acknowledges the SIP REFER request with a 200 OK response (step F35).</t>
         <t>The progress of the invitation will be tracked by the received NOTIFY requests as per <xref target='RFC3515'/>.</t>
         <figure>
-          <preamble>Example 24: Progress notification for invitation (F35)</preamble>
+          <preamble>Example 24: Progress notification for invitation (F36)</preamble>
           <artwork><![CDATA[
 |  NOTIFY sip:juliet@example.com SIP/2.0
 |  To: <sip:juliet@example.com>;tag=5534562
@@ -754,17 +801,17 @@ User       Server       Gateway        Gateway    Conference
       <section title="Exit Room" anchor="muc2msrp-exit">
         <t>If Juliet decides to exit the chatroom, her client sends a directed presence stanza of type "unavailable" to the occupant JID she is currently using in the room (here &lt;verona@chat.example.org/JuliC&gt;).</t>
         <figure>
-          <preamble>Example 25: Juliet exits room (F36)</preamble>
+          <preamble>Example 25: Juliet exits room (F37)</preamble>
           <artwork><![CDATA[
 |  <presence from='juliet@example.com/balcony'
 |            to='verona@chat.example.org/JuliC'
 |            type='unavailable'/>
           ]]></artwork>
         </figure>
-        <t>Upon receiving such a stanza, the XMPP-to-SIP gateway terminates the SIP session by sending a SIP BYE to the MSRP conference server and the MSRP conference server responds with a 200 OK (steps F39 and F40).</t>
+        <t>Upon receiving such a stanza, the XMPP-to-SIP gateway terminates the SIP session by sending a SIP BYE to the MSRP conference server and the MSRP conference server responds with a SIP 200 OK (steps F40 and F41).</t>
         <t>Juliet MAY include a custom exit message in the presence stanza of type "unavailable", in which case it SHOULD be broadcasted to other participants using the methods described above.</t>
         <figure>
-          <preamble>Example 26: Juliet exits the chatroom (F41)</preamble>
+          <preamble>Example 26: Juliet exits the chatroom (F42)</preamble>
           <artwork><![CDATA[
 |  <presence from='juliet@example.com/balcony'
 |            to='verona@chat.example.org/JuliC'
@@ -774,9 +821,7 @@ User       Server       Gateway        Gateway    Conference
           ]]></artwork>
         </figure>
       </section>
-
-    </section>      
-
+    </section>
 
     <section title="MSRP Multi-party Messaging Session to XMPP MUC" anchor="msrp2muc">
 
@@ -784,173 +829,181 @@ User       Server       Gateway        Gateway    Conference
 
       <figure>
         <artwork><![CDATA[
-SIP         SIP      MSRP-to-XMPP   XMPP-to-MSRP     MUC 
-User       Server      Gateway        Gateway      Service
- |           |            |              |            |
- | (F42) SIP |            |              |            |
- | INVITE    |            |              |            |
- |**********>|            |              |            |
- | (F43) SIP |            |              |            |
- | 200 OK    |            |              |            |
- |<**********|            |              |            |
- | (F44) SIP |            |              |            |
- | ACK       |            |              |            |
- |**********>|            |              |            |
- | (F45) MSRP|            |              |            |
- | NICKNAME  |            |              |            |
- |**********>|            |              |            |
- |           | (F46) SIP  |              |            |
- |           | ACK        |              |            |
- |           |***********>|              |            |
- |           | (F47) MSRP |              |            |
- |           | NICKNAME   |              |            |
- |           |***********>|              |            |
- |           | (F48) MSRP |              |            |
- |           | 200 OK     |              |            |
- |           |<***********|              |            |
- | (F49) MSRP|            |              |            |
- | 200 OK    |            |              |            |
- |<**********|            |              |            |
- |           |            | (F50) XMPP presence:      |
- |           |            | enter room                |
- |           |            |..........................>|
- | (F51) SIP |            |              |            |
- | SUBSCRIBE |            |              |            |
- | Event:    |            |              |            |
- | conference|            |              |            |
- |**********>|            |              |            |
- |           | (F52) SIP  |              |            |
- |           | SUBSCRIBE  |              |            |
- |           | Event:     |              |            |
- |           | conference |              |            |
- |           |***********>|              |            |
- |           | (F53) SIP  |              |            |
- |           | 200 OK     |              |            |
- |           |<***********|              |            |
- | (F54) SIP |            |              |            |
- | 200 OK    |            |              |            |
- |<**********|            |              |            |
- |           |            |              | (F55) XMPP |
- |           |            |              | presence   |
- |           |            |              |<...........|
- |           | (F56) SIP NOTIFY          |            |
- |           |<**************************|            |
- | (F57) SIP |            |              |            |
- | NOTIFY    |            |              |            |
- |<**********|            |              |            |
- | (F58) SIP |            |              |            |
- | 200 OK    |            |              |            |
- |**********>|            |              |            |
- |           |            |              | (F59) XMPP |
- |           |            |              | message:   |
- |           |            |              | subject    |
- |           |            |              |<...........|
- .           .            .              .            .
- .           .            .              .            .
- | (F60) MSRP|            |              |            |
- | SEND      |            |              |            |
- |**********>|            |              |            |
- |           | (F61) MSRP |              |            |
- |           | SEND       |              |            |
- |           |***********>|              |            |
- |           |            | (F62) XMPP message        |
- |           |            | type: groupchat           |
- |           |            |..........................>|
- |           | (F63) MSRP |              |            |
- |           | 200 OK     |              |            |
- |           |<***********|              |            |
- | (F64) MSRP|            |              |            |
- | 200 OK    |            |              |            |
- |<**********|            |              |            |
- |           |            | (F65) XMPP message        |
- |           |            | type: groupchat           |
- |           |            |<..........................|
- |           | (F66) MSRP |              |            |
- |           | SEND       |              |            |
- |           |<***********|              |            |
- | (F67) MSRP|            |              |            |
- | SEND      |            |              |            |
- |<**********|            |              |            |
- | (F68) MSRP|            |              |            |
- | 200 OK    |            |              |            |
- |**********>|            |              |            |
- .           .            .              .            .
- .           .            .              .            .
- | (F69) MSRP|            |              |            |
- | SEND      |            |              |            |
- |**********>|            |              |            |
- |           | (F70) MSRP |              |            |
- |           | SEND       |              |            |
- |           |***********>|              |            |
- |           |            | (F71) XMPP message        |
- |           |            |..........................>|
- |           | (F72) MSRP |              |            |
- |           | 200 OK     |              |            |
- |           |<***********|              |            |
- | (F73) MSRP|            |              |            |
- | 200 OK    |            |              |            |
- |<**********|            |              |            |
- .           .            .              .            .
- .           .            .              .            .
- | (F74) MSRP|            |              |            |
- | NICKNAME  |            |              |            |
- |**********>|            |              |            |
- |           | (F75) MSRP |              |            |
- |           | NICKNAME   |              |            |
- |           |***********>|              |            |
- |           |            | (F76) XMPP presence       |
- |           |            |..........................>|
- |           |            | (F77) XMPP presence error |
- |           |            |<..........................|
- |           | (F78) MSRP |              |            |
- |           | 425 Error  |              |            |
- |           |<***********|              |            |
- | (F79) MSRP|            |              |            |
- | 425 Error |            |              |            |
- |<**********|            |              |            |
- .           .            .              .            .
- .           .            .              .            .
- | (F80) SIP |            |              |            |
- | REFER     |            |              |            |
- |**********>|            |              |            |
- |           | (F81) SIP  |              |            |
- |           | REFER      |              |            |
- |           |***********>|              |            |
- |           | (F82) SIP  |              |            |
- |           | 200 OK     |              |            |
- |           |<***********|              |            |
- |           | (F83) SIP  |              |            |
- |           | NOTIFY     |              |            |
- |           |<***********|              |            |
- |           |            | (F84) XMPP message: invite|
- |           |            |..........................>|
- | (F85) SIP |            |              |            |
- | 200 OK    |            |              |            |
- |<**********|            |              |            |
- | (F86) SIP |            |              |            |
- | NOTIFY    |            |              |            |
- |<**********|            |              |            |
- .           .            .              .            .
- .           .            .              .            .
- | (F87) SIP |            |              |            |
- | BYE       |            |              |            |
- |**********>|            |              |            |
- |           | (F88) SIP  |              |            |
- |           | BYE        |              |            |
- |           |***********>|              |            |
- |           |            | (F89) XMPP presence       |
- |           |            | type: unavailable         |
- |           |            |..........................>|
- |           |            |              | (F90) XMPP |
- |           |            |              | presence   |
- |           |            |              | unavailable|
- |           |            |              |<...........|
- |           | (F91) SIP 200 OK          |            |
- |           |<**************************|            |
- | (F92) SIP |            |              |            |
- | 200 OK    |            |              |            |
- |<**********|            |              |            |
- |           |            |              |            |
+SIP             SIP         MSRP-to-XMPP        MUC 
+User           Server         Gateway         Service
+ |               |               |               |
+ | (F43) SIP     |               |               |
+ | INVITE        |               |               |
+ |**************>|               |               |
+ | (F44) SIP     |               |               |
+ | 200 OK        |               |               |
+ |<**************|               |               |
+ | (F45) SIP ACK |               |               |
+ |**************>|               |               |
+ | (F46) MSRP    |               |               |
+ | NICKNAME      |               |               |
+ |**************>|               |               |
+ |               | (F47) MSRP    |               |
+ |               | NICKNAME      |               |
+ |               |**************>|               |
+ |               | (F48) MSRP    |               |
+ |               | 200 OK        |               |
+ |               |<**************|               |
+ |               |               | (F49) XMPP    |
+ |               |               | presence:     |
+ |               |               | enter room    |
+ |               |               |..............>|
+ | (F50) MSRP    |               |               |
+ | 200 OK        |               |               |
+ |<**************|               |               |
+ | (F51) SIP     |               |               |
+ | SUBSCRIBE     |               |               |
+ | Event:        |               |               |
+ | conference    |               |               |
+ |**************>|               |               |
+ |               | (F52) SIP     |               |
+ |               | SUBSCRIBE     |               |
+ |               | Event:        |               |
+ |               | conference    |               |
+ |               |**************>|               |
+ |               | (F53) SIP     |               |
+ |               | 200 OK        |               |
+ |               |<**************|               |
+ | (F54) SIP     |               |               |
+ | 200 OK        |               |               |
+ |<**************|               |               |
+ |               |               | (F55) XMPP    |
+ |               |               | presence      |
+ |               |               |<..............|
+ |               | (F56) SIP     |               |
+ |               | NOTIFY        |               |
+ |               |<**************|               |
+ | (F57) SIP     |               |               |
+ | NOTIFY        |               |               |
+ |<**************|               |               |
+ | (F58) SIP     |               |               |
+ | 200 OK        |               |               |
+ |**************>|               |               |
+ |               |               | (F59) XMPP    |
+ |               |               | message:      |
+ |               |               | subject       |
+ |               |               |<..............|
+ .               .               .               .
+ .               .               .               .
+ | (F60) MSRP    |               |               |
+ | SEND          |               |               |
+ |**************>|               |               |
+ |               | (F61) MSRP    |               |
+ |               | SEND          |               |
+ |               |**************>|               |
+ |               |               | (F62) XMPP    |
+ |               |               | groupchat     |
+ |               |               | message       |
+ |               |               |..............>|
+ |               | (F63) MSRP    |               |
+ |               | 200 OK        |               |
+ |               |<**************|               |
+ | (F64) MSRP    |               |               |
+ | 200 OK        |               |               |
+ |<**************|               |               |
+ |               |               | (F65) XMPP    |
+ |               |               | groupchat     |
+ |               |               | message       |
+ |               |               |<..............|
+ |               | (F66) MSRP    |               |
+ |               | SEND          |               |
+ |               |<**************|               |
+ | (F67) MSRP    |               |               |
+ | SEND          |               |               |
+ |<**************|               |               |
+ | (F68) MSRP    |               |               |
+ | 200 OK        |               |               |
+ |**************>|               |               |
+ .               .               .               .
+ .               .               .               .
+ | (F69) MSRP    |               |               |
+ | SEND          |               |               |
+ |**************>|               |               |
+ |               | (F70) MSRP    |               |
+ |               | SEND          |               |
+ |               |**************>|               |
+ |               |               | (F71) XMPP    |
+ |               |               | message       |
+ |               |               |..............>|
+ |               | (F72) MSRP    |               |
+ |               | 200 OK        |               |
+ |               |<**************|               |
+ | (F73) MSRP    |               |               |
+ | 200 OK        |               |               |
+ |<**************|               |               |
+ .               .               .               .
+ .               .               .               .
+ | (F74) MSRP    |               |               |
+ | NICKNAME      |               |               |
+ |**************>|               |               |
+ |               | (F75) MSRP    |               |
+ |               | NICKNAME      |               |
+ |               |**************>|               |
+ |               |               | (F76) XMPP    |
+ |               |               | presence      |
+ |               |               |..............>|
+ |               |               | (F77) XMPP    |
+ |               |               | presence      |
+ |               |               | error         |
+ |               |               |<..............|
+ |               | (F78) MSRP    |               |
+ |               | 425 Error     |               |
+ |               |<**************|               |
+ | (F79) MSRP    |               |               |
+ | 425 Error     |               |               |
+ |<**************|               |               |
+ .               .               .               .
+ .               .               .               .
+ | (F80) SIP     |               |               |
+ | REFER         |               |               |
+ |**************>|               |               |
+ |               | (F81) SIP     |               |
+ |               | REFER         |               |
+ |               |**************>|               |
+ |               | (F82) SIP     |               |
+ |               | 200 OK        |               |
+ |               |<**************|               |
+ | (F83) SIP     |               |               |
+ | 200 OK        |               |               |
+ |<**************|               |               |
+ |               | (F84) SIP     |               |
+ |               | NOTIFY        |               |
+ |               |<**************|               |
+ | (F85) SIP     |               |               |
+ | NOTIFY        |               |               |
+ |<**************|               |               |
+ |               |               | (F86) XMPP    |
+ |               |               | message       |
+ |               |               | invite        |
+ |               |               |..............>|
+ .               .               .               .
+ .               .               .               .
+ | (F87) SIP     |               |               |
+ | BYE           |               |               |
+ |**************>|               |               |
+ |               | (F88) SIP     |               |
+ |               | BYE           |               |
+ |               |**************>|               |
+ |               |               | (F89) XMPP    |
+ |               |               | presence      |
+ |               |               | unavailable   |
+ |               |               |..............>|
+ |               |               | (F90) XMPP    |
+ |               |               | presence      |
+ |               |               | unavailable   |
+ |               |               |<..............|
+ |               | (F91) SIP     |               |
+ |               | 200 OK        |               |
+ |               |<**************|               |
+ | (F92) SIP     |               |               |
+ | 200 OK        |               |               |
+ |<**************|               |               |
+ |               |               |               |
         ]]></artwork>
       </figure>
 
@@ -960,7 +1013,7 @@ User       Server      Gateway        Gateway      Service
 
         <t>When the SIP user ("Romeo") wants to join a groupchat room ("Verona"), he first has to start the SIP session by sending out a SIP INVITE request containing an offered session description that includes an MSRP media line accompanied by a mandatory "path" and "chatroom" attributes.  The MSRP media line is also accompanied by an "accept-types" attribute specifing support for a Message/CPIM top level wrapper for the MSRP message.</t>
         <figure>
-          <preamble>Example 27: SIP user starts session (F42)</preamble>
+          <preamble>Example 27: SIP user starts session (F43)</preamble>
           <artwork><![CDATA[
 |  INVITE sip:verona@chat.example.org SIP/2.0
 |  To: <sip:verona@chat.example.org>
@@ -981,7 +1034,7 @@ User       Server      Gateway        Gateway      Service
         <t>Upon receiving the INVITE, the SIP server needs to determine the identity of the domain portion of the Request-URI or To header, which it does by following the procedures discussed in <xref target='RFC7247'/>.  Here we assume that the SIP server has determined that the domain is serviced by an XMPP server, that it contains or has available to it a SIP-to-XMPP gateway or connection manager (which enables it to speak natively to XMPP servers), and that it hands off the message to the gateway.</t>
         <t>Implementations MAY wait until the nickname is set with an MSRP NICKNAME chunk before joining the XMPP MUC or MAY choose a temporary nickname (such as the SIP From header display name) and use it to join the room.</t>
         <figure>
-          <preamble>Example 28: SIP user acks session (F44)</preamble>
+          <preamble>Example 28: SIP user acks session (F45)</preamble>
           <artwork><![CDATA[
 |  SIP/2.0 200 OK
 |  To: <sip:verona@chat.example.org>
@@ -1000,7 +1053,7 @@ User       Server      Gateway        Gateway      Service
         </figure>
         <t>The SIP user then requests a nickname.</t>
         <figure>
-          <preamble>Example 29: MSRP user sets up nickname (F45)</preamble>
+          <preamble>Example 29: MSRP user sets up nickname (F46)</preamble>
           <artwork><![CDATA[
 |  MSRP a786hjs2 NICKNAME
 |  To-Path: msrp://s2x.example.net:7313/ansp71weztas;tcp
@@ -1011,7 +1064,7 @@ User       Server      Gateway        Gateway      Service
         </figure>
         <t>Upon receiving the MSRP NICKNAME request, the SIP-to-XMPP gateway is responsible for generating an XMPP presence stanza and sending it to the chatroom.</t>
         <figure>
-          <preamble>Example 30: Romeo enters XMPP chatroom (F50)</preamble>
+          <preamble>Example 30: Romeo enters XMPP chatroom (F49)</preamble>
           <artwork><![CDATA[
 |  <presence from='romeo@example.com'
 |            to='verona@chat.example.org/Romeo'>
@@ -1019,9 +1072,9 @@ User       Server      Gateway        Gateway      Service
 |  </presence>
           ]]></artwork>
         </figure> 
-        <t>If the room does not already contain another user with the requested nickname, the service accepts the access request.  Thus if the gateway does not receive any stanza of type "error" specifying a &lt;conflict/&gt; error condition within a reasonable amount of time (e.g., 5 seconds), it MUST answer the MSRP nickname proposal with a 200 OK response.</t>
+        <t>If the room does not already contain another user with the requested nickname, the service accepts the access request.  Thus if the gateway does not receive any stanza of type "error" specifying a &lt;conflict/&gt; error condition within a reasonable amount of time (e.g., 5 seconds), it MUST answer the MSRP nickname proposal with an MSRP 200 OK response.</t>
         <figure>
-          <preamble>Example 31: Acknowledgement of join (F49)</preamble>
+          <preamble>Example 31: Acknowledgement of join (F50)</preamble>
           <artwork><![CDATA[
 |  MSRP a786hjs2 200 OK
 |  To-Path: msrp://x2s.example.com:8763/lkjh37s2s20w2a;tcp
@@ -1338,7 +1391,7 @@ User       Server      Gateway        Gateway      Service
         <t>The XMPP-SIP gateway then acknowledges the SIP REFER request with a 200 OK response (step F83).</t>
         <t>The gateway will then send a NOTIFY requests as per <xref target='RFC3515'/> indicating that the invitation is is progress.  Since there is no way know the progress of the invitation until the user has joined, implementations are advised to terminate the REFER dialog subscription with the first NOTIFY, with a status code of 100 Trying.</t>
         <figure>
-          <preamble>Example 47: Progress notification for invitation (F83)</preamble>
+          <preamble>Example 47: Progress notification for invitation (F84)</preamble>
           <artwork><![CDATA[
 |  NOTIFY sip:romeo@example.com SIP/2.0
 |  To: <sip:romeo@example.com>;tag=5534562
@@ -1698,7 +1751,7 @@ User       Server      Gateway        Gateway      Service
 
     <section title="Acknowledgements" anchor="acks">
       <t>Special thanks to Fabio Forno for coauthoring an early version of this document.</t>
-      <t>Thanks also to Ben Campbell, Dave Crocker, Philipp Hancke, Olle Johansson, and Paul Kyzivat for their feedback.</t>
+      <t>Thanks also to Ben Campbell, Dave Crocker, Philipp Hancke, Olle Johansson, Paul Kyzivat, and Matt Ryan for their feedback.</t>
       <t>The authors gratefully acknowledge the assistance of Markus Isomaki and Yana Stamcheva as the working group chairs and Gonzalo Camarillo and Alissa Cooper as the sponsoring Area Directors.</t>
       <t>Some text in this document was borrowed from <xref target="RFC7247"/> and from <xref target="XEP-0045"/>.</t>
       <t>Peter Saint-Andre wishes to acknowledge Cisco Systems, Inc., for employing him during his work on earlier versions of this document.</t>
