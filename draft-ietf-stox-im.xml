@@ -6,21 +6,15 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="1"?>
-<rfc category='std' docName='draft-ietf-stox-im-09' ipr='trust200902'>
+<rfc category='std' docName='draft-ietf-stox-im-11' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: IM">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Instant Messaging</title>
     <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
       <organization>&amp;yet</organization>
       <address>
-        <postal>
-          <street>P.O. Box 787</street>
-          <city>Parker</city>
-          <region>CO</region>
-          <code>80134</code>
-          <country>USA</country>
-        </postal>
         <email>peter@andyet.com</email>
+        <uri>https://andyet.com/</uri>
       </address>
     </author>
     <author initials="A." surname="Houri" fullname="Avshalom Houri">
@@ -85,6 +79,7 @@
           <t>Extensible Messaging and Presence Protocol: Instant Messaging and Presence <xref target='RFC6121'/></t>
         </list>
       </t>
+      <t>Note well that not all protocol-compliant messages are shown (such as SIP 100 TRYING messages), in order to focus the reader on the essential aspects of the protocol flows.</t>
     </section>
 
     <section title="Terminology" anchor="terms">
@@ -94,11 +89,11 @@
 
     <section title="XMPP to SIP" anchor="xmpp2sip">
       <t>As described in <xref target="RFC6121"/>, a single instant message is an XML &lt;message/&gt; stanza of type "normal" sent over an XML stream (since "normal" is the default for the 'type' attribute of the &lt;message/&gt; stanza, the attribute is often omitted).</t>
-      <t>When the XMPP user Juliet &lt;juliet@example.com&gt; wants to send an instant message to Romeo, she interacts with her XMPP client, which generates an XMPP &lt;message/&gt; stanza.  The syntax of the &lt;message/&gt; stanza, including required and optional elements and attributes, is defined in <xref target="RFC6121"/> (for single instant messages, the value of the 'to' address SHOULD be a "bare JID" of the form "localpart@domainpart").  The following is an example of such a stanza:</t>
+      <t>When the XMPP user Juliet &lt;juliet@example.com&gt; wants to send an instant message to Romeo, she interacts with her XMPP client, which generates an XMPP &lt;message/&gt; stanza.  The syntax of the &lt;message/&gt; stanza, including required and optional elements and attributes, is defined in <xref target="RFC6121"/> (for single instant messages, the value of the 'to' address SHOULD be a "bare JID" of the form "localpart@domainpart", as per <xref target='RFC6121'/>).  The following is an example of such a stanza:</t>
       <figure>
         <preamble>Example 1: XMPP user sends message</preamble>
         <artwork><![CDATA[
-|  <message from='juliet@example.com/balcony'
+|  <message from='juliet@example.com/yn0cl4bnw0yr3vym'
 |           to='romeo@example.net'>
 |    <body>Art thou not Romeo, and a Montague?</body>
 |  </message>
@@ -113,7 +108,7 @@
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bK776sgdkse
 |  Max-Forwards: 70
 |  To: sip:romeo@example.net
-|  From: <sip:juliet@example.com;gr=balcony>;tag=12345
+|  From: <sip:juliet@example.com;gr=yn0cl4bnw0yr3vym>;tag=12345
 |  Call-ID: D9AA95FD-2BD5-46E2-AF0F-6CFAA96BDDFA
 |  CSeq: 1 MESSAGE
 |  Content-Type: text/plain
@@ -137,7 +132,7 @@
       </figure>
       <t>As described in <xref target='RFC3428'/>, a downstream proxy could fork a MESSAGE request, but it would return only one 200 OK to the gateway.</t>
       <t><list style='empty'><t>Note: This document does not specify handling of the 200 OK by the XMPP-to-SIP gateway (e.g., to enable message acknowledgements).  See <xref target='I-D.ietf-stox-chat'/> for a mapping of message acknowledgements in the context of one-to-one chat sessions.</t></list></t> 
-      <t>The mapping of XMPP syntax to SIP syntax SHOULD be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-chat'/>.)</t>
+      <t>The mapping of XMPP syntax to SIP syntax MUST be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-chat'/>.)</t>
       <figure>
         <preamble>Table 1: Message syntax mapping from XMPP to SIP</preamble>
         <artwork><![CDATA[
@@ -157,7 +152,7 @@
       </figure>
       <t>
         <list style='numbers'>
-          <t>As shown in the foregoing example and described in <xref target='RFC7247'/>, the XMPP-to-SIP gateway SHOULD map the bare JID ("localpart@domainpart") of the XMPP sender to the SIP From header and include the resourcepart of the full JID as the GRUU portion <xref target='RFC5627'/> of the SIP URI.</t>
+          <t>As shown in the foregoing example and described in <xref target='RFC7247'/>, the XMPP-to-SIP gateway MUST map the bare JID ("localpart@domainpart") of the XMPP sender to the SIP From header and include the resourcepart of the full JID as the GRUU portion <xref target='RFC5627'/> of the SIP URI.</t>
           <t>Because there is no SIP header field that matches the meaning of the XMPP message 'type' values ("normal", "chat", "groupchat", "headline", "error"), no general mapping is possible here.</t>
         </list>
       </t>
@@ -187,14 +182,14 @@
       <figure>
         <preamble>Example 5: SIP user sends message (XMPP transformation)</preamble>
         <artwork><![CDATA[
-|  <message from='romeo@example.net/orchard'
+|  <message from='romeo@example.net/dr4hcr0st3lup4c'
 |           to='juliet@example.com'>
 |    <body>Neither, fair saint, if either thee dislike.</body>
 |  </message>
         ]]></artwork>
       </figure>
       <t>Note that the stanza handling rules specified in <xref target='RFC6121'/> allow the receiving XMPP server to deliver a message stanza whose 'to' address is a bare JID ("localpart@domainpart") to multiple connected devices.  This is similar to the "forking" of messages in SIP.</t>
-      <t>The mapping of SIP syntax to XMPP syntax SHOULD be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-chat'/>.)</t>
+      <t>The mapping of SIP syntax to XMPP syntax MUST be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-chat'/>.)</t>
       <figure>
         <preamble>Table 2: Message syntax mapping from SIP to XMPP</preamble>
         <artwork><![CDATA[
@@ -213,10 +208,10 @@
       </figure>
       <t>
         <list style='numbers'>
-          <t>As shown in the foregoing example and described in <xref target='RFC7247'/>, if the IM-capable SIP-to-XMPP gateway has information about the GRUU <xref target='RFC5627'/> of the particular endpoint that sent the SIP message then it SHOULD map the sender's address to a full JID ("localpart@domainpart/resourcepart") in the 'from' attribute of the XMPP stanza and include the GRUU as the resourcepart.</t>
+          <t>As shown in the foregoing example and described in <xref target='RFC7247'/>, if the IM-capable SIP-to-XMPP gateway has information about the GRUU <xref target='RFC5627'/> of the particular endpoint that sent the SIP message then it MUST map the sender's address to a full JID ("localpart@domainpart/resourcepart") in the 'from' attribute of the XMPP stanza and include the GRUU as the resourcepart.</t>
         </list>
       </t>
-      <t>When transforming SIP pager-mode messages, an IM-capable SIP-to-XMPP gateway SHOULD specify no XMPP 'type' attribute or, equivalently, a 'type' attribute whose value is "normal" <xref target='RFC6121'/>.</t>
+      <t>When transforming SIP pager-mode messages, an IM-capable SIP-to-XMPP gateway MUST specify no XMPP 'type' attribute or, equivalently, a 'type' attribute whose value is "normal" <xref target='RFC6121'/>.</t>
       <t>See <xref target='content'/> of this document about the handling of SIP message bodies that contain content types other than plain text.</t>
     </section>
 
@@ -286,12 +281,12 @@
 <author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
     <organization />
 </author>
-<date month='June' day='7' year='2014' />
+<date month='August' day='4' year='2014' />
 <abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a one-to-one chat session between a user of the Session Initiation Protocol (SIP) and a user of the Extensible Messaging and Presence Protocol (XMPP). Specifically for SIP text chat, this document specifies a mapping to the Message Session Relay Protocol (MSRP).</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-stox-chat-07' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-chat-08' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-chat-07.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-chat-08.txt' />
 </reference>
 
 <reference anchor='RFC7247'>
@@ -466,12 +461,12 @@
 <author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
     <organization />
 </author>
-<date month='March' day='25' year='2014' />
+<date month='November' day='21' year='2014' />
 <abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a multiparty chat session among users of the Session Initiation Protocol (SIP) and users of the Extensible Messaging and Presence Protocol (XMPP). Specifically, this document defines a mapping between the SIP-based Message Session Relay Protocol (MSRP) and the XMPP Multi-User Chat (MUC) extension.</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-stox-groupchat-04' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-groupchat-08' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-groupchat-04.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-groupchat-08.txt' />
 </reference>
 
 <reference anchor="RFC2779">
