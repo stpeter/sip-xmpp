@@ -6,21 +6,15 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="1"?>
-<rfc category="std" docName="draft-ietf-stox-chat-07" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-stox-chat-09" ipr="trust200902">
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Chat">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): One-to-One Text Chat Sessions</title>
     <author initials="P." surname="Saint-Andre" fullname="Peter Saint-Andre">
       <organization>&amp;yet</organization>
       <address>
-        <postal>
-          <street>P.O. Box 787</street>
-          <city>Parker</city>
-          <region>CO</region>
-          <code>80134</code>
-          <country>USA</country>
-        </postal>
         <email>peter@andyet.com</email>
+        <uri>https://andyet.com/</uri>
       </address>
     </author>
     <author initials="S." surname="Loreto" fullname="Salvatore Loreto">
@@ -75,6 +69,7 @@
           <t>Chat State Notifications <xref target='XEP-0085'/></t>
         </list>
       </t>
+      <t>Note well that not all protocol-compliant messages are shown (such as SIP 100 TRYING messages), in order to focus the reader on the essential aspects of the protocol flows.</t>
     </section>
 
     <section title="Terminology" anchor="terms">
@@ -138,7 +133,7 @@ User           Server         Gateway          Server          User
  |               |               |               |**************>|
         ]]></artwork>
       </figure>
-      <t>The mapping of XMPP syntax to SIP syntax SHOULD be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-im'/>.)</t>
+      <t>The mapping of XMPP syntax to SIP syntax MUST be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-im'/>.)</t>
       <figure>
         <preamble>Table 1: Message syntax mapping from XMPP to SIP</preamble>
         <artwork><![CDATA[
@@ -154,7 +149,7 @@ User           Server         Gateway          Server          User
       <figure>
         <preamble>Example 1: Juliet sends XMPP message (F1)</preamble>
         <artwork><![CDATA[
-| <message from='juliet@example.com/balcony'
+| <message from='juliet@example.com/yn0cl4bnw0yr3vym'
 |          to='romeo@example.net'
 |          id='a786hjs2'
 |          type='chat'>
@@ -164,14 +159,14 @@ User           Server         Gateway          Server          User
         ]]></artwork>
       </figure>
       <t>Upon receiving such a message stanza, the XMPP server needs to determine the identity of the domainpart in the 'to' address, which it does by following the procedures explained in Section 5 of <xref target='RFC7247'/>.  If the domain is a SIP domain, the XMPP server will hand off the message stanza to an XMPP-to-SIP gateway or connection manager that natively communicates with MSRP-aware SIP servers.</t>
-      <t>The XMPP-to-SIP gateway at the XMPP server would then initiate an MSRP session with Romeo on Juliet's behalf (since there is no reliable way for the gateway to determine if Romeo's client supports MSRP, it simply needs to guess).</t>
+      <t>The XMPP-to-SIP gateway at the XMPP server would then initiate an MSRP session with Romeo on Juliet's behalf (since there is no reliable way for the gateway to determine whether Romeo's client supports MSRP, if that is not the case then MSRP session initiation might result in an error).</t>
       <figure>
         <preamble>Example 2: Gateway starts SIP session on behalf of Juliet (F3)</preamble>
         <artwork><![CDATA[
 | INVITE sip:romeo@example.net SIP/2.0
 | To: <sip:romeo@example.net>
 | From: <sip:juliet@example.com>
-| Contact: <sip:juliet@example.com>;gr=balcony
+| Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | Subject: Open chat with Juliet?
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
 | Content-Type: application/sdp
@@ -182,14 +177,14 @@ User           Server         Gateway          Server          User
 | a=path:msrp://x2s.example.com:7654/jshA7weztas;tcp
         ]]></artwork>
       </figure>
-      <t>Here we assume that Romeo accepts the MSRP session request.</t>
+      <t>Here we assume that Romeo's client supports MSRP and that Romeo accepts the MSRP session request.</t>
       <figure>
         <preamble>Example 3: Romeo accepts session request (F5)</preamble>
         <artwork><![CDATA[
 | SIP/2.0 200 OK
 | To: <sip:juliet@example.com>
 | From: <sip:romeo@example.net>
-| Contact: <sip:romeo@example.net>;gr=orchard
+| Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
 | Content-Type: application/sdp
 | 
@@ -204,9 +199,9 @@ User           Server         Gateway          Server          User
         <preamble>Example 4: Gateway sends ACK to Romeo (F7)</preamble>
         <artwork><![CDATA[
 | ACK sip:juliet@example.com SIP/2.0
-| To: <sip:romeo@example.net>;gr=orchard
+| To: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | From: <sip:juliet@example.com>
-| Contact: <sip:juliet@example.com>;gr=balcony
+| Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
         ]]></artwork>
       </figure>
@@ -245,8 +240,8 @@ User           Server         Gateway          Server          User
       <figure>
         <preamble>Example 7: Gateway maps MSRP message to XMPP (F11)</preamble>
         <artwork><![CDATA[
-| <message from='romeo@example.net/orchard'
-|          to='juliet@example.com/balcony'
+| <message from='romeo@example.net/dr4hcr0st3lup4c'
+|          to='juliet@example.com/yn0cl4bnw0yr3vym'
 |          id='di2fs53v'
 |          type='chat'>
 |   <thread>29377446-0CBB-4296-8958-590D79094C50</thread>
@@ -333,12 +328,12 @@ User           Server         Gateway         Server           User
  |               | (F31) SIP     |               |               |
  |               | 200 OK        |               |               |
  |               |<**************|               |               |
- | (F36) SIP     |               |               |               |
+ | (F32) SIP     |               |               |               |
  | 200 OK        |               |               |               |
  |<**************|               |               |               |
         ]]></artwork>
       </figure>
-      <t>The mapping of SIP syntax to XMPP syntax SHOULD be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-im'/>.)</t>
+      <t>The mapping of SIP syntax to XMPP syntax MUST be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-im'/>.)</t>
       <figure>
         <preamble>Table 2: Message syntax mapping from SIP to XMPP</preamble>
         <artwork><![CDATA[
@@ -357,7 +352,7 @@ User           Server         Gateway         Server           User
 | INVITE sip:juliet@example.com SIP/2.0
 | To: <sip:juliet@example.com>
 | From: <sip:romeo@example.net>
-| Contact: <sip:romeo@example.net>;gr=orchard
+| Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Subject: Open chat with Romeo?
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
 | Content-Type: application/sdp
@@ -373,9 +368,9 @@ User           Server         Gateway         Server           User
         <preamble>Example 11: Gateway accepts session on Juliet's behalf (F19)</preamble>
           <artwork><![CDATA[
 | SIP/2.0 200 OK
-| To: <sip:romeo@example.net>;gr=orchard
+| To: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | From: <sip:juliet@example.com>
-| Contact: <sip:juliet@example.com>;gr=balcony
+| Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
 | Content-Type: application/sdp
 | 
@@ -389,9 +384,9 @@ User           Server         Gateway         Server           User
           <preamble>Example 12: Romeo sends ACK (F21)</preamble>
           <artwork><![CDATA[
 | ACK sip:juliet@example.com SIP/2.0
-| To: <sip:juliet@example.com>;gr=balcony
+| To: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | From: <sip:romeo@example.net>
-| Contact: <sip:romeo@example.net>;gr=orchard
+| Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
           ]]></artwork>
         </figure>
@@ -453,9 +448,9 @@ User           Server         Gateway         Server           User
           <preamble>Example 17: Romeo terminates chat session (F29)</preamble>
           <artwork><![CDATA[
 | BYE juliet@example.com sip: SIP/2.0
-| To: <sip:juliet@example.com>;gr=balcony
+| To: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | From: <sip:romeo@example.net>
-| Contact: <sip:romeo@example.net>;gr=orchard
+| Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
 | Cseq: 1 BYE
 | Content-Length: 0
@@ -465,9 +460,9 @@ User           Server         Gateway         Server           User
           <preamble>Example 18: Gateway acknowledges termination of session on behalf of Juliet (F31)</preamble>
           <artwork><![CDATA[
 | SIP/2.0 200 OK
-| To: <sip:juliet@example.com>;gr=balcony
+| To: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | From: <sip:romeo@example.net>
-| Contact: <sip:romeo@example.net>;gr=orchard
+| Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
 | CSeq: 1 BYE
           ]]></artwork>
@@ -530,14 +525,14 @@ User           Server         Gateway         Server           User
 | Content-Length: 0
           ]]></artwork>
         </figure>
-        <t>Similarly, receipt of a SIP BYE message at an MSRP-to-XMPP gateway can server as a trigger for sending a "gone" chat state notification to the XMPP user.  The following examples illustrate this indirect mapping (which would occur after step F30 in Figure 2).</t>
+        <t>Similarly, receipt of a SIP BYE message at an MSRP-to-XMPP gateway can serve as a trigger for sending a "gone" chat state notification to the XMPP user.  The following examples illustrate this indirect mapping (which would occur after step F30 in Figure 2).</t>
         <figure>
           <preamble>Example 21: Romeo terminates chat session</preamble>
           <artwork><![CDATA[
 | BYE juliet@example.com sip: SIP/2.0
-| To: <sip:juliet@example.com>;gr=balcony
+| To: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | From: <sip:romeo@example.net>
-| Contact: <sip:romeo@example.net>;gr=orchard
+| Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
 | Cseq: 1 BYE
 | Content-Length: 0
@@ -846,12 +841,12 @@ User           Server         Gateway         Server           User
 <author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
     <organization />
 </author>
-<date month='March' day='11' year='2014' />
+<date month='August' day='4' year='2014' />
 <abstract><t>This document defines a bidirectional protocol mapping for the exchange of single instant messages between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-stox-im-08' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-im-10' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-im-08.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-im-10.txt' />
 </reference>
 
 <reference anchor="RFC2779">
