@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="1"?>
-<rfc category='std' docName='draft-ietf-stox-im-11' ipr='trust200902'>
+<rfc category='std' docName='draft-ietf-stox-im-12' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: IM">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Instant Messaging</title>
@@ -123,8 +123,8 @@
         <artwork><![CDATA[
 |  SIP/2.0 200 OK
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bK776sgdkse
-|  From: sip:romeo@example.net;tag=vwxyz
-|  To: sip:juliet@example.com;tag=12345
+|  From: sip:juliet@example.com;tag=12345
+|  To: sip:romeo@example.net;tag=vwxyz
 |  Call-ID: D9AA95FD-2BD5-46E2-AF0F-6CFAA96BDDFA
 |  CSeq: 1 MESSAGE
 |  Content-Length: 0
@@ -132,7 +132,7 @@
       </figure>
       <t>As described in <xref target='RFC3428'/>, a downstream proxy could fork a MESSAGE request, but it would return only one 200 OK to the gateway.</t>
       <t><list style='empty'><t>Note: This document does not specify handling of the 200 OK by the XMPP-to-SIP gateway (e.g., to enable message acknowledgements).  See <xref target='I-D.ietf-stox-chat'/> for a mapping of message acknowledgements in the context of one-to-one chat sessions.</t></list></t> 
-      <t>The mapping of XMPP syntax to SIP syntax MUST be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-chat'/>.)</t>
+      <t>The mapping of XMPP syntax to SIP syntax MUST be as shown in the following table.</t>
       <figure>
         <preamble>Table 1: Message syntax mapping from XMPP to SIP</preamble>
         <artwork><![CDATA[
@@ -143,7 +143,7 @@
    |  <subject/>                 |  Subject                 |
    |  <thread/>                  |  Call-ID                 |
    |  from                       |  From (1)                |
-   |  id                         |  (no mapping)            |
+   |  id                         |  transaction identifer   |
    |  to                         |  To or Request-URI       |
    |  type                       |  (no mapping) (2)        | 
    |  xml:lang                   |  Content-Language        |
@@ -189,7 +189,7 @@
         ]]></artwork>
       </figure>
       <t>Note that the stanza handling rules specified in <xref target='RFC6121'/> allow the receiving XMPP server to deliver a message stanza whose 'to' address is a bare JID ("localpart@domainpart") to multiple connected devices.  This is similar to the "forking" of messages in SIP.</t>
-      <t>The mapping of SIP syntax to XMPP syntax MUST be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-chat'/>.)</t>
+      <t>The mapping of SIP syntax to XMPP syntax MUST be as shown in the following table.</t>
       <figure>
         <preamble>Table 2: Message syntax mapping from SIP to XMPP</preamble>
         <artwork><![CDATA[
@@ -203,6 +203,7 @@
    |  Subject                 |  <subject/>                 |
    |  Request-URI or To       |  to                         |
    |  body of MESSAGE         |  <body/>                    |
+   |  transaction identifier  |  id                         |
    +--------------------------+-----------------------------+
         ]]></artwork>
       </figure>
@@ -213,6 +214,10 @@
       </t>
       <t>When transforming SIP pager-mode messages, an IM-capable SIP-to-XMPP gateway MUST specify no XMPP 'type' attribute or, equivalently, a 'type' attribute whose value is "normal" <xref target='RFC6121'/>.</t>
       <t>See <xref target='content'/> of this document about the handling of SIP message bodies that contain content types other than plain text.</t>
+    </section>
+
+    <section title='Message Size' anchor="size">
+      <t><xref target='RFC3428'/> specifies that (outside of a media session) the size of a MESSAGE request is not allowed to exceed 1300 bytes.  Although in practice XMPP instant messages do not often exceed that size, neither <xref target='RFC6120'/> nor <xref target='RFC6121'/> sets an upper limit on the size of XMPP stanzas.  However, XMPP server deployments usually do limit the size of stanzas in order to help prevent denial of service attacks, and <xref target='RFC6120'/> states that if a server sets a maximum stanza size then the limit is not allowed to be less than 10,000 bytes.  Because of this mismatch, an XMPP-to-SIP gateway MUST return a &lt;policy-violation/&gt; stanza error if an XMPP user attempts to send an XMPP message stanza that would result in a SIP MESSAGE greater than 1300 bytes.</t>
     </section>
 
     <section title='Content Types' anchor="content">
@@ -263,7 +268,7 @@
 
     <section title='Security Considerations' anchor="sec">
       <t>Detailed security considerations for instant messaging protocols are given in <xref target='RFC2779'/>, for SIP-based instant messaging in <xref target="RFC3428"/> (see also <xref target="RFC3261"/>), and for XMPP-based instant messaging in <xref target="RFC6121"/> (see also <xref target="RFC6120"/>).  The security considerations provided in <xref target='RFC7247'/> also apply.</t>
-      <t>This document specifies methods for exchanging instant messages through a gateway that translates between SIP and XMPP.  Such a gateway MUST be compliant with the minimum security requirements of the instant messaging protocols for which it translates (i.e., SIP and XMPP).  The addition of gateways to the security model of instant messaging specified in <xref target="RFC2779"/> introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between instant messaging user agents that interface through an IM-capable SIP-to-XMPP gateway can be provided only if common formats are supported.  Specification of those common formats is out of scope for this document, although it is preferred to use <xref target="RFC3862"/> for instant messages.</t>
+      <t>This document specifies methods for exchanging instant messages through a gateway that translates between SIP and XMPP.  Such a gateway MUST be compliant with the minimum security requirements of the instant messaging protocols for which it translates (i.e., SIP and XMPP).  The addition of gateways to the security model of instant messaging specified in <xref target="RFC2779"/> introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between instant messaging user agents that interface through an IM-capable SIP-to-XMPP gateway can be provided only if common formats are supported.  Although specification of those common formats is out of scope for this document, for instant messages it is possible to use <xref target="RFC3862"/> (see also <xref target='RFC3923'/>).</t>
     </section>
 
   </middle>
@@ -557,6 +562,36 @@
   <format type='TXT' octets='70790' target='ftp://ftp.isi.edu/in-notes/rfc3922.txt' />
 </reference>
 
+<reference anchor='RFC3923'>
+<front>
+<title abbrev='XMPP E2E'>End-to-End Signing and Object Encryption for the Extensible Messaging and Presence Protocol (XMPP)</title>
+<author initials='P.' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+<organization>Jabber Software Foundation</organization>
+<address>
+<email>stpeter@jabber.org</email></address></author>
+<date year='2004' month='October' />
+<area>Applications</area>
+<workgroup>XMPP Working Group</workgroup>
+<keyword>RFC</keyword>
+<keyword>Request for Comments</keyword>
+<keyword>I-D</keyword>
+<keyword>Internet-Draft</keyword>
+<keyword>XMPP</keyword>
+<keyword>Extensible Messaging and Presence Protocol</keyword>
+<keyword>Jabber</keyword>
+<keyword>IM</keyword>
+<keyword>Instant Messaging</keyword>
+<keyword>Presence</keyword>
+<keyword>XML</keyword>
+<keyword>Extensible Markup Language</keyword>
+<abstract>
+<t>This memo defines methods of end-to-end signing and object encryption for the Extensible Messaging and Presence Protocol (XMPP).</t></abstract></front>
+<seriesInfo name='RFC' value='3923' />
+<format type='TXT' octets='51828' target='http://www.rfc-editor.org/rfc/rfc3923.txt' />
+<format type='HTML' octets='90605' target='http://xml.resource.org/public/rfc/html/rfc3923.html' />
+<format type='XML' octets='72015' target='http://xml.resource.org/public/rfc/xml/rfc3923.xml' />
+</reference>
+
 <reference anchor='RFC3987'>
 <front>
 <title>Internationalized Resource Identifiers (IRIs)</title>
@@ -571,13 +606,13 @@
 <format type='TXT' octets='111190' target='http://www.rfc-editor.org/rfc/rfc3987.txt' />
 </reference>
 
-<reference anchor="UNICODE" target="http://www.unicode.org/versions/Unicode6.3.0/">
+<reference anchor="UNICODE" target="http://www.unicode.org/versions/Unicode7.0.0/">
   <front>
-    <title>The Unicode Standard, Version 6.3</title>
+    <title>The Unicode Standard, Version 7.0.0</title>
     <author>
       <organization>The Unicode Consortium</organization>
     </author>
-    <date year="2013" />
+    <date year="2014" />
   </front>
 </reference>
 
@@ -585,6 +620,7 @@
 
     <section title="Acknowledgements" anchor="ack">
       <t>The authors wish to thank the following individuals for their feedback: Mary Barnes, Dave Cridland, Dave Crocker, Adrian Georgescu, Christer Holmberg, Saul Ibarra Corretge, Olle Johansson, Paul Kyzivat, Salvatore Loreto, Daniel-Constantin Mierla, and Tory Patnoe.</t>
+      <t>Special thanks to Ben Campbell for his detailed and insightful reviews.</t>
       <t>The authors gratefully acknowledge the assistance of Markus Isomaki and Yana Stamcheva as the working group chairs and Gonzalo Camarillo and Alissa Cooper as the sponsoring Area Directors.</t>
       <t>Peter Saint-Andre wishes to acknowledge Cisco Systems, Inc., for employing him during his work on earlier versions of this document.</t>
     </section>
