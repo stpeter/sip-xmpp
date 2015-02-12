@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="1"?>
-<rfc category="std" docName="draft-ietf-stox-chat-09" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-stox-chat-10" ipr="trust200902">
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Chat">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): One-to-One Text Chat Sessions</title>
@@ -133,18 +133,7 @@ User           Server         Gateway          Server          User
  |               |               |               |**************>|
         ]]></artwork>
       </figure>
-      <t>The mapping of XMPP syntax to SIP syntax MUST be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-im'/>.)</t>
-      <figure>
-        <preamble>Table 1: Message syntax mapping from XMPP to SIP</preamble>
-        <artwork><![CDATA[
-   +-----------------------------+--------------------------+
-   |  XMPP Element or Attribute  |  SIP Header or Contents  |
-   +-----------------------------+--------------------------+
-   |  <thread/>                  |  Call-ID                 |
-   |  id                         |  transaction identifier  |
-   +-----------------------------+--------------------------+
-        ]]></artwork>
-      </figure>
+      <t>The mapping of XMPP syntax to SIP syntax MUST be as specified in <xref target='I-D.ietf-stox-im'/>.</t>
       <t>First the XMPP user would generate an XMPP chat message.</t>
       <figure>
         <preamble>Example 1: Juliet sends XMPP message (F1)</preamble>
@@ -182,8 +171,8 @@ User           Server         Gateway          Server          User
         <preamble>Example 3: Romeo accepts session request (F5)</preamble>
         <artwork><![CDATA[
 | SIP/2.0 200 OK
-| To: <sip:juliet@example.com>
-| From: <sip:romeo@example.net>
+| From: <sip:juliet@example.com>
+| To: <sip:romeo@example.net>
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
 | Content-Type: application/sdp
@@ -254,10 +243,9 @@ User           Server         Gateway          Server          User
         <preamble>Example 8: Romeo terminates chat session (F13)</preamble>
         <artwork><![CDATA[
 | BYE juliet@example.com sip: SIP/2.0
-| From: <sip:romeo@example.net>;tag=087js
-| To: <sip:juliet@example.com>;tag=786
+| From: <sip:juliet@example.com>;tag=786
+| To: <sip:romeo@example.net>;tag=087js
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
-| Cseq: 1 BYE
 | Content-Length: 0
         ]]></artwork>
       </figure>
@@ -269,7 +257,6 @@ User           Server         Gateway          Server          User
 | From: <sip:juliet@example.com>;tag=786
 | To: <sip:romeo@example.net>;tag=087js
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
-| CSeq: 1 BYE
 | Content-Length: 0
         ]]></artwork>
       </figure>
@@ -333,25 +320,14 @@ User           Server         Gateway         Server           User
  |<**************|               |               |               |
         ]]></artwork>
       </figure>
-      <t>The mapping of SIP syntax to XMPP syntax MUST be as shown in the following table.  (Mappings for several aspects not mentioned here are specified in <xref target='I-D.ietf-stox-im'/>.)</t>
-      <figure>
-        <preamble>Table 2: Message syntax mapping from SIP to XMPP</preamble>
-        <artwork><![CDATA[
-   +--------------------------+-----------------------------+
-   |  SIP Header or Contents  |  XMPP Element or Attribute  |
-   +--------------------------+-----------------------------+
-   |  Call-ID                 |  <thread/>                  |
-   |  transaction identifier  |  id                         |
-   +--------------------------+-----------------------------+
-        ]]></artwork>
-      </figure>
+      <t>The mapping of SIP syntax to XMPP syntax MUST be as specified in <xref target='I-D.ietf-stox-im'/>.</t>
       <t>The protocol flow begins when Romeo starts a chat session with Juliet.</t>
       <figure>
         <preamble>Example 10: Romeo starts chat session (F17)</preamble>
         <artwork><![CDATA[
 | INVITE sip:juliet@example.com SIP/2.0
-| To: <sip:juliet@example.com>
 | From: <sip:romeo@example.net>
+| To: <sip:juliet@example.com>
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Subject: Open chat with Romeo?
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
@@ -368,8 +344,8 @@ User           Server         Gateway         Server           User
         <preamble>Example 11: Gateway accepts session on Juliet's behalf (F19)</preamble>
           <artwork><![CDATA[
 | SIP/2.0 200 OK
-| To: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
-| From: <sip:juliet@example.com>
+| From: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
+| To: <sip:juliet@example.com>
 | Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
 | Content-Type: application/sdp
@@ -452,7 +428,6 @@ User           Server         Gateway         Server           User
 | From: <sip:romeo@example.net>
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
-| Cseq: 1 BYE
 | Content-Length: 0
           ]]></artwork>
         </figure>
@@ -464,7 +439,6 @@ User           Server         Gateway         Server           User
 | From: <sip:romeo@example.net>
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
-| CSeq: 1 BYE
           ]]></artwork>
         </figure>
     </section>
@@ -521,7 +495,6 @@ User           Server         Gateway         Server           User
 | From: <sip:juliet@example.com>;tag=786
 | To: <sip:romeo@example.net>;tag=087js
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
-| Cseq: 1 BYE
 | Content-Length: 0
           ]]></artwork>
         </figure>
@@ -534,7 +507,6 @@ User           Server         Gateway         Server           User
 | From: <sip:romeo@example.net>
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
-| Cseq: 1 BYE
 | Content-Length: 0
           ]]></artwork>
         </figure>
@@ -559,6 +531,9 @@ User           Server         Gateway         Server           User
       <t>Both XMPP and MSRP enable a client to receive notifications when a message has been received by the intended recipient.</t>
       <t>For XMPP, the Message Receipts specification <xref target='XEP-0184'/> defines a method and XML namespace for requesting and returning indications that a message has been received by a client controlled by the intended recipient.</t>
       <t>For MSRP, a native reporting feature is included, in the form of REPORT chunks (see Sections 7.1.2 and 7.1.3 of <xref target='RFC4975'/>).</t>
+      <t>An XMPP Message Receipts element of &lt;request xmlns='urn:xmpp:receipts'/&gt; is to be mapped to an MSRP Success-Report header field with a value of "yes", and an XMPP Message Receipts element of &lt;received xmlns='urn:xmpp:receipts'/&gt; is to be mapped to an MSRP REPORT request.</t>
+      <t>A Success-Report header field with a value of "yes" in an MSRP SEND request is to be mapped to an XMPP Message Receipts element of &lt;request xmlns='urn:xmpp:receipts'/&gt;, and an MSRP REPORT request is to be mapped to an XMPP message containing only a Message Receipts element of &lt;received xmlns='urn:xmpp:receipts'/&gt;.</t>
+      <t>Because the XMPP Message Receipts specification does not support failure reports, there is no mapping for the MSRP Failure-Report header field and gateways SHOULD set that header field to "no".</t>
       <t>Examples follow.</t>
       <t>First, the XMPP user sends a message containing a request for delivery notification.</t>
       <figure>
@@ -626,12 +601,32 @@ User           Server         Gateway         Server           User
 
     <section title="Security Considerations" anchor="security">
       <t>Detailed security considerations for instant messaging protocols are given in <xref target='RFC2779'/>, for MSRP chat in <xref target="RFC4975"/> (see also <xref target='RFC3261'/> when SIP is used to negotiate MSRP sessions), and for XMPP-based instant messaging in <xref target="RFC6121"/> (see also <xref target="RFC6120"/>).  The security considerations provided in <xref target='RFC7247'/> also apply.</t>
-      <t>This document specifies methods for exchanging instant messages through a gateway that translates between SIP/MSRP and XMPP.  Such a gateway MUST be compliant with the minimum security requirements of the textual chat protocols for which it translates (i.e., MSRP and XMPP).  The addition of gateways to the security model of instant messaging specified in <xref target="RFC2779"/> introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between instant messaging clients that interface through an MSRP-XMPP gateway can be provided only if common formats are supported.  Specification of those common formats is out of scope for this document, although it is suggested to use <xref target="RFC3862"/> for instant messages.</t>
+      <t>This document specifies methods for exchanging instant messages through a gateway that translates between SIP/MSRP and XMPP.  Such a gateway MUST be compliant with the minimum security requirements of the textual chat protocols for which it translates (i.e., MSRP and XMPP).  The addition of gateways to the security model of instant messaging specified in <xref target="RFC2779"/> introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between instant messaging clients that interface through an MSRP-XMPP gateway can be provided only if common formats are supported.  Although specification of those common formats is out of scope for this document, for instant messages it is possible to use <xref target="RFC3862"/> (see also <xref target='RFC3923'/>).</t>
     </section>
 
   </middle>
   <back>
     <references title="Normative References">
+
+<reference anchor='I-D.ietf-stox-im'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Instant Messaging</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<author initials='A' surname='Houri' fullname='Avshalom Houri'>
+    <organization />
+</author>
+<author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
+    <organization />
+</author>
+<date month='August' day='4' year='2014' />
+<abstract><t>This document defines a bidirectional protocol mapping for the exchange of single instant messages between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-im-10' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-im-10.txt' />
+</reference>
 
 <reference anchor='RFC2119'>
 <front>
@@ -829,26 +824,6 @@ User           Server         Gateway         Server           User
 
     <references title='Informative References'>
 
-<reference anchor='I-D.ietf-stox-im'>
-<front>
-<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Instant Messaging</title>
-<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
-    <organization />
-</author>
-<author initials='A' surname='Houri' fullname='Avshalom Houri'>
-    <organization />
-</author>
-<author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
-    <organization />
-</author>
-<date month='August' day='4' year='2014' />
-<abstract><t>This document defines a bidirectional protocol mapping for the exchange of single instant messages between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t></abstract>
-</front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-stox-im-10' />
-<format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-im-10.txt' />
-</reference>
-
 <reference anchor="RFC2779">
 <front>
 <title abbrev='Instant Messaging/Presence Protocol'>Instant Messaging / Presence Protocol Requirements</title>
@@ -888,6 +863,36 @@ User           Server         Gateway         Server           User
 <t>Applications of presence and instant messaging currently use independent, non-standard and non-interoperable protocols developed by various vendors.  The goal of the Instant Messaging and Presence Protocol (IMPP) Working Group is to define a standard protocol so that independently developed applications of instant messaging and/or   presence can interoperate across the Internet.  This document defines a minimal set of requirements that IMPP must meet.</t></abstract></front>
 <seriesInfo name='RFC' value='2779' />
 <format type='TXT' octets='47420' target='ftp://ftp.isi.edu/in-notes/rfc2779.txt' />
+</reference>
+
+<reference anchor='RFC3923'>
+<front>
+<title abbrev='XMPP E2E'>End-to-End Signing and Object Encryption for the Extensible Messaging and Presence Protocol (XMPP)</title>
+<author initials='P.' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+<organization>Jabber Software Foundation</organization>
+<address>
+<email>stpeter@jabber.org</email></address></author>
+<date year='2004' month='October' />
+<area>Applications</area>
+<workgroup>XMPP Working Group</workgroup>
+<keyword>RFC</keyword>
+<keyword>Request for Comments</keyword>
+<keyword>I-D</keyword>
+<keyword>Internet-Draft</keyword>
+<keyword>XMPP</keyword>
+<keyword>Extensible Messaging and Presence Protocol</keyword>
+<keyword>Jabber</keyword>
+<keyword>IM</keyword>
+<keyword>Instant Messaging</keyword>
+<keyword>Presence</keyword>
+<keyword>XML</keyword>
+<keyword>Extensible Markup Language</keyword>
+<abstract>
+<t>This memo defines methods of end-to-end signing and object encryption for the Extensible Messaging and Presence Protocol (XMPP).</t></abstract></front>
+<seriesInfo name='RFC' value='3923' />
+<format type='TXT' octets='51828' target='http://www.rfc-editor.org/rfc/rfc3923.txt' />
+<format type='HTML' octets='90605' target='http://xml.resource.org/public/rfc/html/rfc3923.html' />
+<format type='XML' octets='72015' target='http://xml.resource.org/public/rfc/xml/rfc3923.xml' />
 </reference>
 
     </references>
