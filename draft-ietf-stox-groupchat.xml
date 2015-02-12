@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="3"?>
-<rfc category="std" docName="draft-ietf-stox-groupchat-09" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-stox-groupchat-10" ipr="trust200902">
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Groupchat">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Groupchat</title>
@@ -89,8 +89,8 @@
         <list style='symbols'>
           <t>romeo@example.org -- a SIP user.</t>
           <t>romeo@example.org;gr=dr4hcr0st3lup4c -- a particular endpoint associated with the SIP user.</t>
-          <t>example.org -- a SIP-based conference focus with an associated MSRP switch (chat.example.org) and signaling gateway ("S2X GW").</t>
-          <t>chat.example.org -- an MSRP switch with an associated gateway ("M2X GW") to XMPP.</t>
+          <t>example.org -- a SIP proxy with an associated signaling gateway ("S2X GW") to XMPP.</t>
+          <t>chat.example.org -- a SIP-based conference focus and MSRP switch with an associated gateway ("M2X GW") to XMPP.</t>
           <t>montague@chat.example.org -- a conference at an MSRP switch; not shown in diagram.</t>
           <t>juliet@example.com -- an XMPP user.</t>
           <t>juliet@example.com/yn0cl4bnw0yr3vym -- a particular endpoint associated with the XMPP user.</t>
@@ -303,7 +303,7 @@ User            Server           Conference          Switch
           ]]></artwork>
         </figure>
         <t>Here the Session Description Protocol offer specifies the XMPP-to-MSRP gateway on the XMPP side (in the SDP "path" attribute specified in <xref target='RFC4975'/>) as well as other particulars of the session.</t>
-        <t><list style="empty"><t>There is no direct mapping for the MSRP URIs.  In fact MSRP URIs identify a session of instant messages at a particular device; they are ephemeral and have no meaning outside the scope of that session.  The authority component of the MSRP URI here MUST contain the XMPP-to-MSRP gateway hostname or numeric IP address and an explicit port number.</t></list></t>
+        <t><list style="empty"><t>There is no direct mapping for the MSRP URIs.  In fact MSRP URIs identify a session of instant messages at a particular device; they are ephemeral and have no meaning outside the scope of that session.  The authority component of the MSRP URI here MUST contain the XMPP-to-MSRP gateway hostname or numeric IP address (as well as, in accordance with <xref target='RFC4975'/>, an explicit port number).</t></list></t>
         <t>The mapping of XMPP syntax elements to SIP and <xref target='RFC4566'/> syntax elements MUST be as shown in the following table.</t>
         <figure>
           <preamble>Table 1: Message syntax mapping from XMPP to SIP/SDP</preamble>
@@ -1261,7 +1261,6 @@ User             Proxy             Switch           Server
 |  From: "Romeo" <sip:romeo@example.org>;tag=786
 |  To: <sip:capulet@rooms.example.com>;tag=534
 |  Call-ID: 08CFDAA4-FAED-4E83-9317-253691908CD2
-|  Cseq: 1 BYE
 |  Content-Length: 0
           ]]></artwork>
         </figure>
