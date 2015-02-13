@@ -158,6 +158,7 @@ User           Server         Gateway          Server          User
 | Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | Subject: Open chat with Juliet?
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
+| CSeq: 1 INVITE
 | Content-Type: application/sdp
 | 
 | c=IN IP4 x2s.example.com
@@ -175,6 +176,7 @@ User           Server         Gateway          Server          User
 | To: <sip:romeo@example.net>
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
+| CSeq: 1 INVITE
 | Content-Type: application/sdp
 | 
 | c=IN IP4 s2x.example.net
@@ -192,6 +194,7 @@ User           Server         Gateway          Server          User
 | From: <sip:juliet@example.com>
 | Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
+| CSeq: 2 ACK
         ]]></artwork>
       </figure>
       <t>The XMPP-to-SIP gateway then transforms the original XMPP chat message into MSRP.</t>
@@ -246,6 +249,7 @@ User           Server         Gateway          Server          User
 | From: <sip:juliet@example.com>;tag=786
 | To: <sip:romeo@example.net>;tag=087js
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
+| CSeq: 3 BYE
 | Content-Length: 0
         ]]></artwork>
       </figure>
@@ -257,10 +261,12 @@ User           Server         Gateway          Server          User
 | From: <sip:juliet@example.com>;tag=786
 | To: <sip:romeo@example.net>;tag=087js
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
+| CSeq: 3 BYE
 | Content-Length: 0
         ]]></artwork>
       </figure>
       <t>Because there is no formal session on the XMPP side, there is no corresponding communication from the gateway to the XMPP user.  However, it is reasonable for the gateway to send a "gone" chat state notification <xref target='XEP-0085'/>, as described under <xref target='composing-gone'/>.</t>
+      <t>In addition, there is no explicit method defined in <xref target='RFC6121'/> for an XMPP user to formally terminate a chat session, so a gateway would need to listen for a "gone" chat state notification from the XMPP user or institute a timer that considers the XMPP informal chat session to be ended after some amount of time has elapsed.</t>
     </section>
 
     <section title="MSRP to XMPP" anchor="msrp2xmpp">
@@ -331,6 +337,7 @@ User           Server         Gateway         Server           User
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Subject: Open chat with Romeo?
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
+| CSeq: 1 INVITE
 | Content-Type: application/sdp
 | 
 | c=IN IP4 s2x.example.net
@@ -348,6 +355,7 @@ User           Server         Gateway         Server           User
 | To: <sip:juliet@example.com>
 | Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
+| CSeq: 1 INVITE
 | Content-Type: application/sdp
 | 
 | c=IN IP4 x2s.example.com
@@ -364,6 +372,7 @@ User           Server         Gateway         Server           User
 | From: <sip:romeo@example.net>
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
+| CSeq: 2 ACK
           ]]></artwork>
         </figure>
         <figure>
@@ -428,6 +437,7 @@ User           Server         Gateway         Server           User
 | From: <sip:romeo@example.net>
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
+| CSeq: 3 BYE
 | Content-Length: 0
           ]]></artwork>
         </figure>
@@ -439,6 +449,7 @@ User           Server         Gateway         Server           User
 | From: <sip:romeo@example.net>
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
+| CSeq: 3 BYE
           ]]></artwork>
         </figure>
     </section>
@@ -495,6 +506,7 @@ User           Server         Gateway         Server           User
 | From: <sip:juliet@example.com>;tag=786
 | To: <sip:romeo@example.net>;tag=087js
 | Call-ID: 29377446-0CBB-4296-8958-590D79094C50
+| CSeq: 3 BYE
 | Content-Length: 0
           ]]></artwork>
         </figure>
@@ -507,6 +519,7 @@ User           Server         Gateway         Server           User
 | From: <sip:romeo@example.net>
 | Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 | Call-ID: F6989A8C-DE8A-4E21-8E07-F0898304796F
+| CSeq: 3 BYE
 | Content-Length: 0
           ]]></artwork>
         </figure>
