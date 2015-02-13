@@ -217,7 +217,7 @@
     </section>
 
     <section title='Message Size' anchor="size">
-      <t><xref target='RFC3428'/> specifies that (outside of a media session) the size of a MESSAGE request is not allowed to exceed 1300 bytes.  Although in practice XMPP instant messages do not often exceed that size, neither <xref target='RFC6120'/> nor <xref target='RFC6121'/> sets an upper limit on the size of XMPP stanzas.  However, XMPP server deployments usually do limit the size of stanzas in order to help prevent denial of service attacks, and <xref target='RFC6120'/> states that if a server sets a maximum stanza size then the limit is not allowed to be less than 10,000 bytes.  Because of this mismatch, an XMPP-to-SIP gateway MUST return a &lt;policy-violation/&gt; stanza error if an XMPP user attempts to send an XMPP message stanza that would result in a SIP MESSAGE greater than 1300 bytes.</t>
+      <t><xref target='RFC3428'/> specifies that (outside of a media session) the size of a MESSAGE request is not allowed to exceed 1300 bytes.  Although in practice XMPP instant messages do not often exceed that size, neither <xref target='RFC6120'/> nor <xref target='RFC6121'/> sets an upper limit on the size of XMPP stanzas.  However, XMPP server deployments usually do limit the size of stanzas in order to help prevent denial of service attacks, and <xref target='RFC6120'/> states that if a server sets a maximum stanza size then the limit is not allowed to be less than 10,000 bytes.  Because of this mismatch, an XMPP-to-SIP gateway SHOULD return a &lt;policy-violation/&gt; stanza error if an XMPP user attempts to send an XMPP message stanza that would result in a SIP MESSAGE greater than 1300 bytes.  Although such a gateway might decide to "upgrade" from page mode to session mode using the Message Session Relay Protocol (MSRP) and thus treating the instant message as part of a chat session as described in <xref target='I-D.ietf-stox-chat'/>, such behavior is application-specific and this document provides no guidelines for how to complete such an upgrade.</t>
     </section>
 
     <section title='Content Types' anchor="content">
@@ -237,7 +237,7 @@
 |  Max-Forwards: 70
 |  To: sip:juliet@example.com
 |  From: sip:romeo@example.net;tag=vwxyz
-|  Call-ID: 9E97FB43-85F4-4A00-8751-1124FD4C7B2E
+|  Call-ID: 5A37A65D-304B-470A-B718-3F3E6770ACAF
 |  CSeq: 1 MESSAGE
 |  Content-Type: text/plain
 |  Content-Length: 45
