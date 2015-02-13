@@ -291,6 +291,7 @@ User            Server           Conference          Switch
 |  From: "Juliet" <sip:juliet@example.com>
 |  Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 |  Call-ID: BC466C1C-E01D-4FD1-B766-9AD174BAF2E7
+|  CSeq: 1 INVITE
 |  Content-Type: application/sdp
 |  Content-Length: ...
 |
@@ -325,6 +326,7 @@ User            Server           Conference          Switch
 |  From: "Juliet" <sip:juliet@example.com>;tag=786
 |  To: <sip:montague@chat.example.org>
 |  Call-ID: BC466C1C-E01D-4FD1-B766-9AD174BAF2E7
+|  CSeq: 1 INVITE
 |  Contact: <sip:montague@chat.example.org;transport=tcp>;isfocus
 |  Content-Type: application/sdp
 |  Content-Length: ...
@@ -347,6 +349,7 @@ User            Server           Conference          Switch
 |  To: <sip:montague@chat.example.org>;tag=087js
 |  From: "Juliet" <sip:juliet@example.com>;tag=786
 |  Call-ID: BC466C1C-E01D-4FD1-B766-9AD174BAF2E7
+|  CSeq: 2 ACK
           ]]></artwork>
         </figure>
         <t>In accordance with <xref target='RFC4975'/>, the gateway sends a bodiless MSRP message (F6) to the switch immediately upon establising the connection, and the switch acknowledges the that message (F7).</t>
@@ -387,7 +390,8 @@ User            Server           Conference          Switch
 |  To: <sip:montague@chat.example.org>
 |  From: "Juliet" <sip:juliet@example.com>
 |  Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
-|  Call-ID: A260DEBD-4F1F-45D1-A2C0-3696636F6417
+|  Call-ID: BC466C1C-E01D-4FD1-B766-9AD174BAF2E7
+|  CSeq: 3 SUBSCRIBE
 |  Event: conference
 |  Expires: 600
 |  Accept: application/conference-info+xml
@@ -402,7 +406,8 @@ User            Server           Conference          Switch
 |  SIP/2.0 200 OK
 |  From: <sip:montague@chat.example.org>
 |  To: "Juliet" <sip:juliet@example.com>
-|  Call-ID: A260DEBD-4F1F-45D1-A2C0-3696636F6417
+|  Call-ID: BC466C1C-E01D-4FD1-B766-9AD174BAF2E7
+|  CSeq: 3 SUBSCRIBE
 |  Contact: <sip:montague@chat.example.org;transport=tcp>;isfocus
 |  Expires: 600
 |  Content-Length: 0
@@ -419,7 +424,8 @@ User            Server           Conference          Switch
 |  NOTIFY sip:montague@chat.example.org SIP/2.0
 |  To: "Juliet" <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 |  From: <sip:montague@chat.example.org>;tag=a3343df32
-|  Call-ID: 6F563BA1-8177-4CED-8710-78D4D9593B08
+|  Call-ID: BC466C1C-E01D-4FD1-B766-9AD174BAF2E7
+|  CSeq: 4 NOTIFY
 |  Event: conference
 |  Subscription-State: active;expires=3600
 |  Content-Type: application/conference-info+xml
@@ -756,7 +762,8 @@ User            Server           Conference          Switch
 |  REFER sip:montague@chat.example.org SIP/2.0
 |  To: <sip:montague@chat.example.org>
 |  From: "Juliet" <sip:juliet@example.com>;tag=5534562
-|  Call-ID: 7FFCD8F7-EEB6-4506-A566-80D3CFC4C6E6
+|  Call-ID: BC466C1C-E01D-4FD1-B766-9AD174BAF2E7
+|  CSeq: 5 REFER
 |  Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 |  Accept: message/sipfrag
 |  Refer-To: <sip:benvolio@example.com>
@@ -772,7 +779,8 @@ User            Server           Conference          Switch
 |  NOTIFY sip:juliet@example.com SIP/2.0
 |  To: <sip:juliet@example.com>;tag=5534562
 |  From: <sip:montague@chat.example.org>;tag=18747389
-|  Call-ID: 7FFCD8F7-EEB6-4506-A566-80D3CFC4C6E6
+|  Call-ID: BC466C1C-E01D-4FD1-B766-9AD174BAF2E7
+|  CSeq: 6 NOTIFY
 |  Max-Forwards: 70
 |  Event: refer
 |  Subscription-State: active;expires=60
@@ -921,6 +929,7 @@ User             Proxy             Switch           Server
 |  To: <sip:capulet@rooms.example.com>
 |  Contact: <sip:romeo@example.org>;gr=dr4hcr0st3lup4c
 |  Call-ID: 08CFDAA4-FAED-4E83-9317-253691908CD2
+|  CSeq: 1 INVITE
 |  Content-Type: application/sdp
 |  Content-Length: ...
 |
@@ -942,6 +951,7 @@ User             Proxy             Switch           Server
 |  To: <sip:capulet@rooms.example.com>
 |  Contact: <sip:rooms.example.com;transport=tcp>;isfocus
 |  Call-ID: 08CFDAA4-FAED-4E83-9317-253691908CD2
+|  CSeq: 1 INVITE
 |  Content-Type: application/sdp
 |
 |  m=message 8763 TCP/MSRP *
@@ -959,7 +969,8 @@ User             Proxy             Switch           Server
 |  To: <sip:capulet@rooms.example.com>
 |  From: "Romeo" <sip:romeo@example.org>
 |  Contact: <sip:romeo@example.org>;gr=dr4hcr0st3lup4c
-|  Call-ID: A260DEBD-4F1F-45D1-A2C0-3696636F6417
+|  Call-ID: 08CFDAA4-FAED-4E83-9317-253691908CD2
+|  CSeq: 2 SUBSCRIBE
 |  Event: conference
 |  Expires: 600
 |  Accept: application/conference-info+xml
@@ -1014,7 +1025,8 @@ User             Proxy             Switch           Server
 |  NOTIFY sip:romeo@example.org SIP/2.0
 |  To: <sip:romeo@example.org>;tag=43524545
 |  From: <sip:capulet@rooms.example.com>;tag=a3343df32
-|  Call-ID: 6F563BA1-8177-4CED-8710-78D4D9593B08
+|  Call-ID: 08CFDAA4-FAED-4E83-9317-253691908CD2
+|  CSeq: 3 NOTIFY
 |  Event: conference
 |  Subscription-State: active;expires=3600
 |  Content-Type: application/conference-info+xml
@@ -1222,7 +1234,8 @@ User             Proxy             Switch           Server
 |  REFER sip:capulet@rooms.example.com SIP/2.0
 |  To: <sip:capulet@rooms.example.com>
 |  From: "Romeo" <sip:romeo@example.org>;tag=5534562
-|  Call-ID: AA11FE6F-8E13-42F3-BF35-AB509FAADA39
+|  Call-ID: 08CFDAA4-FAED-4E83-9317-253691908CD2
+|  CSeq: 4 NOTIFY
 |  Contact: <sip:romeo@example.org>;gr=dr4hcr0st3lup4c
 |  Accept: message/sipfrag
 |  Refer-To: <sip:benvolio@example.com>
@@ -1238,7 +1251,8 @@ User             Proxy             Switch           Server
 |  NOTIFY sip:romeo@example.org SIP/2.0
 |  To: <sip:romeo@example.org>;tag=5534562
 |  From: <sip:capulet@rooms.example.com>;tag=18747389
-|  Call-ID: AA11FE6F-8E13-42F3-BF35-AB509FAADA39
+|  Call-ID: 08CFDAA4-FAED-4E83-9317-253691908CD2
+|  CSeq: 4 NOTIFY
 |  Event: refer
 |  Subscription-State: terminated;reason=noresource
 |  Contact: <sip:capulet@rooms.example.com;transport=tcp>;isfocus
@@ -1261,6 +1275,7 @@ User             Proxy             Switch           Server
 |  From: "Romeo" <sip:romeo@example.org>;tag=786
 |  To: <sip:capulet@rooms.example.com>;tag=534
 |  Call-ID: 08CFDAA4-FAED-4E83-9317-253691908CD2
+|  CSeq: 5 BYE
 |  Content-Length: 0
           ]]></artwork>
         </figure>
