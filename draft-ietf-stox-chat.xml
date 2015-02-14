@@ -604,6 +604,13 @@ User           Server         Gateway         Server           User
       </figure>
     </section>
 
+    <section title='Message Size' anchor="size">
+      <t>Unlike page-mode messaging <xref target='RFC3428'/> (which specifies that the size of a MESSAGE request is not allowed to exceed 1300 bytes), session-mode messaging <xref target='RFC4975'/> can be used to send larger messages.  MSRP includes a chunking mechanism such that larger messages can be broken up into multiple MSRP SEND requests.  Because the MSRP gateway at an XMPP service acts as an MSRP endpoint, it is responsible for receiving chunked messages and reconstructing them into a single message for delivery toward the XMPP recipient.  (Naturally, implementations need to be careful about accepting very large messages; see Section 14.5 of <xref target='RFC4975'/>.)</t>
+      <t>Although there is no hard limit on the size of an XMPP stanza, in practice most XMPP services (at least on the public Internet) are configured with a maximum stanza size in order to help prevent denial of service attacks.  As specified in Section 13.12 of <xref target='RFC6120'/>, this maximum is not allowed to be less than 10,000 bytes.</t>
+      <t>The administrators of an XMPP service need to ensure that the associated MSRP gateway is configured with the same or smaller maximum MSRP message size as the maximum XMPP stanza size; this enables the gateway to return an appropriate value for the SDP "max-size" attribute (see Section 8.6 of <xref target='RFC4975'/>) and to properly handle incoming messages larger than the configured limits.</t>
+      <t>If an MSRP-to-XMPP gateway implementation receives an MSRP message that exceeds its configured limit as just described, it MUST return an MSRP 413 error (e.g., in response to the first SEND request whose Byte-Range header field indicates a byte total exceeding the limit).</t>
+    </section>
+
     <section title="Internationalization Considerations" anchor="i18n">
       <t>Relevant discussion of internationalized text in messages can be found in <xref target='I-D.ietf-stox-im'/>.</t>
     </section>
@@ -633,12 +640,12 @@ User           Server         Gateway         Server           User
 <author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
     <organization />
 </author>
-<date month='August' day='4' year='2014' />
+<date month='February' day='13' year='2015' />
 <abstract><t>This document defines a bidirectional protocol mapping for the exchange of single instant messages between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-stox-im-10' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-im-12' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-im-10.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-im-12.txt' />
 </reference>
 
 <reference anchor='RFC2119'>
@@ -876,6 +883,24 @@ User           Server         Gateway         Server           User
 <t>Applications of presence and instant messaging currently use independent, non-standard and non-interoperable protocols developed by various vendors.  The goal of the Instant Messaging and Presence Protocol (IMPP) Working Group is to define a standard protocol so that independently developed applications of instant messaging and/or   presence can interoperate across the Internet.  This document defines a minimal set of requirements that IMPP must meet.</t></abstract></front>
 <seriesInfo name='RFC' value='2779' />
 <format type='TXT' octets='47420' target='ftp://ftp.isi.edu/in-notes/rfc2779.txt' />
+</reference>
+
+<reference anchor="RFC3428">
+<front>
+<title>Session Initiation Protocol (SIP) Extension for Instant Messaging</title>
+<author initials='B.' surname='Campbell' fullname='B. Campbell'>
+<organization /></author>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'>
+<organization /></author>
+<author initials='C.' surname='Huitema' fullname='C. Huitema'>
+<organization /></author>
+<author initials='D.' surname='Gurle' fullname='D. Gurle'>
+<organization /></author>
+<date month='December' year='2002' /></front>
+<seriesInfo name='RFC' value='3428' />
+<format type='TXT' octets='41475' target='ftp://ftp.isi.edu/in-notes/rfc3428.txt' />
 </reference>
 
 <reference anchor='RFC3923'>
