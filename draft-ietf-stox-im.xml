@@ -277,39 +277,6 @@
 
     <references title="Normative References">
 
-<reference anchor='I-D.ietf-stox-chat'>
-<front>
-<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): One-to-One Text Chat Sessions</title>
-<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
-    <organization />
-</author>
-<author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
-    <organization />
-</author>
-<date month='August' day='4' year='2014' />
-<abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a one-to-one chat session between a user of the Session Initiation Protocol (SIP) and a user of the Extensible Messaging and Presence Protocol (XMPP). Specifically for SIP text chat, this document specifies a mapping to the Message Session Relay Protocol (MSRP).</t></abstract>
-</front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-stox-chat-08' />
-<format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-chat-08.txt' />
-</reference>
-
-<reference anchor='RFC7247'>
-<front>
-<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Architecture, Addresses, and Error Handling</title>
-<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
-<organization /></author>
-<author initials='A.' surname='Houri' fullname='A. Houri'>
-<organization /></author>
-<author initials='J.' surname='Hildebrand' fullname='J. Hildebrand'>
-<organization /></author>
-<date year='2014' month='May' />
-<abstract>
-<t>As a foundation for the definition of bidirectional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t></abstract></front>
-<seriesInfo name='RFC' value='7247' />
-<format type='TXT' octets='57218' target='http://www.rfc-editor.org/rfc/rfc7247.txt' />
-</reference>
-
 <reference anchor='RFC2119'>
   <front>
     <title abbrev='RFC Key Words'>Key words for use in RFCs to Indicate Requirement Levels</title>
@@ -419,6 +386,22 @@
 <format type='TXT' octets='244800' target='http://www.rfc-editor.org/rfc/rfc6121.txt' />
 </reference>
 
+<reference anchor='RFC7247'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Architecture, Addresses, and Error Handling</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'>
+<organization /></author>
+<author initials='A.' surname='Houri' fullname='A. Houri'>
+<organization /></author>
+<author initials='J.' surname='Hildebrand' fullname='J. Hildebrand'>
+<organization /></author>
+<date year='2014' month='May' />
+<abstract>
+<t>As a foundation for the definition of bidirectional protocol mappings between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP), this document specifies the architectural assumptions underlying such mappings as well as the mapping of addresses and error conditions.</t></abstract></front>
+<seriesInfo name='RFC' value='7247' />
+<format type='TXT' octets='57218' target='http://www.rfc-editor.org/rfc/rfc7247.txt' />
+</reference>
+
 <reference anchor="XEP-0071">
   <front>
     <title>XHTML-IM</title>
@@ -454,6 +437,23 @@
         target="http://www.ietf.org/internet-drafts/draft-ietf-simple-cpim-mapping-01.txt" />
 </reference>
 
+<reference anchor='I-D.ietf-stox-chat'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): One-to-One Text Chat Sessions</title>
+<author initials='P' surname='Saint-Andre' fullname='Peter Saint-Andre'>
+    <organization />
+</author>
+<author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
+    <organization />
+</author>
+<date month='February' day='13' year='2015' />
+<abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a one-to-one chat session between a user of the Session Initiation Protocol (SIP) and a user of the Extensible Messaging and Presence Protocol (XMPP). Specifically for SIP text chat, this document specifies a mapping to the Message Session Relay Protocol (MSRP).</t></abstract>
+</front>
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-chat-10' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-chat-10.txt' />
+</reference>
+
 <reference anchor='I-D.ietf-stox-groupchat'>
 <front>
 <title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Groupchat</title>
@@ -466,12 +466,12 @@
 <author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
     <organization />
 </author>
-<date month='November' day='21' year='2014' />
+<date month='February' day='13' year='2015' />
 <abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a multiparty chat session among users of the Session Initiation Protocol (SIP) and users of the Extensible Messaging and Presence Protocol (XMPP). Specifically, this document defines a mapping between the SIP-based Message Session Relay Protocol (MSRP) and the XMPP Multi-User Chat (MUC) extension.</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-stox-groupchat-08' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-groupchat-10' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-groupchat-08.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-groupchat-10.txt' />
 </reference>
 
 <reference anchor="RFC2779">
