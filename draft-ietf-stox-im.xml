@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="1"?>
-<rfc category='std' docName='draft-ietf-stox-im-12' ipr='trust200902'>
+<rfc category='std' docName='draft-ietf-stox-im-13' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: IM">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Instant Messaging</title>
@@ -67,7 +67,7 @@
         </list>
       </t>
       <t>One approach to helping ensure interworking between these protocols is to map each protocol to the abstract semantics described in <xref target="RFC3860"/>; that is the approach taken by <xref target="I-D.ietf-simple-cpim-mapping"/> and <xref target="RFC3922"/>.  By contrast, the approach taken in this document is to directly map semantics from one protocol to another (i.e., from SIP/SIMPLE to XMPP and vice-versa), since that is how existing systems solve the interworking problem.</t>
-      <t>Both XMPP and IM-capable SIP systems enable entities to exchange "instant messages".  The term "instant message" usually refers to a message sent between two entities for delivery in close to real time (rather than a message that is stored and forwarded to the intended recipient upon request).  This document covers single messages only (sometimes called "pager-mode" messaging), since they form the lowest common denominator for IM.  Separate documents cover one-to-one chat sessions <xref target='I-D.ietf-stox-chat'/> and multi-party groupchat <xref target='I-D.ietf-stox-groupchat'/>.</t>
+      <t>Both XMPP and IM-capable SIP systems enable entities to exchange "instant messages".  The term "instant message" usually refers to a message sent between two entities for delivery in close to real time (rather than a message that is stored and forwarded to the intended recipient upon request).  This document covers single messages only (sometimes called "page-mode" messaging), since they form the lowest common denominator for IM.  Separate documents cover "session-mode" instant messaging in the form of one-to-one chat sessions <xref target='I-D.ietf-stox-chat'/>, as well as multi-party chat sessions <xref target='I-D.ietf-stox-groupchat'/>.  In particular, session-mode instant messaging supports several features that are not part of page-mode instant messaging, such as a higher level of assurance regarding end-to-end message delivery.</t>
       <t>The architectural assumptions underlying such direct mappings are provided in <xref target='RFC7247'/>, including mapping of addresses and error conditions.  The mappings specified in this document cover basic instant messaging functionality, i.e., the exchange of a single instant message between a SIP user and an XMPP user in either direction.  Mapping of more advanced functionality is out of scope for this document, but other documents in this "series" cover such topics.</t>
     </section>
 
@@ -89,7 +89,7 @@
 
     <section title="XMPP to SIP" anchor="xmpp2sip">
       <t>As described in <xref target="RFC6121"/>, a single instant message is an XML &lt;message/&gt; stanza of type "normal" sent over an XML stream (since "normal" is the default for the 'type' attribute of the &lt;message/&gt; stanza, the attribute is often omitted).</t>
-      <t>When the XMPP user Juliet &lt;juliet@example.com&gt; wants to send an instant message to Romeo, she interacts with her XMPP client, which generates an XMPP &lt;message/&gt; stanza.  The syntax of the &lt;message/&gt; stanza, including required and optional elements and attributes, is defined in <xref target="RFC6121"/> (for single instant messages, the value of the 'to' address SHOULD be a "bare JID" of the form "localpart@domainpart", as per <xref target='RFC6121'/>).  The following is an example of such a stanza:</t>
+      <t>When the XMPP user Juliet &lt;juliet@example.com&gt; wants to send an instant message to Romeo, she interacts with her XMPP client, which generates an XMPP &lt;message/&gt; stanza.  The syntax of the &lt;message/&gt; stanza, including required and optional elements and attributes, is defined in <xref target="RFC6121"/> (for single instant messages, Section 5.1 of <xref target='RFC6121'/> recommends that the value of the 'to' address be a "bare JID" of the form "localpart@domainpart").  The following is an example of such a stanza:</t>
       <figure>
         <preamble>Example 1: XMPP user sends message</preamble>
         <artwork><![CDATA[
@@ -228,7 +228,7 @@
     </section>
 
     <section title="Internationalization Considerations" anchor="i18n">
-      <t>Both XMPP and SIP support the UTF-8 encoding <xref target='RFC3629'/> of Unicode characters <xref target='UNICODE'/> within messages, and signalling of the language for a particular message (in XMPP via the 'xml:lang' attribute and in SIP via the Content-Language header).  Several examples follow, using the "XML Notation" <xref target='RFC3987'/> for Unicode characters outside the ASCII range.</t>
+      <t>Both XMPP and SIP support the UTF-8 encoding <xref target='RFC3629'/> of Unicode characters <xref target='UNICODE'/> within messages, along with tagging of the language for a particular message (in XMPP via the 'xml:lang' attribute and in SIP via the Content-Language header).  Gateways MUST map these language tagging mechanisms if they are present in the original message.  Several examples follow, using the "XML Notation" <xref target='RFC3987'/> for Unicode characters outside the ASCII range.</t>
       <figure>
         <preamble>Example 6: SIP user sends message</preamble>
         <artwork><![CDATA[
@@ -268,7 +268,8 @@
 
     <section title='Security Considerations' anchor="sec">
       <t>Detailed security considerations for instant messaging protocols are given in <xref target='RFC2779'/>, for SIP-based instant messaging in <xref target="RFC3428"/> (see also <xref target="RFC3261"/>), and for XMPP-based instant messaging in <xref target="RFC6121"/> (see also <xref target="RFC6120"/>).  The security considerations provided in <xref target='RFC7247'/> also apply.</t>
-      <t>This document specifies methods for exchanging instant messages through a gateway that translates between SIP and XMPP.  Such a gateway MUST be compliant with the minimum security requirements of the instant messaging protocols for which it translates (i.e., SIP and XMPP).  The addition of gateways to the security model of instant messaging specified in <xref target="RFC2779"/> introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between instant messaging user agents that interface through an IM-capable SIP-to-XMPP gateway can be provided only if common formats are supported.  Although specification of those common formats is out of scope for this document, for instant messages it is possible to use <xref target="RFC3862"/> (see also <xref target='RFC3923'/>).</t>
+      <t>This document specifies methods for exchanging "page-mode" instant messages through a gateway that translates between SIP and XMPP, and <xref target='I-D.ietf-stox-chat'/> specifies such methods for "session-mode" instant messaging between MSRP and XMPP.  Such a gateway MUST be compliant with the minimum security requirements of the textual chat protocols for which it translates (i.e., SIP or MSRP and XMPP).</t>
+      <t>The addition of gateways to the security model of instant messaging specified in <xref target="RFC2779"/> introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between instant messaging clients that interface through a gateway can be provided only if common formats are supported.  Specification of those common formats is out of scope for this document.  For instant messages, it is possible to use <xref target="RFC3862"/> and <xref target='RFC3923'/>, but those methods are not widely implemented.  A more widely implemented albeit unstandardized method for interoperable end-to-end encryption would be Off-the-Record Messaging <xref target='OTR'/>.</t>
     </section>
 
   </middle>
@@ -446,12 +447,12 @@
 <author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
     <organization />
 </author>
-<date month='February' day='13' year='2015' />
+<date month='March' day='5' year='2015' />
 <abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a one-to-one chat session between a user of the Session Initiation Protocol (SIP) and a user of the Extensible Messaging and Presence Protocol (XMPP). Specifically for SIP text chat, this document specifies a mapping to the Message Session Relay Protocol (MSRP).</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-stox-chat-10' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-chat-11' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-chat-10.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-chat-11.txt' />
 </reference>
 
 <reference anchor='I-D.ietf-stox-groupchat'>
@@ -466,12 +467,20 @@
 <author initials='S' surname='Loreto' fullname='Salvatore Loreto'>
     <organization />
 </author>
-<date month='February' day='13' year='2015' />
+<date month='March' day='5' year='2015' />
 <abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a multiparty chat session among users of the Session Initiation Protocol (SIP) and users of the Extensible Messaging and Presence Protocol (XMPP). Specifically, this document defines a mapping between the SIP-based Message Session Relay Protocol (MSRP) and the XMPP Multi-User Chat (MUC) extension.</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-stox-groupchat-10' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-groupchat-11' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-groupchat-10.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-groupchat-11.txt' />
+</reference>
+
+<reference anchor="OTR" target="https://otr.cypherpunks.ca/">
+  <front>
+    <title>Off-the-Record Messaging</title>
+    <author surname="Ian Goldberg"/>
+    <date/>
+  </front>
 </reference>
 
 <reference anchor="RFC2779">
@@ -621,6 +630,8 @@
     <section title="Acknowledgements" anchor="ack">
       <t>The authors wish to thank the following individuals for their feedback: Mary Barnes, Dave Cridland, Dave Crocker, Adrian Georgescu, Christer Holmberg, Saul Ibarra Corretge, Olle Johansson, Paul Kyzivat, Salvatore Loreto, Daniel-Constantin Mierla, and Tory Patnoe.</t>
       <t>Special thanks to Ben Campbell for his detailed and insightful reviews.</t>
+      <t>Francis Dupont reviewed the document on behalf of the General Area Review Team.</t>
+      <t>Spencer Dawkins, Stephen Farrell, and Barry Leiba provided helpful input during IESG review.</t>
       <t>The authors gratefully acknowledge the assistance of Markus Isomaki and Yana Stamcheva as the working group chairs and Gonzalo Camarillo and Alissa Cooper as the sponsoring Area Directors.</t>
       <t>Peter Saint-Andre wishes to acknowledge Cisco Systems, Inc., for employing him during his work on earlier versions of this document.</t>
     </section>

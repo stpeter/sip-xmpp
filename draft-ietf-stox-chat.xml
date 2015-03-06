@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="1"?>
-<rfc category="std" docName="draft-ietf-stox-chat-10" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-stox-chat-11" ipr="trust200902">
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Chat">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): One-to-One Text Chat Sessions</title>
@@ -56,7 +56,7 @@
           <t>MSRP chat sessions using the SIP INVITE and SEND request types are specified in <xref target='RFC4975'/>.</t>
         </list>
       </t>
-      <t>In SIP-based systems that use MSRP, a chat session is formally negotiated just as any other session type is using SIP.  By contrast, a one-to-one chat "session" in XMPP is an informal construct and is not formally negotiated: a user simply sends a message of type "chat" to a contact, the contact then replies to the message, and the sum total of such messages exchanged during a defined period of time is considered to be a chat session (ideally tied together using an XMPP &lt;thread/&gt; element as described in Section 5.1 of <xref target='RFC6121'/>).  To overcome the disparity between these approaches, a gateway that wishes to map between SIP/MSRP and XMPP for one-to-one chat sessions needs to maintain some additional state, as described below.</t>
+      <t>In SIP-based systems that use MSRP, a chat session is formally negotiated (just as any other session type is negotiated when using SIP).  By contrast, a one-to-one chat "session" in XMPP is an informal construct and is not formally negotiated: a user simply sends a message of type "chat" to a contact, the contact then replies to the message, and the sum total of such messages exchanged during a defined period of time is considered to be a chat session (ideally tied together using an XMPP &lt;thread/&gt; element as described in Section 5.1 of <xref target='RFC6121'/>).  To overcome the disparity between these approaches, a gateway that wishes to map between SIP/MSRP and XMPP for one-to-one chat sessions needs to maintain some additional state, as described below.</t>
     </section>
 
     <section title="Intended Audience" anchor="audience">
@@ -266,7 +266,7 @@ User           Server         Gateway          Server          User
         ]]></artwork>
       </figure>
       <t>Because there is no formal session on the XMPP side, there is no corresponding communication from the gateway to the XMPP user.  However, it is reasonable for the gateway to send a "gone" chat state notification <xref target='XEP-0085'/>, as described under <xref target='composing-gone'/>.</t>
-      <t>In addition, there is no explicit method defined in <xref target='RFC6121'/> for an XMPP user to formally terminate a chat session, so a gateway would need to listen for a "gone" chat state notification from the XMPP user or institute a timer that considers the XMPP informal chat session to be ended after some amount of time has elapsed.</t>
+      <t>In addition, there is no explicit method defined in <xref target='RFC6121'/> for an XMPP user to formally terminate a chat session, so a gateway would need to listen for a "gone" chat state notification from the XMPP user or institute a timer that considers the XMPP informal chat session to be ended after some amount of time has elapsed (<xref target='XEP-0085'/> suggests generating a "gone" chat state if a user has not interacted with the chat session interface, system, or device for a relatively long period of time, e.g., 10 minutes).</t>
     </section>
 
     <section title="MSRP to XMPP" anchor="msrp2xmpp">
@@ -457,7 +457,7 @@ User           Server         Gateway         Server           User
     <section title="Composing Events" anchor="composing">
       <t>Both XMPP and MSRP enable a client to receive notifications when a person's conversation partner is composing an instant message within the context of a chat session.</t>
       <t>For XMPP, the Chat State Notifications specification <xref target='XEP-0085'/> defines five states: active, inactive, gone, composing, and paused. Some of these states are related to the act of message composition (composing, paused), whereas others are related to the sender's involvement with the chat session (active, inactive, gone).  Note that the "gone" chat state is not to be confused with the &lt;gone/&gt; stanza error condition defined in <xref target='RFC6120'/>.</t>
-      <t>For MSRP (and SIP/SIMPLE in general), the Indication of Message Composition for Instant Messaging specification <xref target='RFC3994'/> defines two states: idle and active.  Here the idle state indicates that the sender is not actively composing a message, and the active state indicates that the sender is indeed actively composing a message (the sending client simply toggles between the two states, changing to active if the user is actively composing a message and changing to idle if the user is no longer actively composing a message).</t>
+      <t>For MSRP (and SIP/SIMPLE in general), the Indication of Message Composition for Instant Messaging specification <xref target='RFC3994'/> defines two states: idle and active.  Here the idle state indicates that the sender is not actively composing a message, and the active state indicates that the sender is indeed actively composing a message (the sending client simply toggles between the two states).</t>
       <t>Because the XEP-0085 states can represent information that is not captured in RFC 3994, gateways can either (a) map only the composing-related states or (b) map all the XEP-0085 states.</t>
       <t>The following mappings are suggested.</t>
       <figure>
@@ -479,12 +479,13 @@ User           Server         Gateway         Server           User
 +-------------------+--------------------+
 | active            |  idle              |
 | inactive          |  idle              |
-| gone              |  [none, see note]  |
+| gone              |  [none, see §6.1]  |
 | composing         |  active            |
 | paused            |  idle              |
 +-------------------+--------------------+
         ]]></artwork>
       </figure>
+      <t>The XMPP Chat State Notifications specification <xref target='XEP-0085'/> allows the sending of "standalone notifications" outside the context of a message, theoretically even before any messages are exchanged; although a gateway could thus send an &lt;active/&gt; notification to the XMPP user when the SIP user accepts or initiates a chat session (i.e., after F6 in Section 4 or after F22 in Section 5), this usage might be unexpected by XMPP clients as a way to signal the beginning of an informal chat session.</t>
       <section title="Use of the Gone Chat State" anchor="composing-gone">
         <t>Although there is no direct mapping for the "gone" chat state to an isComposing event, receipt of the "gone" state at an XMPP-to-MSRP gateway can serve as a trigger for terminating the formal chat session within MSRP, i.e., for sending a SIP BYE for the session from the XMPP-to-MSRP gateway to the SIP user.  The following examples illustrate this indirect mapping (which would occur after step F14 in Figure 1).</t>
         <figure>
@@ -536,7 +537,7 @@ User           Server         Gateway         Server           User
           ]]></artwork>
         </figure>
         <t>To enable these uses, gateways that support chat state notifications MUST support the "gone" state (which is merely recommended, not required, by <xref target='XEP-0085'/>).</t>
-        <t>It is also reasonable for gateways to implement timers that automatically trigger a "gone" chat state if the XMPP user has not sent a message within the "session" for a given amount of time.</t>
+        <t>It is also reasonable for gateways to implement timers that automatically trigger a "gone" chat state if the XMPP user has not sent a message within the "session" for a given amount of time (<xref target='XEP-0085'/> suggests generating a "gone" chat state if a user has not interacted with the chat session interface, system, or device for a relatively long period of time, e.g., 10 minutes).</t>
       </section>
     </section>
 
@@ -621,7 +622,7 @@ User           Server         Gateway         Server           User
 
     <section title="Security Considerations" anchor="security">
       <t>Detailed security considerations for instant messaging protocols are given in <xref target='RFC2779'/>, for MSRP chat in <xref target="RFC4975"/> (see also <xref target='RFC3261'/> when SIP is used to negotiate MSRP sessions), and for XMPP-based instant messaging in <xref target="RFC6121"/> (see also <xref target="RFC6120"/>).  The security considerations provided in <xref target='RFC7247'/> also apply.</t>
-      <t>This document specifies methods for exchanging instant messages through a gateway that translates between SIP/MSRP and XMPP.  Such a gateway MUST be compliant with the minimum security requirements of the textual chat protocols for which it translates (i.e., MSRP and XMPP).  The addition of gateways to the security model of instant messaging specified in <xref target="RFC2779"/> introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between instant messaging clients that interface through an MSRP-XMPP gateway can be provided only if common formats are supported.  Although specification of those common formats is out of scope for this document, for instant messages it is possible to use <xref target="RFC3862"/> (see also <xref target='RFC3923'/>).</t>
+      <t>Considerations for end-to-end encryption of instant messages are provided in <xref target='I-D.ietf-stox-im'/>.</t>
     </section>
 
   </middle>
@@ -640,12 +641,12 @@ User           Server         Gateway         Server           User
 <author initials='J' surname='Hildebrand' fullname='Joe Hildebrand'>
     <organization />
 </author>
-<date month='February' day='13' year='2015' />
+<date month='March' day='5' year='2015' />
 <abstract><t>This document defines a bidirectional protocol mapping for the exchange of single instant messages between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-stox-im-12' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-stox-im-13' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-im-12.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-stox-im-13.txt' />
 </reference>
 
 <reference anchor='RFC2119'>
@@ -713,18 +714,6 @@ User           Server         Gateway         Server           User
 <t>This document describes Session Initiation Protocol (SIP), an application-layer control (signaling) protocol for creating, modifying, and terminating sessions with one or more participants.  These sessions include Internet telephone calls, multimedia distribution, and multimedia conferences.  [STANDARDS TRACK] </t></abstract></front>
 <seriesInfo name='RFC' value='3261' />
 <format type='TXT' octets='647976' target='ftp://ftp.isi.edu/in-notes/rfc3261.txt' />
-</reference>
-
-<reference anchor="RFC3862">
-<front>
-<title>Common Presence and Instant Messaging (CPIM): Message Format</title>
-<author initials='G.' surname='Klyne' fullname='G. Klyne'>
-<organization /></author>
-<author initials='D.' surname='Atkins' fullname='D. Atkins'>
-<organization /></author>
-<date year='2004' month='August' /></front>
-<seriesInfo name='RFC' value='3862' />
-<format type='TXT' octets='56133' target='ftp://ftp.isi.edu/in-notes/rfc3862.txt' />
 </reference>
 
 <reference anchor='RFC3994'>
@@ -903,41 +892,12 @@ User           Server         Gateway         Server           User
 <format type='TXT' octets='41475' target='ftp://ftp.isi.edu/in-notes/rfc3428.txt' />
 </reference>
 
-<reference anchor='RFC3923'>
-<front>
-<title abbrev='XMPP E2E'>End-to-End Signing and Object Encryption for the Extensible Messaging and Presence Protocol (XMPP)</title>
-<author initials='P.' surname='Saint-Andre' fullname='Peter Saint-Andre'>
-<organization>Jabber Software Foundation</organization>
-<address>
-<email>stpeter@jabber.org</email></address></author>
-<date year='2004' month='October' />
-<area>Applications</area>
-<workgroup>XMPP Working Group</workgroup>
-<keyword>RFC</keyword>
-<keyword>Request for Comments</keyword>
-<keyword>I-D</keyword>
-<keyword>Internet-Draft</keyword>
-<keyword>XMPP</keyword>
-<keyword>Extensible Messaging and Presence Protocol</keyword>
-<keyword>Jabber</keyword>
-<keyword>IM</keyword>
-<keyword>Instant Messaging</keyword>
-<keyword>Presence</keyword>
-<keyword>XML</keyword>
-<keyword>Extensible Markup Language</keyword>
-<abstract>
-<t>This memo defines methods of end-to-end signing and object encryption for the Extensible Messaging and Presence Protocol (XMPP).</t></abstract></front>
-<seriesInfo name='RFC' value='3923' />
-<format type='TXT' octets='51828' target='http://www.rfc-editor.org/rfc/rfc3923.txt' />
-<format type='HTML' octets='90605' target='http://xml.resource.org/public/rfc/html/rfc3923.html' />
-<format type='XML' octets='72015' target='http://xml.resource.org/public/rfc/xml/rfc3923.xml' />
-</reference>
-
     </references>
 
     <section title="Acknowledgements" anchor="acks">
       <t>Special thanks to Eddy Gavita and Nazin Hossain for co-authoring an early version of this document.</t>
       <t>Thanks to Mary Barnes, Ben Campbell, Dave Crocker, Adrian Georgescu, Philipp Hancke, Saul Ibarra Corretge, Tory Patnoe, and Matt Ryan for their feedback.</t>
+      <t>Stephen Farrell, Brian Haberman, Joel Jaeggli, Barry Leiba, Kathleen Moriarty, and Pete Resnick provided helpful input during IESG review.</t>
       <t>The authors gratefully acknowledge the assistance of Markus Isomaki and Yana Stamcheva as the working group chairs and Gonzalo Camarillo and Alissa Cooper as the sponsoring Area Directors.</t>
       <t>Peter Saint-Andre wishes to acknowledge Cisco Systems, Inc., for employing him during his work on earlier versions of this document.</t>
     </section>
