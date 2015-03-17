@@ -86,7 +86,7 @@
             <artwork><![CDATA[
 XMPP         XMPP         SIP          SIP
 User        Server       Server        User
- |        + X2S GW     + S2X GW         |
+ |        + X2S GW         |            |
  |            |            |            |
  | (F1) XMPP  |            |            |
  | subscribe  |            |            |
@@ -100,18 +100,18 @@ User        Server       Server        User
  |            |            | (F4) SIP   |
  |            |            | 200 OK     |
  |            |            |<***********|
- |            |            | (F5) SIP   |
+ |            | (F5) SIP   |            |
+ |            | 200 OK     |            |
+ |            |<***********|            |
+ |            |            | (F6) SIP   |
  |            |            | NOTIFY     |
  |            |            |<***********|
- |            |            | (F6) SIP   |
+ |            |            | (F7) SIP   |
  |            |            | 200 OK     |
  |            |            |***********>|
- |            | (F7) XMPP  |            |
- |            | subscribed |            |
- |            |<...........|            |
- |            | (F8) XMPP  |            |
- |            | presence   |            |
- |            |<...........|            |
+ |            | (F8) SIP   |            |
+ |            | NOTIFY     |            |
+ |            |<***********|            |
  | (F9) XMPP  |            |            |
  | subscribed |            |            |
  |<...........|            |            |
@@ -137,7 +137,8 @@ User        Server       Server        User
             <artwork><![CDATA[
 |  SUBSCRIBE sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bKna998sk
-|  From: <sip:juliet@example.com>;tag=ffd2
+|  To: <sip:romeo@example.com>;tag=ffd2
+|  From: <sip:juliet@example.com>;tag=j89d
 |  Call-ID: 5BCF940D-793D-43F8-8972-218F7F4EAA8C
 |  Event: presence
 |  Max-Forwards: 70
@@ -163,14 +164,14 @@ User        Server       Server        User
 |  Content-Length: 0
             ]]></artwork>
           </figure>
-          <t>In accordance with <xref target='RFC6665'/>, the XMPP-to-SIP gateway SHOULD consider the subscription state to be "neutral" until it receives a NOTIFY message.  Therefore, the SIP user or SIP-to-XMPP gateway at the SIP user's domain SHOULD immediately send a NOTIFY message containing a Subscription-State header whose value contains the string "active" (see <xref target="pres"/>).</t>
+          <t>In accordance with <xref target='RFC6665'/>, the XMPP-to-SIP gateway SHOULD consider the subscription state to be "neutral" until it receives a NOTIFY message.  Therefore, the SIP user or SIP-to-XMPP gateway at the SIP user's domain SHOULD immediately send a NOTIFY message containing a Subscription-State header <xref target='RFC3265'/> whose value contains the string "active" (see <xref target="pres"/>).</t>
           <figure>
-            <preamble>Example 4: SIP User Sends Presence Notification (F5)</preamble>
+            <preamble>Example 4: SIP User Sends Presence Notification (F6)</preamble>
             <artwork><![CDATA[
 |  NOTIFY sip:192.0.2.1 SIP/2.0
 |  Via: SIP/2.0/TCP simple.example.net;branch=z9hG4bKna998sk
-|  From: <sip:romeo@example.net>;tag=yt66
-|  To: <sip:juliet@example.com>;tag=bi54
+|  From: <sip:romeo@example.net>;tag=ffd2
+|  To: <sip:juliet@example.com>;tag=j89d
 |  Call-ID: 5BCF940D-793D-43F8-8972-218F7F4EAA8C
 |  Event: presence
 |  Subscription-State: active;expires=499
@@ -183,7 +184,7 @@ User        Server       Server        User
 |  <?xml version='1.0' encoding='UTF-8'?>
 |  <presence xmlns='urn:ietf:params:xml:ns:pidf'
 |            entity='pres:romeo@example.net'>
-|    <tuple id='ID-orchard'>
+|    <tuple id='ID-dr4hcr0st3lup4c'>
 |      <status>
 |        <basic>open</basic>
 |        <show xmlns='jabber:client'>away</show>
@@ -206,7 +207,7 @@ User        Server       Server        User
           <figure>
             <preamble>Example 6: XMPP User Receives Presence Notification from SIP Contact (F10)</preamble>
             <artwork><![CDATA[
-|  <presence from='romeo@example.net/orchard'
+|  <presence from='romeo@example.net/dr4hcr0st3lup4c'
 |            to='juliet@example.com'/>
             ]]></artwork>
           </figure>
@@ -222,7 +223,7 @@ User        Server       Server        User
             <artwork><![CDATA[
 XMPP         XMPP         SIP          SIP
 User        Server       Server        User
- |        + X2S GW     + S2X GW         |
+ |        + X2S GW         |            |
  |            |            |            |
  | (F11) XMPP |            |            |
  |unsubscribe |            |            |
@@ -238,9 +239,9 @@ User        Server       Server        User
  |            |            | (F14) SIP  |
  |            |            |  200 OK    |
  |            |            |<***********|
- |            | (F15) XMPP |            |
- |            | unsub'd    |            |
- |            |<...........|            |
+ |            | (F15) SIP  |            |
+ |            | 200 OK     |            |
+ |            |<***********|            |
  | (F16) XMPP |            |            |
  | unsub'd    |            |            |
  |<...........|            |            |
@@ -262,18 +263,19 @@ User        Server       Server        User
             <artwork><![CDATA[
 |  SUBSCRIBE sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
+|  To: <sip:romeo@example.com>;tag=ffd2
 |  From: <sip:juliet@example.com>;tag=j89d
-|  Call-ID: 9D9F00DF-FCA9-4E7E-B970-80B638D5218A
+|  Call-ID: 5BCF940D-793D-43F8-8972-218F7F4EAA8C
 |  Event: presence
 |  Max-Forwards: 70
-|  CSeq: 1 SUBSCRIBE
+|  CSeq: 42 SUBSCRIBE
 |  Contact: <sip:x2s.example.com;transport=tcp>
 |  Accept: application/pidf+xml
 |  Expires: 0
 |  Content-Length: 0
             ]]></artwork>
           </figure>
-          <t>Upon sending the transformed unsubscribe, the XMPP-to-SIP gateway SHOULD send a &lt;presence/&gt; stanza of type "unsubscribed" addressed to the XMPP user:</t>
+          <t>Upon receiving the SIP 200 OK acknowleding the unsubscribe, the XMPP-to-SIP gateway SHOULD send a &lt;presence/&gt; stanza of type "unsubscribed" addressed to the XMPP user:</t>
           <figure>
             <preamble>Example 9: XMPP User Receives Unsubscribed Notification (F16)</preamble>
             <artwork><![CDATA[
@@ -291,7 +293,7 @@ User        Server       Server        User
             <artwork><![CDATA[
 SIP         SIP         XMPP         XMPP
 User       Server      Server        User
- |       + S2X GW     + S2X GW        |
+ |       + S2X GW         |           |
  |           |            |           |
  | (F17) SIP |            |           |
  | SUBSCRIBE |            |           |
@@ -305,9 +307,9 @@ User       Server      Server        User
  |           |            | (F20) XMPP|
  |           |            | subscribed|
  |           |            |<..........|
- |           | (F21) SIP  |           |
- |           | 200 OK     |           |
- |           |<***********|           |
+ |           | (F21) XMPP |           |
+ |           | subscribed |           |
+ |           |<...........|           |
  | (F22) SIP |            |           |
  | 200 OK    |            |           |
  |<**********|            |           |
@@ -321,6 +323,7 @@ User       Server      Server        User
             <artwork><![CDATA[
 |  SUBSCRIBE sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
+|  To: <sip:juliet@example.net>;tag=ur93
 |  From: <sip:romeo@example.net>;tag=xfg9
 |  Call-ID: AA5A8BE5-CBB7-42B9-8181-6230012B1E11
 |  Event: presence
@@ -344,14 +347,14 @@ User       Server      Server        User
           </figure>
           <t>In accordance with <xref target='RFC6121'/>, once it receives the stanza from the XMPP-to-SIP gateway, the XMPP user's server MUST deliver the presence subscription request to the XMPP user (or, if a subscription already exists in the XMPP user's roster, the XMPP server SHOULD auto-reply with a &lt;presence/&gt; stanza of type 'subscribed').</t>
           <t>If the XMPP user approves the subscription request, the XMPP server then MUST return a &lt;presence/&gt; stanza of type "subscribed" addressed from the XMPP user to the SIP user.  The XMPP-to-SIP gateway is responsible for translating the &lt;presence/&gt; stanza of type "subscribed" into a SIP 200 OK response.</t>
-          <t>If the XMPP user declines the subscription request, the XMPP server then MUST return a &lt;presence/&gt; stanza of type "unsubscribed" addressed from the XMPP user to the SIP user and the XMPP-to-SIP gateway MUST transform that stanza into an empty SIP NOTIFY message with a Subscription-State of "terminated" and a reason of "rejected":</t>
+          <t>If the XMPP user declines the subscription request, the XMPP server then MUST return a &lt;presence/&gt; stanza of type "unsubscribed" addressed from the XMPP user to the SIP user and the XMPP-to-SIP gateway MUST transform that stanza into an empty SIP NOTIFY message with a Subscription-State header <xref target='RFC3265'/> of "terminated" and a reason of "rejected":</t>
           <figure>
             <preamble>Example 12: Subscription Request Rejected</preamble>
             <artwork><![CDATA[
 |  NOTIFY sip:192.0.2.2 SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
 |  From: <sip:juliet@example.com>;tag=ur93
-|  To: <sip:romeo@example.net>;tag=pq72
+|  To: <sip:romeo@example.net>;tag=xfg9
 |  Call-ID: AA5A8BE5-CBB7-42B9-8181-6230012B1E11
 |  Event: presence
 |  Subscription-State: terminated;reason=rejected
@@ -370,7 +373,7 @@ User       Server      Server        User
             <t>Cancel the subscription (i.e., treat it as temporary) and send an XMPP &lt;presence/&gt; stanza of type "unsubscribe" to the XMPP contact; this honors the SIP semantic but will seem strange to the XMPP contact (since it will appear that the SIP user has cancelled a long-lived subscription).</t>
             <t>Maintain the subscription (i.e., treat it as long-lived) and:
               <list style='numbers'>
-                <t>send a SIP NOTIFY request to the SIP user containing a PIDF document specifying that the XMPP contact now has a basic status of "closed", including a Subscription-State of "terminated" with a reason of "timeout"</t>
+                <t>send a SIP NOTIFY request to the SIP user containing a PIDF document specifying that the XMPP contact now has a basic status of "closed", including a Subscription-State header <xref target='RFC3265'/> of "terminated" with a reason of "timeout"</t>
                 <t>send an XMPP &lt;presence/&gt; stanza of type "unavailable" to the XMPP contact; this violates the letter of the SIP semantic but will seem more natural to the XMPP contact</t>
               </list>
             </t>
@@ -392,8 +395,8 @@ User       Server      Server        User
 |  NOTIFY sip:192.0.2.2 SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
 |  From: <sip:juliet@example.com>;tag=ur93
-|  To: <sip:romeo@example.net>;tag=pq72
-|  Call-ID: 2B44E147-3B53-45E4-9D48-C051F3216D14
+|  To: <sip:romeo@example.net>;tag=xfg9
+|  Call-ID: AA5A8BE5-CBB7-42B9-8181-6230012B1E11
 |  Event: presence
 |  Subscription-State: terminated;reason=timeout
 |  Max-Forwards: 70
@@ -405,7 +408,7 @@ User       Server      Server        User
 |  <?xml version='1.0' encoding='UTF-8'?>
 |  <presence xmlns='urn:ietf:params:xml:ns:pidf'
 |            entity='pres:juliet@example.com'>
-|    <tuple id='ID-balcony'>
+|    <tuple id='ID-yn0cl4bnw0yr3vym'>
 |      <status>
 |        <basic>closed</basic>
 |      </status>
@@ -429,11 +432,12 @@ User       Server      Server        User
             <artwork><![CDATA[
 |  SUBSCRIBE sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP simple.example.net;branch=z9hG4bKna998sk
-|  From: <sip:romeo@example.net>;tag=yt66
-|  Call-ID: 717B1B84-F080-4F12-9F44-0EC1ADE767B9
+|  To: <sip:juliet@example.com>;tag=ur93
+|  From: <sip:romeo@example.net>;tag=xfg9
+|  Call-ID: AA5A8BE5-CBB7-42B9-8181-6230012B1E11
 |  Event: presence
 |  Max-Forwards: 70
-|  CSeq: 1 SUBSCRIBE
+|  CSeq: 66 SUBSCRIBE
 |  Contact: <sip:simple.example.net;transport=tcp>
 |  Expires: 0
 |  Content-Length: 0
@@ -444,8 +448,7 @@ User       Server      Server        User
             <t>Cancel the subscription (i.e., treat it as temporary) and send an XMPP &lt;presence/&gt; stanza of type "unsubscribe" to the XMPP contact.</t>
             <t>Maintain the subscription (i.e., treat it as long-lived) and 
               <list style='numbers'>
-                <t>send a SIP NOTIFY request to the SIP user containing a PIDF document specifying that the XMPP contact now has a basic status of "closed"</t>
-                <t>send a SIP SUBSCRIBE request to the SIP user with an Expires header set to a value of "0" (zero) when it receives XMPP presence of type "unavailable" from the XMPP contact</t>
+                <t>send a SIP NOTIFY request to the SIP user containing a PIDF document specifying that the XMPP contact now has a basic status of "closed", including a Subscription-State header <xref target='RFC3265'/> of "terminated" with a reason of "timeout"</t>
                 <t>send an XMPP &lt;presence/&gt; stanza of type "unavailable" to the XMPP contact</t>
               </list>
             </t>
@@ -467,7 +470,7 @@ User       Server      Server        User
         <figure>
           <preamble>Example 17: XMPP User Sends Presence Notification</preamble>
           <artwork><![CDATA[
-|  <presence from='juliet@example.com/balcony'/>
+|  <presence from='juliet@example.com/yn0cl4bnw0yr3vym'/>
           ]]></artwork>
         </figure>
         <t>Upon receiving such a stanza, the XMPP server to which Juliet has connected broadcasts it to all subscribers who are authorized to receive presence notifications from Juliet (this is similar to the SIP NOTIFY method).  For each subscriber, broadcasting the presence notification involves either delivering it to a local recipient (if the hostname in the subscriber's address matches one of the hostnames serviced by the XMPP server) or attempting to route it to the foreign domain that services the hostname in the subscriber's address.  Thus the XMPP server needs to determine the identity of the domainpart in the 'to' address, which it does by following the procedures discussed in <xref target='RFC7247'/>.  If the domain is a SIP domain, the XMPP server will hand off the &lt;presence/&gt; stanza to an associated XMPP-to-SIP gateway or connection manager that natively communicates with presence-aware SIP servers (no example shown).</t>
@@ -479,7 +482,7 @@ User       Server      Server        User
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bKna998sk
 |  From: <sip:juliet@example.com>;tag=gh19
 |  To: <sip:romeo@example.net>;tag=yt66
-|  Contact: <sip:juliet@example.com>;gr=balcony
+|  Contact: <sip:juliet@example.com>;gr=yn0cl4bnw0yr3vym
 |  Call-ID: 2B44E147-3B53-45E4-9D48-C051F3216D14
 |  Event: presence
 |  Subscription-State: active;expires=599
@@ -492,7 +495,7 @@ User       Server      Server        User
 |  <?xml version='1.0' encoding='UTF-8'?>
 |  <presence xmlns='urn:ietf:params:xml:ns:pidf'
 |            entity='pres:juliet@example.com'>
-|    <tuple id='ID-balcony'>
+|    <tuple id='ID-yn0cl4bnw0yr3vym'>
 |      <status>
 |        <basic>open</basic>
 |        <show xmlns='jabber:client'>away</show>
@@ -537,7 +540,7 @@ User       Server      Server        User
             <t>The PIDF schema defines the tuple 'id' attribute as having a datatype of "xs:ID"; because this datatype is more restrictive than the "xs:string" datatype for XMPP resourceparts (in particular, a number is not allowed as the first character of an ID), it is RECOMMENDED to prepend the resourcepart with "ID-" or some other alphabetic string when mapping from XMPP to SIP.</t>
             <t>In practice, XMPP &lt;presence/&gt; stanzas often do not include the 'id' attribute.</t>
             <t>Because the lack of a 'type' attribute indicates that an XMPP entity is available for communications, the gateway MUST map that information to a PIDF basic status of "open".  Because a 'type' attribute with a value of "unavailable" indicates that an XMPP entity is not available communications, the gateway MUST map that information to a PIDF &lt;basic/&gt; status of "closed".</t>
-            <t>When the XMPP-to-SIP gateway receives XMPP presence of type "unavailable" from the XMPP contact, it MUST (a) send a SIP NOTIFY request to the SIP user containing a PIDF document specifying that the XMPP contact now has a basic status of "closed" and (b) send a SIP SUBSCRIBE request to the SIP user with an Expires header set to a value of "0" (zero).</t>
+            <t>When the XMPP-to-SIP gateway receives XMPP presence of type "unavailable" from the XMPP contact, it MUST send a SIP NOTIFY request to the SIP user containing a PIDF document specifying that the XMPP contact now has a basic status of "closed", including a Subscription-State header <xref target='RFC3265'/> of "terminated" with a reason of "timeout".</t>
             <t>The value of the XMPP &lt;priority/&gt; element is an integer between -128 and +127, whereas the value of the PIDF &lt;contact/&gt; element's 'priority' attribute is a decimal number from zero to one inclusive, with a maximum of three decimal places.  If the value of the XMPP &lt;priority/&gt; element is negative, an XMPP-to-SIP gateway MUST NOT map the value.  If an XMPP-to-SIP gateway maps positive values, it SHOULD treat XMPP priority 0 as PIDF priority 0 and XMPP priority 127 as PIDF priority 1, mapping intermediate values appropriately so that they are unique (e.g., XMPP priority 1 to PIDF priority 0.007, XMPP priority 2 to PIDF priority 0.015, and so on up through mapping XMPP priority 126 to PIDF priority 0.992; note that this is an example only and that the exact mapping is up to the implementation).</t>
             <t>Some implementations support custom extensions to encapsulate this information; however, there is no need to standardize a PIDF extension for this purpose, since PIDF is already extensible and thus the &lt;show/&gt; element can be included directly, qualified by the 'jabber:client' namespace in the PIDF XML.  The examples in this document illustrate this usage, which is RECOMMENDED.  The most useful values are likely "away" and "dnd", although note that the latter value merely means "busy" and does not imply that a server or client ought to block incoming traffic while the user is in that state.</t>
             <t>Some implementations support custom extensions to encapsulate detailed information about availability; however, there is no need to standardize a PIDF extension for this purpose, since PIDF is already extensible and thus the &lt;show/&gt; element (qualified by the 'jabber:client' namespace) can be included directly in the PIDF XML.  The examples in this document illustrate this usage, which is RECOMMENDED.  The most useful values are likely "away" and "dnd", although note that the latter value merely means "busy" and does not imply that a server or client ought to block incoming traffic while the user is in that state.  Naturally, a gateway can choose to translate a custom extension into an established value of the &lt;show/&gt; element <xref target='RFC6121'/> or translate a &lt;show/&gt; element into a custom extension that the gateway knows is supported by the user agent of the intended recipient.  Unfortunately, this behavior does not guarantee that information will not be lost; to help prevent information loss, a gateway ought to include both the &lt;show/&gt; element and the custom extension if the gateway cannot suitably translate the custom value into a &lt;show/&gt; value.</t>
@@ -553,7 +556,7 @@ User       Server      Server        User
 |  Via: SIP/2.0/TCP simple.example.net;branch=z9hG4bKna998sk
 |  From: <sip:romeo@example.net>;tag=yt66
 |  To: <sip:juliet@example.com>;tag=bi54
-|  Contact: <sip:romeo@example.net>;gr=orchard
+|  Contact: <sip:romeo@example.net>;gr=dr4hcr0st3lup4c
 |  Call-ID: C33C6C9D-0F4A-42F9-B95C-7CE86B526B5B
 |  Event: presence
 |  Subscription-State: active;expires=499
@@ -566,7 +569,7 @@ User       Server      Server        User
 |  <?xml version='1.0' encoding='UTF-8'?>
 |  <presence xmlns='urn:ietf:params:xml:ns:pidf'
 |            entity='pres:romeo@example.net'>
-|    <tuple id='ID-orchard'>
+|    <tuple id='ID-dr4hcr0st3lup4c'>
 |      <status>
 |        <basic>closed</basic>
 |      </status>
@@ -580,7 +583,7 @@ User       Server      Server        User
           <preamble>Example 20: XMPP Transformation of SIP Presence Notification</preamble>
           <artwork><![CDATA[
 |  <presence from='romeo@example.net'
-|            to='juliet@example.com/balcony'
+|            to='juliet@example.com/yn0cl4bnw0yr3vym'
 |            type='unavailable'/>
           ]]></artwork>
         </figure>
@@ -638,11 +641,11 @@ User       Server      Server        User
           <artwork><![CDATA[
 |  SUBSCRIBE sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bKna998sk
-|  From: <sip:juliet@example.com>;tag=ffd2
+|  From: <sip:juliet@example.com>;tag=j89d
 |  Call-ID: 5BCF940D-793D-43F8-8972-218F7F4EAA8C
 |  Event: presence
 |  Max-Forwards: 70
-|  CSeq: 3 SUBSCRIBE
+|  CSeq: 1 SUBSCRIBE
 |  Contact: <sip:x2s.example.com;transport=tcp>
 |  Accept: application/pidf+xml
 |  Expires: 0
@@ -662,7 +665,7 @@ User       Server      Server        User
 |  Call-ID: 717B1B84-F080-4F12-9F44-0EC1ADE767B9
 |  Event: presence
 |  Max-Forwards: 70
-|  CSeq: 2 SUBSCRIBE
+|  CSeq: 1 SUBSCRIBE
 |  Contact: <sip:simple.example.net;transport=tcp>
 |  Expires: 0
 |  Content-Length: 0
@@ -748,6 +751,18 @@ User       Server      Server        User
 <date month='June' year='2002' /></front>
 <seriesInfo name='RFC' value='3261' />
 <format type='TXT' octets='647976' target='ftp://ftp.isi.edu/in-notes/rfc3261.txt' />
+</reference>
+
+<reference anchor='RFC3265'>
+<front>
+<title>Session Initiation Protocol (SIP)-Specific Event Notification</title>
+<author initials='A.B.' surname='Roach' fullname='A.B. Roach'>
+<organization /></author>
+<date year='2002' month='June' />
+<abstract>
+<t>This document describes an extension to the Session Initiation Protocol (SIP).  The purpose of this extension is to provide an extensible framework by which SIP nodes can request notification from remote nodes indicating that certain events have occurred. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='3265' />
+<format type='TXT' octets='89005' target='http://www.rfc-editor.org/rfc/rfc3265.txt' />
 </reference>
 
 <reference anchor="RFC3856">
@@ -1023,9 +1038,9 @@ User       Server      Server        User
 
     <section title="Acknowledgements" anchor="ack">
       <t>Thanks to the authors, contributors, and other individuals acknowledged in RFC 7248. </t>
-      <t>Special thanks to Ben Campbell for identifying the discrepancy that resulted in the need to obsolete RFC 7248.</t> 
+      <t>Thanks to Saul Ibarra Corretge for his review during Working Group Last Call.</t>
+      <t>Special thanks to Ben Campbell for identifying the underlying discrepancy that resulted in the need to obsolete RFC 7248.</t> 
       <t>Thanks also to Markus Isomaki and Yana Stamcheva as the working group chairs and Alissa Cooper as the sponsoring Area Director.</t>
-      <t>Some text in this document was borrowed from <xref target='RFC3922'/>.</t>
     </section>
 
   </back>
