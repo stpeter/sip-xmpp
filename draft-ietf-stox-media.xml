@@ -10,6 +10,8 @@
  <!ENTITY rfc3550 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3550.xml">
  <!ENTITY rfc3551 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3551.xml">
  <!ENTITY rfc3555 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3555.xml">
+ <!ENTITY rfc3862 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3862.xml">
+ <!ENTITY rfc3923 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3923.xml">
  <!ENTITY rfc4855 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4855.xml">
  <!ENTITY rfc3711 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
  <!ENTITY rfc3959 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3959.xml">
@@ -754,6 +756,7 @@ User      Server      Gateway        Gateway       Server       User
 
     <section title='Security Considerations' anchor="sec">
       <t>Detailed security considerations for session management are given for SIP in <xref target='RFC3261'/> and for XMPP in <xref target='XEP-0166'/> (see also <xref target='RFC6120'/>).  The security considerations provided in <xref target='RFC7247'/> also apply.</t>
+      <t>The addition of gateways to the security model of media signaling introduces some new risks.  In particular, end-to-end security properties (especially confidentiality and integrity) between media endpoints that interface through a gateway can be provided only if common formats are supported.  Specification of those common formats is out of scope for this document and, unfortunately, no generalized method for end-to-end encryption of signaling messages has yet been defined, even outside of recognized standards development organizations (e.g., <xref target="RFC3862"/> and <xref target='RFC3923'/> are not widely implemented and Off-the-Record Messaging <xref target='OTR'/> can handle only human-readable chat messages, not structured signaling payloads).</t>
     </section>
 
   </middle>
@@ -1000,6 +1003,14 @@ User      Server      Gateway        Gateway       Server       User
         target='http://www.ietf.org/internet-drafts/draft-ietf-mmusic-trickle-ice-sip-01.txt' />
 </reference>
 
+<reference anchor="OTR" target="https://otr.cypherpunks.ca/">
+  <front>
+    <title>Off-the-Record Messaging</title>
+    <author surname="Ian Goldberg"/>
+    <date/>
+  </front>
+</reference>
+
       &rfc768;
       &rfc793;
       &rfc2198;
@@ -1007,6 +1018,8 @@ User      Server      Gateway        Gateway       Server       User
       &rfc3264;
       &rfc3550;
       &rfc3555;
+      &rfc3862;
+      &rfc3923;
       &rfc3959;
       &rfc3960;
       &rfc4585;
