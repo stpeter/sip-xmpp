@@ -435,101 +435,77 @@
       <t>Likewise, a gateway conforming to this specification MUST NOT forward more than a single final response received through SIP to the Jingle side.  The gateway SHOULD terminate the SIP sessions whose received final response was not forwarded to the Jingle side.</t>
     </section>
 
-    <section title="Sample Scenarios" anchor="jingle-scenarios">
-      <t>The following sections provide sample scenarios (or "call flows") that illustrate the principles of interworking from Jingle to SIP. These scenarios are not exhaustive.</t>
-
-      <section title="Basic Voice Chat" anchor="jingle-scenarios-basic">
-        <t>The protocol flow for a basic voice chat for which an XMPP user (juliet@example.com) is the initiator and a SIP user (romeo@example.net) is the responder. The voice chat is consummated through a gateway. To simplify the example, the Jingle transport method negotiated is "raw user datagram protocol" as specified in <xref target='XEP-0177'/>.</t>
+    <section title="Sample Call Flow" anchor="callflow">
+      <t>The section illustrates the protocol flow of a basic voice chat session in which an XMPP user (juliet@example.com) is the initiator and a SIP user (romeo@example.net) is the responder. The signaling is communicated through a gateway. To simplify the example, the Jingle transport method negotiated is "raw UDP" as specified in <xref target='XEP-0177'/>.</t>
         <figure>
           <artwork><![CDATA[
-XMPP       XMPP      XMPP-to-SIP    SIP-to-XMPP     SIP         SIP
-User      Server      Gateway        Gateway       Server       User
- |           |            |              |            |          |
- | (F1) XMPP |            |              |            |          |
- | session-  |            |              |            |          |
- | initiate  |            |              |            |          |
- |..........>|            |              |            |          |
- |           | (F2) XMPP  |              |            |          |
- |           | session-   |              |            |          |
- |           | initiate   |              |            |          |
- |           |...........>|              |            |          |
- |           | (F3) XMPP  |              |            |          |
- |           | IQ-result  |              |            |          |
- |           |<...........|              |            |          |
- | (F4) XMPP |            |              |            |          |
- | IQ-result |            |              |            |          |
- |<..........|            |              |            |          |
- |           |            | (F5) SIP INVITE           |          |
- |           |            |**************************>|          |
- |           |            |              |            | (F6) SIP |
- |           |            |              |            | INVITE   |
- |           |            |              |            |*********>|
- |           |            |              |            | (F7) SIP |
- |           |            |              |            | 180      |
- |           |            |              |            | ringing  |
- |           |            |              |            |<*********|
- |           |            |              | (F8) SIP   |          |
- |           |            |              | 180 ringing|          |
- |           |            |              |<***********|          |
- |           | (F9) XMPP session-info    |            |          |
- |           | (ringing)                 |            |          |
- |           |<..........................|            |          |
- | (F10) XMPP|            |              |            |          |
- | session-  |            |              |            |          |
- | info      |            |              |            |          |
- | (ringing) |            |              |            |          |
- |<..........|            |              |            |          |
- | (F11) XMPP|            |              |            |          |
- | IQ-result |            |              |            |          |
- |..........>|            |              |            |          |
- |           | (F12) XMPP |              |            |          |
- |           | IQ-result  |              |            |          |
- |           |...........x|              |            |          |
- |           |            |              |            | (F13) SIP|
- |           |            |              |            | 200 OK   |
- |           |            |              |            |<*********|
- |           |            |              | (F14) SIP  |          |
- |           |            |              | 200 OK     |          |
- |           |            |              |<***********|          |
- |           | (F15) XMPP session-accept |            |          |
- |           |<..........................|            |          |
- | (F16) XMPP|            |              |            |          |
- | session-  |            |              |            |          |
- | accept    |            |              |            |          |
- |<..........|            |              |            |          |
- | (F17) XMPP|            |              |            |          |
- | IQ-result |            |              |            |          |
- |..........>|            |              |            |          |
- |           | (F18) XMPP |              |            |          |
- |           | IQ-result  |              |            |          |
- |           |...........>|              |            |          |
- |           |            | (F19) SIP ACK             |          |
- |           |            |**************************>|          |
- |           |            |              |            | (F20) SIP|
- |           |            |              |            | ACK      |
- |           |            |              |            |*********>|
- |           |            |              |            |          |
- |<====================MEDIA SESSION OVER RTP===================>|
- |           |            |              |            |          |
- |           |            |              |            | (F21) SIP|
- |           |            |              |            | BYE      |
- |           |            |              |            |<*********|
- |           |            |              | (F22) SIP  |          |
- |           |            |              | BYE        |          |
- |           |            |              |<***********|          |
- |           | (F23) XMPP session-       |            |          |
- |           | terminate                 |            |          |
- |           |<..........................|            |          |
- | (F24) XMPP|            |              |            |          |
- | session-  |            |              |            |          |
- | terminate |            |              |            |          |
- |<..........|            |              |            |          |
- | (F25) XMPP|            |              |            |          |
- | IQ-result |            |              |            |          |
- |..........>|            |              |            |          |
- |           | (F26) XMPP |              |            |          |
- |           | IQ-result  |              |            |          |
- |           |...........x|              |            |          |
+XMPP        XMPP          SIP         SIP
+User       Server        Server       User
+ |        + X2S GW         |           |
+ |            |            |           |
+ | (F1) XMPP  |            |           |
+ | session-   |            |           |
+ | initiate   |            |           |
+ |...........>|            |           |
+ | (F2) XMPP  |            |           |
+ | IQ-result  |            |           |
+ |<...........|            |           |
+ |            | (F3) SIP   |           |
+ |            | INVITE     |           |
+ |            |***********>|           |
+ |            |            | (F4) SIP  |
+ |            |            | INVITE    |
+ |            |            |**********>|
+ |            |            | (F5) SIP  |
+ |            |            | 180       |
+ |            |            | ringing   |
+ |            |            |<**********|
+ |            | (F6) SIP   |           |
+ |            | 180 ringing|           |
+ |            |<***********|           |
+ | (F7) XMPP  |            |           |
+ | session-   |            |           |
+ | info       |            |           |
+ | (ringing)  |            |           |
+ |<...........|            |           |
+ | (F8) XMPP  |            |           |
+ | IQ-result  |            |           |
+ |...........>|            |           |
+ |            |            | (F9) SIP  |
+ |            |            | 200 OK    |
+ |            |            |<**********|
+ |            | (F10) SIP  |           |
+ |            | 200 OK     |           |
+ |            |<***********|           |
+ | (F11) XMPP |            |           |
+ | session-   |            |           |
+ | accept     |            |           |
+ |<...........|            |           |
+ | (F12) XMPP |            |           |
+ | IQ-result  |            |           |
+ |...........>|            |           |
+ |            | (F13) SIP  |           |
+ |            | ACK        |           |
+ |            |***********>|           |
+ |            |            | (F14) SIP |
+ |            |            | ACK       |
+ |            |            |**********>|
+ |            |            |           |
+ |<=======MEDIA SESSION OVER RTP======>|
+ |            |            |           |
+ |            |            | (F15) SIP |
+ |            |            |  BYE      |
+ |            |            |<**********|
+ |            | (F16) SIP  |           |
+ |            | BYE        |           |
+ |            |<***********|           |
+ | (F17) XMPP |            |           |
+ | session-   |            |           |
+ | terminate  |            |           |
+ |<...........|            |           |
+ | (F18) XMPP |            |           |
+ | IQ-result  |            |           |
+ |...........>|            |           |
           ]]></artwork>
         </figure>
         <t>The packet flow is as follows.</t>
@@ -564,7 +540,7 @@ User      Server      Gateway        Gateway       Server       User
         </figure>
         <t>The gateway returns an XMPP IQ-result to the initiator on behalf of the responder.</t>
         <figure>
-          <preamble>Example 5: XMPP IQ-result from gateway (F3)</preamble>
+          <preamble>Example 5: XMPP IQ-result from gateway (F2)</preamble>
           <artwork><![CDATA[
 |   <iq from='juliet@example.com/t3hr0zny'
 |       id='hu2s61f4'
@@ -574,7 +550,7 @@ User      Server      Gateway        Gateway       Server       User
         </figure>
         <t>The gateway transforms the Jingle session-initiate action into a SIP INVITE.</t>
         <figure>
-          <preamble>Example 6: SIP transformation of Jingle session-initiate (F5)</preamble>
+          <preamble>Example 6: SIP transformation of Jingle session-initiate (F3)</preamble>
           <artwork><![CDATA[
 |   INVITE sip:romeo@example.net SIP/2.0
 |   Via: SIP/2.0/TCP client.example.com:5060;branch=z9hG4bK74bf9
@@ -600,7 +576,7 @@ User      Server      Gateway        Gateway       Server       User
         </figure>
         <t>The responder returns a SIP 180 Ringing message.</t>
         <figure>
-          <preamble>Example 7: SIP 180 Ringing message (F7)</preamble>
+          <preamble>Example 7: SIP 180 Ringing message (F5)</preamble>
           <artwork><![CDATA[
 |   SIP/2.0 180 Ringing
 |   Via: SIP/2.0/TCP client.example.com:5060;branch=z9hG4bK74bf9;\
@@ -632,7 +608,7 @@ User      Server      Gateway        Gateway       Server       User
         </figure>
         <t>The initiator returns an IQ-result acknowledging receipt of the ringing message, which is used only by the gateway and not transformed into SIP syntax.</t>
         <figure>
-          <preamble>Example 9: XMPP entity acknowledges ringing message (F11)</preamble>
+          <preamble>Example 9: XMPP entity acknowledges ringing message (F8)</preamble>
           <artwork><![CDATA[
 |  <iq from='juliet@example.com/t3hr0zny'
 |      id='ol3ba71g'
@@ -642,7 +618,7 @@ User      Server      Gateway        Gateway       Server       User
         </figure>
         <t>The responder sends a SIP 200 OK to the initiator in order to accept the session initiation request.</t>
         <figure>
-          <preamble>Example 10: SIP user accepts session request (F13)</preamble>
+          <preamble>Example 10: SIP user accepts session request (F9)</preamble>
           <artwork><![CDATA[
 |   SIP/2.0 200 OK
 |   Via: SIP/2.0/TCP client.example.com:5060;branch=z9hG4bK74bf9;\
@@ -666,7 +642,7 @@ User      Server      Gateway        Gateway       Server       User
         </figure>
         <t>The gateway transforms the 200 OK into a Jingle session-accept action.</t>
         <figure>
-          <preamble>Example 11: XMPP transformation of SIP 200 OK (F15)</preamble>
+          <preamble>Example 11: XMPP transformation of SIP 200 OK (F11)</preamble>
           <artwork><![CDATA[
 |   <iq from='romeo@example.net/v3rsch1kk3l1jk'
 |       id='pd1bf839'
@@ -694,7 +670,7 @@ User      Server      Gateway        Gateway       Server       User
         </figure>
         <t>If the payload types and transport candidate can be successfully used by both parties, then the initiator acknowledges the session-accept action.</t>
         <figure>
-          <preamble>Example 12: XMPP user acknowledges session-accept (F17)</preamble>
+          <preamble>Example 12: XMPP user acknowledges session-accept (F12)</preamble>
           <artwork><![CDATA[
 |   <iq from='romeo@example.net/v3rsch1kk3l1jk'
 |       id='pd1bf839'
@@ -706,7 +682,7 @@ User      Server      Gateway        Gateway       Server       User
         <t>The parties can continue the session as long as desired.</t>
         <t>Eventually, one of the parties (in this case the responder) terminates the session.</t>
         <figure>
-          <preamble>Example 13: SIP user ends session (F21)</preamble>
+          <preamble>Example 13: SIP user ends session (F15)</preamble>
           <artwork><![CDATA[
 |   BYE sip:juliet@client.example.com SIP/2.0
 |   Via: SIP/2.0/TCP client.example.net:5060;branch=z9hG4bKnashds7
@@ -720,7 +696,7 @@ User      Server      Gateway        Gateway       Server       User
         </figure>
         <t>The gateway transforms the SIP BYE into XMPP syntax.</t>
         <figure>
-          <preamble>Example 14: XMPP transformation of SIP BYE (F23)</preamble>
+          <preamble>Example 14: XMPP transformation of SIP BYE (F17)</preamble>
           <artwork><![CDATA[
 | <iq from='romeo@example.net/v3rsch1kk3l1jk'
 |     id='rv301b47'
@@ -739,7 +715,7 @@ User      Server      Gateway        Gateway       Server       User
         </figure>
         <t>The initiator returns an IQ-result acknowledging receipt of the session termination, which is used only by the gateway and not transformed into SIP syntax.</t>
         <figure>
-          <preamble>Example 15: XMPP user acknowledges end of session (F25)</preamble>
+          <preamble>Example 15: XMPP user acknowledges end of session (F18)</preamble>
           <artwork><![CDATA[
   <iq from='romeo@example.net/v3rsch1kk3l1jk'
     id='rv301b47'
@@ -747,11 +723,10 @@ User      Server      Gateway        Gateway       Server       User
     type='result'/>
         ]]></artwork>
         </figure>
-      </section>
     </section>
 
     <section title='IANA Considerations' anchor="iana">
-      <t>This document has no actions for the IANA.</t>
+      <t>This document requests no actions by the IANA.</t>
     </section>
 
     <section title='Security Considerations' anchor="sec">
