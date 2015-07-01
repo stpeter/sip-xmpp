@@ -314,7 +314,10 @@
     </section>
 
     <section title="Transport Fallback" anchor="fallback">
-<t>[[OPEN ISSUE: to follow.]]</t>
+      <t>Most Jingle endpoints will first attempt to use ICE as specified for Jingle in <xref target='XEP-0176'/> (since that is most likely to result in NAT traversal) and only if that does not succeed will they fall back to raw UDP <xref target='XEP-0177'/>.  This fallback approach is described in the Jingle ICE specification <xref target='XEP-0176'/>.</t>
+      <t>However, that approach depends on the use of XMPP service discovery <xref target='XEP-0030'/>.  Because SIP does not have a method for determining endpoint capabilities, SIP endpoints use what can be termed "single-exchange fallback": they first try one method and if that fails they then send a re-INVITE with the second method.</t>
+      <t>One way to map single-exchange fallback to Jingle is for the Jingle endpoint to attempt ICE first and send a transport-replace if the SIP answer indicates no support for ICE, then send a SIP re-INVITE with the addresses in the transport-accept.  Unfortunately, this approach will result a fairly substantial post-answer delay before media can flow.</t>
+      <t>Because such delays usually result in an unacceptable user experience, the trend for many calling applications is to first send only a candidate that is known beforehand to be highly likely to result in NAT traversal, which is almost always a candidate at a media relay (i.e., an ICE candidate of type "relay").  Such applications will then offer and perhaps switch to a host candidate, peer reflexive candidate, or server reflexive candidate only after media is flowing via the relayed candidate.  This approach obviates the need for transport fallback from ICE to raw UDP during call setup, and instead works around the problem by using trickle ICE (for those endpoints that support it) or re-INVITEs with updated transport candidates after call setup has been completed.</t>
     </section>
 
     <section title="Call Hold" anchor="call-hold">
@@ -1086,7 +1089,7 @@ User       Server        Server       User
     </references>
 
     <section title="Acknowledgements" anchor="acks">
-      <t>Thanks to Dave Crocker, Philipp Hancke, Paul Kyzivat, and Jonathan Lennox for their feedback.</t>
+      <t>Thanks to Dave Crocker, Philipp Hancke, Paul Kyzivat, and Jonathan Lennox for their feedback.  Jonathan in particular provided helpful suggestions regarding the transport fallback section.</t>
       <t>The authors gratefully acknowledge the assistance of Markus Isomaki and Yana Stamcheva as the working group chairs and Ben Campbell as the sponsoring Area Director.</t>
       <t>Peter Saint-Andre wishes to acknowledge Cisco Systems, Inc., for employing him during his work on earlier draft versions of this document.</t>
     </section>
