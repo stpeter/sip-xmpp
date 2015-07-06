@@ -4,7 +4,6 @@
  <!ENTITY rfc793 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.0793.xml">
  <!ENTITY rfc2119 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
  <!ENTITY rfc2198 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2198.xml">
- <!ENTITY rfc2616 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2616.xml">
  <!ENTITY rfc3261 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3261.xml">
  <!ENTITY rfc3264 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3264.xml">
  <!ENTITY rfc3550 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3550.xml">
@@ -13,6 +12,7 @@
  <!ENTITY rfc3862 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3862.xml">
  <!ENTITY rfc3923 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3923.xml">
  <!ENTITY rfc4855 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4855.xml">
+ <!ENTITY rfc4856 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4856.xml">
  <!ENTITY rfc3711 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
  <!ENTITY rfc3959 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3959.xml">
  <!ENTITY rfc3960 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3960.xml">
@@ -27,6 +27,7 @@
  <!ENTITY rfc5888 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5888.xml">
  <!ENTITY rfc6120 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6120.xml">
  <!ENTITY rfc7081 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7081.xml">
+ <!ENTITY rfc7230 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7230.xml">
  <!ENTITY rfc7247 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7247.xml">
  <!ENTITY rfc7395 PUBLIC "" "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7395.xml">
 ]>
@@ -109,7 +110,7 @@
       <t>Jingle was designed to easily map to SIP for communication through gateways or other transformation mechanisms.  Nevertheless, given the significantly different technology assumptions underlying XMPP and SIP, Jingle is different from SIP in several important respects:</t>
       <t>
         <list style='symbols'>
-          <t>Base SIP messages and headers use a plaintext format similar in some ways to the Hypertext Transport Protocol <xref target='RFC2616'/>, whereas Jingle messages are pure XML. Mappings between SIP headers and Jingle message syntax are provided below.</t>
+          <t>Base SIP messages and headers use a plaintext format similar in some ways to the Hypertext Transport Protocol <xref target='RFC7230'/>, whereas Jingle messages are pure XML. Mappings between SIP headers and Jingle message syntax are provided below.</t>
           <t>SIP payloads for session semantics use the Session Description Protocol <xref target='RFC4566'/>, whereas the equivalent Jingle payloads use XML child elements of the Jingle &lt;content/&gt; element.  However, the Jingle specifications defining such child elements specify mappings to SDP for all Jingle syntax, making the mapping relatively straightforward.</t>
           <t>SIP messages have historically often been transported over UDP, whereas the signaling channel for Jingle is XMPP over TCP. Mapping between the transport layers typically happens within a gateway using techniques below the application level, and therefore is not addressed in this specification.</t>
         </list>
@@ -387,7 +388,7 @@
       <t>
         <list style='symbols'>
           <t>The RTP Payload for DTMF Digits, Telephony Tones, and Telephony Signals (i.e., the "audio/telephone-event" payload type). As noted in Section 2.5.1.1 of <xref target='RFC4733'/>, in SDP the "events" parameter is assumed to indicate support for DTMF events 0-15 even if the parameter is not included; a gateway SHOULD explicitly indicate this support in a Jingle parameter with name='events' and value='0-15'.</t>
-          <t>The RTP Payload for Redundant Audio Data (i.e., the "audio/red" payload type).  Although this payload type is defined in <xref target='RFC2198'/>, the SDP representation is specified in Section 4.1.21 of <xref target='RFC3555'/>. In particular, the "pt" parameter can be mapped to a=fmtp lines as described in the payload type registration.</t>
+          <t>The RTP Payload for Redundant Audio Data (i.e., the "audio/red" payload type).  Although this payload type is defined in <xref target='RFC2198'/>, the SDP representation is specified in Section 4.1.21 of <xref target='RFC3555'/> (note that this representation was not updated with by <xref target='RFC4856'/>). In particular, the "pt" parameter can be mapped to a=fmtp lines as described in the payload type registration.</t>
         </list>
       </t>
       <t>For implementations that wish to provide a general-purpose translation method, this specification makes the following recommendations:</t>
@@ -992,7 +993,6 @@ User       Server        Server       User
       &rfc768;
       &rfc793;
       &rfc2198;
-      &rfc2616;
       &rfc3264;
       &rfc3550;
       &rfc3555;
@@ -1001,12 +1001,14 @@ User       Server        Server       User
       &rfc3959;
       &rfc3960;
       &rfc4585;
+      &rfc4856;
       &rfc5124;
       &rfc5547;
       &rfc5766;
       &rfc5768;
       &rfc5888;
       &rfc7081;
+      &rfc7230;
       &rfc7395;
 
 <reference anchor="XEP-0124">
