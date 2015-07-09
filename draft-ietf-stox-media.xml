@@ -44,7 +44,7 @@
 <?rfc toc="yes" ?>
 <?rfc tocdepth="2"?>
 
-<rfc category='std' docName='draft-ietf-stox-media-06' ipr='trust200902'>
+<rfc category='std' docName='draft-ietf-stox-media-07' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Media Sessions">
@@ -151,7 +151,7 @@
           <t>Send an initial SIP INVITE for an ICE connection and, if the SIP endpoint indicates that it cannot handle ICE, send a re-INVITE for a non-ICE connection to the SIP endpoint and a Jingle transport-replace for a Raw UDP connection to the Jingle endpoint.  (This will introduce a potentialy large delay and might not result in a much higher percentage of calls succeeding unless the signaling gateway also offers a TURN <xref target='RFC5766'/> service for NAT traversal.)  See <xref target='fallback'/> for further discussion.</t>
         </list>
       </t>
-      <t>Use of "trickle ICE" is one significant example where this issue occurs. From the beginning, Jingle supported the trickling of candidates (via Jingle messages of type 'transport-info'), and only years later was this behavior generalized <xref target='I-D.ietf-mmusic-trickle-ice'/> and then ported to SIP <xref target='I-D.ivov-mmusic-trickle-ice-sip'/>.  Therefore SIP endpoints need to always behave like so-called "vanilla ICE" agents when sending their first offer and make sure they gather all candidates before sending a SIP INVITE.  This is necessary because otherwise ICE agents with no support for trickling of candidates can prematurely declare failure.  Jingle endpoints, on the other hand, can verify support for trickling of candidates prior to engaging in a session and adapt their behavior accordingly (and, as noted, trickling of candidates is standard operating procedure in Jingle).</t>
+      <t>Use of "Trickle ICE" is one significant example where this issue occurs. From the beginning, Jingle supported the trickling of candidates (via Jingle messages of type 'transport-info'), and only years later was this behavior generalized <xref target='I-D.ietf-mmusic-trickle-ice'/> and then ported to SIP <xref target='I-D.ietf-mmusic-trickle-ice-sip'/>.  Therefore SIP endpoints need to always behave like so-called "vanilla ICE" agents when sending their first offer and make sure they gather all candidates before sending a SIP INVITE.  This is necessary because otherwise ICE agents with no support for trickling of candidates can prematurely declare failure.  Jingle endpoints, on the other hand, can verify support for trickling of candidates prior to engaging in a session and adapt their behavior accordingly (and, as noted, trickling of candidates is standard operating procedure in Jingle).</t>
       <t>In order to work around this disparity in relation to communication of transport candidates, the Jingle RTP transport method <xref target='XEP-0176'/> defines a mode for supporting traditional Offer/Answer interactions through the "urn:ietf:rfc:3264" feature tag.  When an XMPP entity such as a client (or, significantly, a gateway to a SIP system) advertises support for this feature, the entity indicates that it needs to receive multiple transport candidates in the initial offer, instead of receiving them trickled over time.  Although implementations conforming to this specification MUST support the Offer/Answer model with Jingle, such endpoints SHOULD NOT actually declare support for the "urn:ietf:rfc:3264" service discovery feature since this would mean that they too would be reachable only through Offer/Answer semantics and not also through trickle-ICE semantics.</t>
       <t>The difference in handling of transport candidates also has an impact on ICE restarts (see Section 9.1.1.1 of <xref target='RFC5245'/>).  Because Jingle endpoints can send candidates at any time, when communicating directly with other Jingle endpoints they would not initiate an ICE restart simply in order to send a candidate that, for example, changes the media target.  However, as part of support for the Offer/Answer model a Jingle endpoint would instead need to initiate an ICE restart when communicating with a SIP endpoint or gateway that does not support trickle ICE.  Similarly, a Jingle endpoint needs to support the 'generation' attribute (used to signal an ICE restart) when communicating with a SIP endpoint or gateway that does not support trickle ICE.  See also the syntax discussion under <xref target='jingle-syntax-ice'/>.</t>
     </section>
@@ -214,7 +214,7 @@
 +--------------------------------+--------------------------------+
 | <content/> 'creator'           | [ no mapping ]                 |
 +--------------------------------+--------------------------------+
-| <content/> 'name'              | no mandatory mapping *         |
+| <content/> 'name'              | no mandatory mapping (1)       |
 +--------------------------------+--------------------------------+
 | <content/> 'senders' value of  | a= line of sendrecv, recvonly, |
 | both, initiator, responder, or | sendonly, or inactive          |
@@ -222,7 +222,11 @@
 +--------------------------------+--------------------------------+
           ]]></artwork>
         </figure>
-        <t>* In can be appropriate to map to the a=mid value defined in <xref target='RFC5888'/>.</t>
+        <t>
+          <list style='numbers'>
+            <t>In can be appropriate to map to the a=mid value defined in <xref target='RFC5888'/>.</t>
+          </list>
+        </t>
         <t>The 'senders' attribute is optional in Jingle, with a default value of "both"; thus in case the attribute is absent the SDP direction value MUST be considered as 'sendrecv'.</t>
         <t>The 'action' attribute of the &lt;jingle/&gt; element has 15 allowable values. In general they should be mapped as shown in the following table, with some exceptions as described below.</t>
         <figure>
@@ -235,7 +239,7 @@
 +-------------------+------------------------------+
 | content-add       | INVITE request               |
 +-------------------+------------------------------+
-| content-modify    | INVITE request               |
+| content-modify    | re-INVITE request            |
 +-------------------+------------------------------+
 | content-reject    | unused in this mapping       |
 +-------------------+------------------------------+
@@ -247,7 +251,7 @@
 +-------------------+------------------------------+
 | session-accept    | INVITE response (1xx or 2xx) |
 +-------------------+------------------------------+
-| session-info      | [varies]                     |
+| session-info      | see note (1) below           |
 +-------------------+------------------------------+
 | session-initiate  | INVITE request               |
 +-------------------+------------------------------+
@@ -255,7 +259,7 @@
 +-------------------+------------------------------+
 | transport-accept  | unused in this mapping       |
 +-------------------+------------------------------+
-| transport-info    | unused in this mapping       |
+| transport-info    | see note (2) below           |
 +-------------------+------------------------------+
 | transport-reject  | unused in this mapping       |
 +-------------------+------------------------------+
@@ -263,6 +267,12 @@
 +-------------------+------------------------------+
           ]]></artwork>
         </figure>
+        <t>
+          <list style='numbers'>
+            <t>The Jingle session-info action can be used for multiple purposes, such as putting the session on hold or sending a ringing indication.  In particular, a session-info action of type ‘ringing’ SHOULD be mapped to a 180 SIP provisional response.  The use of session-info for the purpose of session hold is described in <xref target='call-hold'/>.</t>
+            <t>In Jingle the transport-info action is used to exchange transport candidates after the initial offer, as documented in <xref target='XEP-0176'/>.  This usage has been generalized as "Trickle ICE" <xref target='I-D.ietf-mmusic-trickle-ice'/> and has also been extended to SIP <xref target='I-D.ietf-mmusic-trickle-ice-sip'/>.  Therefore a Jingle action of transport-info SHOULD be mapped to a SIP INFO request, but only in cases where it is reasonable to assume that the SIP endpoint or gateway supports trickle ICE.  See <xref target='jingle-oa-ice'/> for further discussion.</t>
+          </list>
+        </t>
       </section>
 
       <section title="Application Formats" anchor="jingle-syntax-application-formats">
@@ -693,7 +703,7 @@ User       Server        Server       User
 |   From: Romeo Montague <sip:romeo@example.net>;tag=8321234356
 |   To: Juliet Capulet <sip:juliet@example.com>;tag=9fxced76sl
 |   Call-ID: 3848276298220188511@example.com
-|   CSeq: 1 BYE
+|   CSeq: 4 BYE
 |   Content-Length: 0
         ]]></artwork>
         </figure>
@@ -961,7 +971,7 @@ User       Server        Server       User
         target='http://www.ietf.org/internet-drafts/draft-ietf-mmusic-trickle-ice-02.txt' />
 </reference>
 
-<reference anchor='I-D.ivov-mmusic-trickle-ice-sip'>
+<reference anchor='I-D.ietf-mmusic-trickle-ice-sip'>
 <front>
 <title>A Session Initiation Protocol (SIP) usage for Trickle ICE</title>
 <author initials='E' surname='Ivov' fullname='Emil Ivov'>
@@ -973,12 +983,12 @@ User       Server        Server       User
 <author initials='C' surname='Holmberg' fullname='Christer Holmberg'>
     <organization />
 </author>
-<date month='January' day='15' year='2015' />
+<date month='July' day='6' year='2015' />
 <abstract><t>The Interactive Connectivity Establishment (ICE) protocol describes a Network Address Translator (NAT) traversal for UDP-based multimedia sessions established with the offer/answer model.  The ICE extension for Incremental Provisioning of Candidates (Trickle ICE) defines a mechanism that allows ICE agents to shorten session establishment delays by making the candidate gathering and connectivity checking phases of ICE non-blocking.  This document defines usage semantics for Trickle ICE with SIP.</t></abstract>
 </front>
-<seriesInfo name='Internet-Draft' value='draft-ietf-mmusic-trickle-ice-sip-01' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-mmusic-trickle-ice-sip-02' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-mmusic-trickle-ice-sip-01.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-mmusic-trickle-ice-sip-02.txt' />
 </reference>
 
 <reference anchor="OTR" target="https://otr.cypherpunks.ca/">
