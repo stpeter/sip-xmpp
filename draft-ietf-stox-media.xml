@@ -398,7 +398,7 @@
       <t>
         <list style='symbols'>
           <t>The RTP Payload for DTMF Digits, Telephony Tones, and Telephony Signals (i.e., the "audio/telephone-event" payload type). As noted in Section 2.5.1.1 of <xref target='RFC4733'/>, in SDP the "events" parameter is assumed to indicate support for DTMF events 0-15 even if the parameter is not included; a gateway SHOULD explicitly indicate this support in a Jingle parameter with name='events' and value='0-15'.</t>
-          <t>The RTP Payload for Redundant Audio Data (i.e., the "audio/red" payload type).  Although this payload type is defined in <xref target='RFC2198'/>, the SDP representation is specified in Section 4.1.21 of <xref target='RFC3555'/> (note that this representation was not updated with by <xref target='RFC4856'/>). In particular, the "pt" parameter can be mapped to a=fmtp lines as described in the payload type registration.</t>
+          <t>The RTP Payload for Redundant Audio Data (i.e., the "audio/red" payload type).  Although this payload type is defined in <xref target='RFC2198'/>, the SDP representation is specified in Section 4.1.21 of <xref target='RFC3555'/> (note that this representation was not updated by <xref target='RFC4856'/>). In particular, the "pt" parameter can be mapped to a=fmtp lines as described in the payload type registration.</t>
         </list>
       </t>
       <t>For implementations that wish to provide a general-purpose translation method, this specification makes the following recommendations:</t>
