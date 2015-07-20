@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="3"?>
-<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-02' ipr='trust200902'>
+<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-03' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Presence">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Presence</title>
@@ -60,8 +60,8 @@
     </section>
 
     <section title="Terminology" anchor="terms">
-      <t>A number of terms used here (user, contact, subscription, notification, etc.) are explained in <xref target='RFC3261'/>, <xref target='RFC3856'/>, <xref target='RFC6120'/>, and <xref target='RFC6121'/>.  This document uses some, but not all, of the terms defined in the Model for Presence and Instant Messaging <xref target='RFC2778'/>.</t>
-      <t>In flow diagrams, SIP traffic is shown using arrows such as "***&gt;", whereas XMPP traffic is shown using arrows such as "...&gt;".</t>
+      <t>A number of terms used here (user, contact, subscription, notification, etc.) are explained in <xref target='RFC3261'/>, <xref target='RFC3856'/>, <xref target='RFC6120'/>, and <xref target='RFC6121'/>.  This document uses some, but not all, of the presence-related terms defined in the Model for Presence and Instant Messaging <xref target='RFC2778'/>.</t>
+      <t>In flow diagrams, SIP traffic is shown using arrows such as "***&gt;", whereas XMPP traffic is shown using arrows such as "...&gt;".   As in <xref target='RFC7247'/>, the terms "SIP to XMPP Gateway" and "XMPP to SIP Gateway" are abbreviated as "S2X GW" and "X2S GW", respectively.</t>
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
     </section>
 
@@ -107,16 +107,19 @@ User        Server       Server        User
  |            |            | (F6) SIP   |
  |            |            | NOTIFY     |
  |            |            |<***********|
- |            |            | (F7) SIP   |
- |            |            | 200 OK     |
- |            |            |***********>|
- |            | (F8) SIP   |            |
+ |            | (F7) SIP   |            |
  |            | NOTIFY     |            |
  |            |<***********|            |
- | (F9) XMPP  |            |            |
+ |            | (F8) SIP   |            |
+ |            | 200 OK     |            |
+ |            |***********>|            |
+ |            |            | (F9) SIP   |
+ |            |            | 200 OK     |
+ |            |            |***********>|
+ | (F10) XMPP |            |            |
  | subscribed |            |            |
  |<...........|            |            |
- | (F10) XMPP |            |            |
+ | (F11) XMPP |            |            |
  | presence   |            |            |
  |<...........|            |            |
  |            |            |            |
@@ -150,7 +153,7 @@ User        Server       Server        User
 |  Content-Length: 0
             ]]></artwork>
           </figure>
-          <t>Once the SIP-to-XMPP gateway has passed the SIP SUBSCRIBE off to the SIP server and the SIP server has delivered the SIP SUBSCRIBE to the SIP user (F3, no example shown), the SIP user then would send a response indicating acceptance of the subscription request:</t>
+          <t>Once the SIP server has delivered the SIP SUBSCRIBE to the SIP user (F3, no example shown), the SIP user then would send a response indicating acceptance of the subscription request:</t>
           <figure>
             <preamble>Example 3: SIP User Accepts Subscription Request (F4)</preamble>
             <artwork><![CDATA[
@@ -165,7 +168,7 @@ User        Server       Server        User
 |  Content-Length: 0
             ]]></artwork>
           </figure>
-          <t>In accordance with <xref target='RFC6665'/>, the XMPP-to-SIP gateway SHOULD consider the subscription state to be "neutral" until it receives a NOTIFY message.  Therefore, the SIP user or SIP-to-XMPP gateway at the SIP user's domain SHOULD immediately send a NOTIFY message containing a Subscription-State header <xref target='RFC6665'/> whose value contains the string "active" (see <xref target="pres"/> below).</t>
+          <t>In accordance with <xref target='RFC6665'/>, the XMPP-to-SIP gateway SHOULD consider the subscription state to be "neutral" until it receives a NOTIFY message.  Therefore, the SIP user or SIP server at the SIP user's domain SHOULD immediately send a NOTIFY message containing a Subscription-State header <xref target='RFC6665'/> whose value contains the string "active" (see <xref target="pres"/> below).</t>
           <figure>
             <preamble>Example 4: SIP User Sends Presence Notification (F6)</preamble>
             <artwork><![CDATA[
@@ -194,19 +197,19 @@ User        Server       Server        User
 |  </presence>
             ]]></artwork>
           </figure>
-          <t>In response, the presence-aware SIP-to-XMPP gateway would send a 200 OK to the SIP user (not shown here, since it is not translated into an XMPP stanza).</t>
-          <t>Upon receiving the first NOTIFY with a subscription state of active, the XMPP-to-SIP gateway MUST generate a &lt;presence/&gt; stanza of type "subscribed":</t>
+          <t>Upon receiving the first NOTIFY with a subscription state of active, the XMPP-to-SIP gateway MUST return a 200 OK to the SIP user (F8, no example shown).</t>
+          <t>The XMPP-to-SIP gateway MUST also generate a &lt;presence/&gt; stanza of type "subscribed":</t>
           <figure>
-            <preamble>Example 5: XMPP User Receives Acknowledgement from SIP Contact (F9)</preamble>
+            <preamble>Example 5: XMPP User Receives Acknowledgement from SIP Contact (F10)</preamble>
             <artwork><![CDATA[
 |  <presence from='romeo@example.net'
 |            to='juliet@example.com'
 |            type='subscribed'/>
             ]]></artwork>
           </figure>
-          <t>As described in <xref target="pres"/>, the gateway MUST also generate a presence notification addressed to the XMPP user:</t>
+          <t>As described in <xref target="pres"/>, the XMPP-to-SIP gateway MUST also generate a presence notification addressed to the XMPP user:</t>
           <figure>
-            <preamble>Example 6: XMPP User Receives Presence Notification from SIP Contact (F10)</preamble>
+            <preamble>Example 6: XMPP User Receives Presence Notification from SIP Contact (F11)</preamble>
             <artwork><![CDATA[
 |  <presence from='romeo@example.net/dr4hcr0st3lup4c'
 |            to='juliet@example.com'/>
@@ -226,32 +229,32 @@ XMPP         XMPP         SIP          SIP
 User        Server       Server        User
  |        + X2S GW         |            |
  |            |            |            |
- | (F11) XMPP |            |            |
+ | (F12) XMPP |            |            |
  |unsubscribe |            |            |
  |...........>|            |            |
- |            | (F12) SIP  |            |
+ |            | (F13) SIP  |            |
  |            | SUBSCRIBE  |            |
  |            | Expires: 0 |            |
  |            |***********>|            |
- |            |            | (F13) SIP  |
+ |            |            | (F14) SIP  |
  |            |            | SUBSCRIBE  |
  |            |            | Expires: 0 |
  |            |            |***********>|
- |            |            | (F14) SIP  |
+ |            |            | (F15) SIP  |
  |            |            |  200 OK    |
  |            |            |<***********|
- |            | (F15) SIP  |            |
+ |            | (F16) SIP  |            |
  |            | 200 OK     |            |
  |            |<***********|            |
- | (F16) XMPP |            |            |
- | unsub'd    |            |            |
+ | (F17) XMPP |            |            |
+ |unsubcribed |            |            |
  |<...........|            |            |
  |            |            |            |
             ]]></artwork>
           </figure>
           <t>At any time after subscribing, the XMPP user can unsubscribe from the contact's presence.  This is done by sending a &lt;presence/&gt; stanza of type "unsubscribe":</t>
           <figure>
-            <preamble>Example 7: XMPP User Unsubscribes from SIP Contact (F11)</preamble>
+            <preamble>Example 7: XMPP User Unsubscribes from SIP Contact (F12)</preamble>
             <artwork><![CDATA[
 |  <presence from='juliet@example.com'
 |            to='romeo@example.net'
@@ -260,7 +263,7 @@ User        Server       Server        User
           </figure>
           <t>The XMPP-to-SIP gateway is responsible for translating the unsubscribe command into a SIP SUBSCRIBE request with the Expires header set to a value of zero:</t>
           <figure>
-            <preamble>Example 8: SIP Transformation of XMPP Unsubscribe (F12)</preamble>
+            <preamble>Example 8: SIP Transformation of XMPP Unsubscribe (F13)</preamble>
             <artwork><![CDATA[
 |  SUBSCRIBE sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
@@ -278,7 +281,7 @@ User        Server       Server        User
           </figure>
           <t>Upon receiving the SIP 200 OK acknowleding the unsubscribe, the XMPP-to-SIP gateway SHOULD send a &lt;presence/&gt; stanza of type "unsubscribed" addressed to the XMPP user:</t>
           <figure>
-            <preamble>Example 9: XMPP User Receives Unsubscribed Notification (F16)</preamble>
+            <preamble>Example 9: XMPP User Receives Unsubscribed Notification (F17)</preamble>
             <artwork><![CDATA[
 |  <presence from='romeo@example.net'
 |            to='juliet@example.com'
@@ -296,22 +299,22 @@ SIP         SIP         XMPP         XMPP
 User       Server      Server        User
  |       + S2X GW         |           |
  |           |            |           |
- | (F17) SIP |            |           |
+ | (F18) SIP |            |           |
  | SUBSCRIBE |            |           |
  |**********>|            |           |
- |           | (F18) XMPP |           |
+ |           | (F19) XMPP |           |
  |           | subscribe  |           |
  |           |...........>|           |
- |           |            | (F19) XMPP|
+ |           |            | (F20) XMPP|
  |           |            | subscribe |
  |           |            |..........>|
- |           |            | (F20) XMPP|
+ |           |            | (F21) XMPP|
  |           |            | subscribed|
  |           |            |<..........|
- |           | (F21) XMPP |           |
+ |           | (F22) XMPP |           |
  |           | subscribed |           |
  |           |<...........|           |
- | (F22) SIP |            |           |
+ | (F23) SIP |            |           |
  | 200 OK    |            |           |
  |<**********|            |           |
  |           |            |           |
@@ -320,7 +323,7 @@ User       Server      Server        User
           </figure>
           <t>A SIP user initiates a subscription to a contact's presence information by sending a SIP SUBSCRIBE request to the contact.  The following is an example of such a request:</t>
           <figure>
-            <preamble>Example 10: SIP User Subscribes to XMPP Contact (F17)</preamble>
+            <preamble>Example 10: SIP User Subscribes to XMPP Contact (F18)</preamble>
             <artwork><![CDATA[
 |  SUBSCRIBE sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
@@ -339,16 +342,16 @@ User       Server      Server        User
           <t>Upon receiving the SUBSCRIBE, the SIP server needs to determine the identity of the domain portion of the Request-URI or To header, which it does by following the procedures explained in Section 5 of <xref target='RFC7247'/>.  If the domain is an XMPP domain, the SIP server will hand off the SUBSCRIBE to an associated SIP-to-XMPP gateway or connection manager that natively communicates with XMPP servers.</t>
           <t>The SIP-to-XMPP gateway is then responsible for translating the SUBSCRIBE into an XMPP subscription request addressed from the SIP user to the XMPP user:</t>
           <figure>
-            <preamble>Example 11: XMPP Transformation of SIP SUBSCRIBE (F18)</preamble>
+            <preamble>Example 11: XMPP Transformation of SIP SUBSCRIBE (F19)</preamble>
             <artwork><![CDATA[
 |  <presence from='romeo@example.net'
 |            to='juliet@example.com'
 |            type='subscribe'/>
             ]]></artwork>
           </figure>
-          <t>In accordance with <xref target='RFC6121'/>, once it receives the stanza from the XMPP-to-SIP gateway, the XMPP user's server MUST deliver the presence subscription request to the XMPP user (or, if a subscription already exists in the XMPP user's roster, the XMPP server SHOULD auto-reply with a &lt;presence/&gt; stanza of type 'subscribed').</t>
-          <t>If the XMPP user approves the subscription request, the XMPP server then MUST return a &lt;presence/&gt; stanza of type "subscribed" addressed from the XMPP user to the SIP user.  The XMPP-to-SIP gateway is responsible for translating the &lt;presence/&gt; stanza of type "subscribed" into a SIP 200 OK response.</t>
-          <t>If the XMPP user declines the subscription request, the XMPP server then MUST return a &lt;presence/&gt; stanza of type "unsubscribed" addressed from the XMPP user to the SIP user and the XMPP-to-SIP gateway MUST transform that stanza into an empty SIP NOTIFY message with a Subscription-State header <xref target='RFC6665'/> of "terminated" and a reason of "rejected":</t>
+          <t>In accordance with <xref target='RFC6121'/>, the XMPP user's server MUST deliver the presence subscription request to the XMPP user (or, if a subscription already exists in the XMPP user's roster, the XMPP server SHOULD auto-reply with a &lt;presence/&gt; stanza of type 'subscribed').</t>
+          <t>If the XMPP user approves the subscription request, the XMPP server then MUST return a &lt;presence/&gt; stanza of type "subscribed" addressed from the XMPP user to the SIP user.</t>
+          <t>If the XMPP user declines the subscription request, the XMPP server then MUST return a &lt;presence/&gt; stanza of type "unsubscribed" addressed from the XMPP user to the SIP user.  The SIP-to-XMPP gateway then MUST transform that stanza into an empty SIP NOTIFY message with a Subscription-State header <xref target='RFC6665'/> of "terminated" and a reason of "rejected":</t>
           <figure>
             <preamble>Example 12: Subscription Request Rejected</preamble>
             <artwork><![CDATA[
@@ -368,8 +371,8 @@ User       Server      Server        User
           </figure>
         </section>
         <section title="Refreshing a Presence Subscription" anchor="sub-sip-refresh">
-          <t>For as long as a SIP user is online and interested in receiving presence notifications from the XMPP contact, the user's SIP user agent is responsible for periodically refreshing the subscription by sending an updated SUBSCRIBE request with an appropriate value for the Expires header.  In response, the presence-aware SIP-to-XMPP gateway MUST send a SIP NOTIFY to the user agent (per <xref target='RFC6665'/>); if the gateway has meaningful information about the availability state of the XMPP user (e.g., obtained from the core presence session in the XMPP server) then the NOTIFY MUST communicate that information (e.g., by including a PIDF body <xref target='RFC3863'/> with the relevant data), whereas if the gateway does not have meaningful information about the availability state of the XMPP user then the NOTIFY MUST be empty as allowed by <xref target='RFC6665'/>.</t>
-          <t>Once the SIP user ends its presence session, it is the responsibility of the presence-aware SIP-to-XMPP gateway to properly handle the difference between short-lived SIP presence subscriptions and long-lived XMPP presence subscriptions.  The gateway has two options when the SIP user's subscription expires:</t>
+          <t>For as long as a SIP user is online and interested in receiving presence notifications from the XMPP contact, the user's SIP user agent is responsible for periodically refreshing the subscription by sending an updated SUBSCRIBE request with an appropriate value for the Expires header.  In response, the presence-aware SIP-to-XMPP gateway MUST send a SIP NOTIFY to the user agent (per <xref target='RFC6665'/>); if the SIP-to-XMPP gateway has meaningful information about the availability state of the XMPP user (e.g., obtained from the core presence session in the XMPP server) then the NOTIFY MUST communicate that information (e.g., by including a PIDF body <xref target='RFC3863'/> with the relevant data), whereas if the SIP-to-XMPP gateway does not have meaningful information about the availability state of the XMPP user then the NOTIFY MUST be empty as allowed by <xref target='RFC6665'/>.</t>
+          <t>Once the SIP user ends its presence session, it is the responsibility of the presence-aware SIP-to-XMPP gateway to properly handle the difference between short-lived SIP presence subscriptions and long-lived XMPP presence subscriptions.  The SIP-to-XMPP gateway has two options when the SIP user's subscription expires:</t>
           <t><list style='symbols'>
             <t>Cancel the subscription (i.e., treat it as temporary) and send an XMPP &lt;presence/&gt; stanza of type "unsubscribe" to the XMPP contact; this honors the SIP semantic but will seem strange to the XMPP contact (since it will appear that the SIP user has cancelled a long-lived subscription).</t>
             <t>Maintain the subscription (i.e., treat it as long-lived) and:
@@ -540,11 +543,11 @@ User       Server      Server        User
             <t>Only an XMPP &lt;presence/&gt; stanza that lacks a 'type' attribute or whose 'type' attribute has a value of "unavailable" MUST be mapped by an XMPP-to-SIP gateway to a SIP NOTIFY request, since those are the only &lt;presence/&gt; stanzas that represent notifications.</t>
             <t>The PIDF schema defines the tuple 'id' attribute as having a datatype of "xs:ID"; because this datatype is more restrictive than the "xs:string" datatype for XMPP resourceparts (in particular, a number is not allowed as the first character of an ID), it is RECOMMENDED to prepend the resourcepart with "ID-" or some other alphabetic string when mapping from XMPP to SIP.</t>
             <t>In practice, XMPP &lt;presence/&gt; stanzas often do not include the 'id' attribute.</t>
-            <t>Because the lack of a 'type' attribute indicates that an XMPP entity is available for communications, the gateway MUST map that information to a PIDF basic status of "open".  Because a 'type' attribute with a value of "unavailable" indicates that an XMPP entity is not available communications, the gateway MUST map that information to a PIDF &lt;basic/&gt; status of "closed".</t>
+            <t>Because the lack of a 'type' attribute indicates that an XMPP entity is available for communications, the XMPP-to-SIP gateway MUST map that information to a PIDF basic status of "open".  Because a 'type' attribute with a value of "unavailable" indicates that an XMPP entity is not available communications, the XMPP-to-SIP gateway MUST map that information to a PIDF &lt;basic/&gt; status of "closed".</t>
             <t>When the XMPP-to-SIP gateway receives XMPP presence of type "unavailable" from the XMPP contact, it MUST send a SIP NOTIFY request to the SIP user containing a PIDF document specifying that the XMPP contact now has a basic status of "closed", including a Subscription-State header <xref target='RFC6665'/> of "terminated" with a reason of "timeout".</t>
             <t>The value of the XMPP &lt;priority/&gt; element is an integer between -128 and +127, whereas the value of the PIDF &lt;contact/&gt; element's 'priority' attribute is a decimal number from zero to one inclusive, with a maximum of three decimal places.  If the value of the XMPP &lt;priority/&gt; element is negative, an XMPP-to-SIP gateway MUST NOT map the value.  If an XMPP-to-SIP gateway maps positive values, it SHOULD treat XMPP priority 0 as PIDF priority 0 and XMPP priority 127 as PIDF priority 1, mapping intermediate values appropriately so that they are unique (e.g., XMPP priority 1 to PIDF priority 0.007, XMPP priority 2 to PIDF priority 0.015, and so on up through mapping XMPP priority 126 to PIDF priority 0.992; note that this is an example only and that the exact mapping is up to the implementation).</t>
             <t>Some implementations support custom extensions to encapsulate this information; however, there is no need to standardize a PIDF extension for this purpose, since PIDF is already extensible and thus the &lt;show/&gt; element can be included directly, qualified by the 'jabber:client' namespace in the PIDF XML.  The examples in this document illustrate this usage, which is RECOMMENDED.  The most useful values are likely "away" and "dnd", although note that the latter value merely means "busy" and does not imply that a server or client ought to block incoming traffic while the user is in that state.</t>
-            <t>Some implementations support custom extensions to encapsulate detailed information about availability; however, there is no need to standardize a PIDF extension for this purpose, since PIDF is already extensible and thus the &lt;show/&gt; element (qualified by the 'jabber:client' namespace) can be included directly in the PIDF XML.  The examples in this document illustrate this usage, which is RECOMMENDED.  The most useful values are likely "away" and "dnd", although note that the latter value merely means "busy" and does not imply that a server or client ought to block incoming traffic while the user is in that state.  Naturally, a gateway can choose to translate a custom extension into an established value of the &lt;show/&gt; element <xref target='RFC6121'/> or translate a &lt;show/&gt; element into a custom extension that the gateway knows is supported by the user agent of the intended recipient.  Unfortunately, this behavior does not guarantee that information will not be lost; to help prevent information loss, a gateway ought to include both the &lt;show/&gt; element and the custom extension if the gateway cannot suitably translate the custom value into a &lt;show/&gt; value.</t>
+            <t>Some implementations support custom extensions to encapsulate detailed information about availability; however, there is no need to standardize a PIDF extension for this purpose, since PIDF is already extensible and thus the &lt;show/&gt; element (qualified by the 'jabber:client' namespace) can be included directly in the PIDF XML.  The examples in this document illustrate this usage, which is RECOMMENDED.  The most useful values are likely "away" and "dnd", although note that the latter value merely means "busy" and does not imply that a server or client ought to block incoming traffic while the user is in that state.  Naturally, an XMPP-to-SIP gateway can choose to translate a custom extension into an established value of the &lt;show/&gt; element <xref target='RFC6121'/> or translate a &lt;show/&gt; element into a custom extension that the XMPP-to-SIP gateway knows is supported by the user agent of the intended recipient.  Unfortunately, this behavior does not guarantee that information will not be lost; to help prevent information loss, an XMPP-to-SIP gateway ought to include both the &lt;show/&gt; element and the custom extension if it cannot suitably translate the custom value into a &lt;show/&gt; value.</t>
           </list>
         </t>
       </section>
@@ -636,7 +639,7 @@ User       Server      Server        User
           ]]></artwork>
         </figure>
         <t>Note: As described in <xref target='RFC6121'/>, presence probes are used by XMPP servers to request presence on behalf of XMPP users; XMPP clients are discouraged from sending presence probes, since retrieving presence is a service that servers provide.</t>
-        <t>An XMPP-to-SIP gateway would transform the presence probe into its SIP equivalent, which is a SUBSCRIBE request with an Expires header value of zero:</t>
+        <t>A SIP-to-XMPP gateway would transform the presence probe into its SIP equivalent, which is a SUBSCRIBE request with an Expires header value of zero:</t>
         <figure>
           <preamble>Example 22: SIP Transformation of XMPP Presence Probe</preamble>
           <artwork><![CDATA[
@@ -690,7 +693,7 @@ User       Server      Server        User
 
     <section title='Security Considerations' anchor="sec">
       <t>Detailed security considerations for presence protocols are given in <xref target='RFC2779'/>, for SIP-based presence in <xref target="RFC3856"/> (see also <xref target="RFC3261"/>), and for XMPP-based presence in <xref target="RFC6121"/> (see also <xref target="RFC6120"/>).</t>
-      <t>The mismatch between long-lived XMPP presence subscriptions and short-lived SIP presence subscriptions introduces the possibility of an amplification attack launched from the XMPP network against a SIP presence server (since each long-lived XMPP presence subscription would typically result in multiple subscription refresh requests on the SIP side of a gateway).  Therefore, access to an XMPP-to-SIP gateway SHOULD be restricted in various ways; among other things, only an XMPP service that carefully controls account provisioning and provides effective methods for the administrators to control the behavior of registered users ought to host such a gateway (e.g., not a service that offers open account registration) and a gateway ought to be associated only with a single domain or trust realm (e.g., a gateway hosted at simple.example.com ought to allow only users within the example.com domain to access the gateway, not users within example.org, example.net, or any other domain).  If a SIP presence server receives communications through an XMPP-to-SIP gateway from users who are not associated with a domain that is so related to the hostname of the gateway, it SHOULD (based on local service provisioning) refuse to service such users or refuse to receive traffic from with the gateway.  As a futher check, whenever an XMPP-to-SIP gateway seeks to refresh an XMPP user's long-lived subscription to a SIP user's presence, it MUST first send an XMPP &lt;presence/&gt; stanza of type "probe" from the address of the gateway to the "bare JID" (user@domain.tld) of the XMPP user, to which the user's XMPP server MUST respond in accordance with <xref target='RFC6121'/>; this puts an equal burden on the XMPP server and the SIP server.</t>
+      <t>The mismatch between long-lived XMPP presence subscriptions and short-lived SIP presence subscriptions introduces the possibility of an amplification attack launched from the XMPP network against a SIP presence server (since each long-lived XMPP presence subscription would typically result in multiple subscription refresh requests on the SIP side of an XMPP-to-SIP gateway).  Therefore, access to an XMPP-to-SIP gateway SHOULD be restricted in various ways; among other things, only an XMPP service that carefully controls account provisioning and provides effective methods for the administrators to control the behavior of registered users ought to host an XMPP-to-SIP gateway (e.g., not a service that offers open account registration) and an XMPP-to-SIP gateway ought to be associated only with a single domain or trust realm (e.g., an XMPP-to-SIP gateway hosted at simple.example.com ought to allow only users within the example.com domain to access the XMPP-to-SIP gateway, not users within example.org, example.net, or any other domain).  If a SIP presence server receives communications through an XMPP-to-SIP gateway from users who are not associated with a domain that is so related to the hostname of the XMPP-to-SIP gateway, it SHOULD (based on local service provisioning) refuse to service such users or refuse to receive traffic from the XMPP-to-SIP gateway.  As a futher check, whenever an XMPP-to-SIP gateway seeks to refresh an XMPP user's long-lived subscription to a SIP user's presence, it MUST first send an XMPP &lt;presence/&gt; stanza of type "probe" from the address of the XMPP-to-SIP gateway to the "bare JID" (user@domain.tld) of the XMPP user, to which the user's XMPP server MUST respond in accordance with <xref target='RFC6121'/>; this puts an equal burden on the XMPP server and the SIP server.</t>
     </section>
 
   </middle>
@@ -999,7 +1002,7 @@ User       Server      Server        User
 
     <section title="Acknowledgements" anchor="ack">
       <t>Thanks to the authors, contributors, and other individuals acknowledged in RFC 7248. </t>
-      <t>Thanks to Saul Ibarra Corretge for his review during Working Group Last Call.</t>
+      <t>Thanks to Saul Ibarra Corretge and Markus Isomaki for their reviews during working group consideration.</t>
       <t>Special thanks to Ben Campbell for identifying the underlying discrepancy that resulted in the need to obsolete RFC 7248.</t> 
       <t>Thanks also to Markus Isomaki and Yana Stamcheva as the working group chairs and Alissa Cooper as the sponsoring Area Director.</t>
     </section>
