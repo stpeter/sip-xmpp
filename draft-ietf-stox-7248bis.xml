@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="3"?>
-<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-03' ipr='trust200902'>
+<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-04' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Presence">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Presence</title>
@@ -60,9 +60,20 @@
     </section>
 
     <section title="Terminology" anchor="terms">
-      <t>A number of terms used here (user, contact, subscription, notification, etc.) are explained in <xref target='RFC3261'/>, <xref target='RFC3856'/>, <xref target='RFC6120'/>, and <xref target='RFC6121'/>.  This document uses some, but not all, of the presence-related terms defined in the Model for Presence and Instant Messaging <xref target='RFC2778'/>.</t>
+      <t>A number of terms used here (user, contact, subscription, notification, etc.) are explained in <xref target='RFC3261'/>, <xref target='RFC3856'/>, <xref target='RFC3857'/>, <xref target='RFC6120'/>, and <xref target='RFC6121'/>.  This document uses some, but not all, of the presence-related terms defined in the Model for Presence and Instant Messaging <xref target='RFC2778'/>.</t>
       <t>In flow diagrams, SIP traffic is shown using arrows such as "***&gt;", whereas XMPP traffic is shown using arrows such as "...&gt;".   As in <xref target='RFC7247'/>, the terms "SIP to XMPP Gateway" and "XMPP to SIP Gateway" are abbreviated as "S2X GW" and "X2S GW", respectively.</t>
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
+    </section>
+
+    <section title="Architectural Assumptions" anchor="arch">
+      <t>The fundamental architectural assumptions underlying SIP-XMPP interworking are described in <xref target='RFC7247'/>.</t>
+      <t>In SIP, there are two ways that presence services are deployed on the server side:</t>
+      <t>
+        <list style='symbols'>
+          <t>Under the first model, described most fully in <xref target='RFC3857'/>, a dedicated SIP Presence Server handles subscriptions to the presence event package. Instead of forwarding a SUBSCRIBE message to the SIP user, the Presence Server and SIP user would interact via the 'presence.winfo' event package, to which the SIP user would be subcribed.  Therefore, when the Presence Server receives a SUBSCRIBE to SIP user's Presence, it sends a 'presence.winfo' NOTIFY message to the SIP user.  The SIP user would then authorize the subscription through some interaction with the Presence Server (for instance using XCAP <xref target='RFC4825'/>).  Therefore, presence updates from the SIP user would not be sent as NOTIFY messages to the XMPP user but as PUBLISH messages to the Presence Server, which would then generate NOTIFY messages to all active subscribers.</t>
+          <t>Because the first model complicates the architecture (and thus diagrams and protocol flows) to some extent, this document describes a slightly more simplified model, in which the SIP Presence Server acts in proxy mode.  Here, the Presence Server merely passes through the SUBSCRIBE and NOTIFY messages, as shown in the diagrams and protocol flows provided in this document.  The reader needs to be aware that this document assumes that the SIP Server acts as a proxy for the Presence event package and that the actual Presence Agent is coextensive with the SIP User Agent.</t>
+        </list>
+      </t>
     </section>
 
     <section title="Subscriptions to Presence Information" anchor="sub">
@@ -125,7 +136,7 @@ User        Server       Server        User
  |            |            |            |
             ]]></artwork>
           </figure>
-            <t>An XMPP user (e.g., juliet@example.com) initiates a subscription by sending a subscription request to a contact (e.g., romeo@example.net), and the contact either accepts or declines the request.  If the contact accepts the request, the user will have a subscription to the contact's presence information until (1) the user unsubscribes or (2) the contact cancels the subscription.  The subscription request is encapsulated in a &lt;presence/&gt; stanza of type "subscribe":</t>
+          <t>An XMPP user (e.g., juliet@example.com) initiates a subscription by sending a subscription request to a contact (e.g., romeo@example.net), and the contact either accepts or declines the request.  If the contact accepts the request, the user will have a subscription to the contact's presence information until (1) the user unsubscribes or (2) the contact cancels the subscription.  The subscription request is encapsulated in a &lt;presence/&gt; stanza of type "subscribe":</t>
           <figure>
             <preamble>Example 1: XMPP User Subscribes to SIP Contact (F1)</preamble>
             <artwork><![CDATA[
@@ -168,7 +179,7 @@ User        Server       Server        User
 |  Content-Length: 0
             ]]></artwork>
           </figure>
-          <t>In accordance with <xref target='RFC6665'/>, the XMPP-to-SIP gateway SHOULD consider the subscription state to be "neutral" until it receives a NOTIFY message.  Therefore, the SIP user or SIP server at the SIP user's domain SHOULD immediately send a NOTIFY message containing a Subscription-State header <xref target='RFC6665'/> whose value contains the string "active" (see <xref target="pres"/> below).</t>
+          <t>In accordance with <xref target='RFC6665'/>, the XMPP-to-SIP gateway MUST consider the subscription state to be "neutral" until it receives a NOTIFY message with a Subscription-State header <xref target='RFC6665'/> whose value is "active".  Therefore, the SIP user or SIP server at the SIP user's domain SHOULD immediately send such a NOTIFY message (see <xref target="pres"/> below).  In case the XMPP-to-SIP gateway initially receives one or more NOTIFY messages with Subscription-State header whose value is "pending", it MUST respond to them on the SIP side, but not generate any presence stanzas towards the XMPP User.</t>
           <figure>
             <preamble>Example 4: SIP User Sends Presence Notification (F6)</preamble>
             <artwork><![CDATA[
@@ -767,6 +778,18 @@ User       Server      Server        User
 <format type='TXT' octets='62956' target='ftp://ftp.isi.edu/in-notes/rfc3856.txt' />
 </reference>
 
+<reference anchor='RFC3857'>
+<front>
+<title>A Watcher Information Event Template-Package for the Session Initiation Protocol (SIP)</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<date year='2004' month='August' />
+<abstract>
+<t>This document defines the watcher information template-package for the Session Initiation Protocol (SIP) event framework.  Watcher information refers to the set of users subscribed to a particular resource within a particular event package.  Watcher information changes dynamically as users subscribe, unsubscribe, are approved, or are rejected.  A user can subscribe to this information, and therefore learn about changes to it.  This event package is a template-package because it can be applied to any event package, including itself. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='3857' />
+<format type='TXT' octets='46221' target='http://www.rfc-editor.org/rfc/rfc3857.txt' />
+</reference>
+
 <reference anchor='RFC3863'>
 <front>
 <title>Presence Information Data Format (PIDF)</title>
@@ -954,6 +977,18 @@ User       Server      Server        User
 <t>The Presence Information Data Format (PIDF) defines a basic format for representing presence information for a presentity. This format defines a textual note, an indication of availability (open or closed) and a Uniform Resource Identifier (URI) for communication. The Rich Presence Information Data format (RPID) described here is an extension that adds optional elements to the Presence Information Data Format (PIDF). These extensions provide additional information about the presentity and its contacts. The information is designed so that much of it can be derived automatically, e.g., from calendar files or user activity.&lt;/t>&lt;t> This extension includes information about what the person is doing, a grouping identifier for a tuple, when a service or device was last used, the type of place a person is in, what media communications might remain private, the relationship of a service tuple to another presentity, the person's mood, the time zone it is located in, the type of service it offers, an icon reflecting the presentity's status, and the overall role of the presentity.&lt;/t>&lt;t> These extensions include presence information for persons, services (tuples), and devices. [STANDARDS-TRACK]</t></abstract></front>
 <seriesInfo name='RFC' value='4480' />
 <format type='TXT' octets='74026' target='http://www.rfc-editor.org/rfc/rfc4480.txt' />
+</reference>
+
+<reference anchor='RFC4825'>
+<front>
+<title>The Extensible Markup Language (XML) Configuration Access Protocol (XCAP)</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'>
+<organization /></author>
+<date year='2007' month='May' />
+<abstract>
+<t>This specification defines the Extensible Markup Language (XML) Configuration Access Protocol (XCAP).  XCAP allows a client to read, write, and modify application configuration data stored in XML format on a server.  XCAP maps XML document sub-trees and element attributes to HTTP URIs, so that these components can be directly accessed by HTTP. [STANDARDS-TRACK]</t></abstract></front>
+<seriesInfo name='RFC' value='4825' />
+<format type='TXT' octets='166627' target='http://www.rfc-editor.org/rfc/rfc4825.txt' />
 </reference>
 
 <reference anchor="XEP-0107" target="http://xmpp.org/extensions/xep-0107.html">
