@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="3"?>
-<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-07' ipr='trust200902'>
+<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-08' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Presence">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Presence</title>
@@ -35,6 +35,15 @@
   <middle>
 
     <section title="Introduction" anchor="intro">
+      <t>Presence is information about the availability of an entity (such as network availability or availability for communication).  Presence features in both SIP and XMPP involve several aspects:</t>
+      <t>
+        <list style='symbols'>
+          <t>A presence authorization request from a user, which is then approved (or not) by the contact; the authorization is long-lived and is often associated with an address list or "buddy list".</t>
+          <t>A relatively ephemeral presence session, during which the contact is online (i.e., available for interaction) and after which the contact is offline again.</t>
+          <t>Presence notifications that are sent from the contact to the user during the contact's presence session.</t>
+        </list>
+      </t>
+      <t>Although specifications for both SIP and XMPP use the term "subscription", that term is employed in different ways.  In SIP, a "subscription" is the specfic mechanism whereby a subscriber (or an entity acting on the subscriber's behalf, such as a server) requests presence notifications from the contact over a relatively short period of time, renewed as necessary to keep receiving presence notifications.  By contrast, in XMPP a "subscription" is essentially shorthand for a long-lived presence authorization.  To prevent confusion, this document uses the term "notification dialog" for SIP subscriptions and the term "presence authorization" for XMPP subscriptions.</t>
       <t>In order to help ensure interworking between presence systems that conform to the instant message / presence requirements <xref target="RFC2779"/>, it is important to clearly define protocol mappings between such systems.  Within the IETF, work has proceeded on two presence technologies:</t>
       <t>
         <list style='symbols'>
@@ -60,41 +69,41 @@
     </section>
 
     <section title="Terminology" anchor="terms">
-      <t>A number of terms used here (user, contact, subscription, notification, etc.) are explained in <xref target='RFC3261'/>, <xref target='RFC3856'/>, <xref target='RFC3857'/>, <xref target='RFC6120'/>, and <xref target='RFC6121'/>.  This document uses some, but not all, of the presence-related terms defined in the Model for Presence and Instant Messaging <xref target='RFC2778'/>.  In particular, the term "presence session" is used as described in <xref target='RFC6121'/> to mean a delimited time period in which an endpoint is online and available for communications.</t>
+      <t>A number of terms used here (user, contact, notification, etc.) are explained in <xref target='RFC3261'/>, <xref target='RFC3856'/>, <xref target='RFC3857'/>, <xref target='RFC6120'/>, and <xref target='RFC6121'/>.  This document uses some, but not all, of the presence-related terms defined in the Model for Presence and Instant Messaging <xref target='RFC2778'/>.  In particular, the term "presence session" is used as described in <xref target='RFC6121'/> to mean a delimited time period in which an endpoint is online and available for communications.</t>
       <t>In flow diagrams, SIP traffic is shown using arrows such as "***&gt;", whereas XMPP traffic is shown using arrows such as "...&gt;".   As in <xref target='RFC7247'/>, the terms "SIP to XMPP Gateway" and "XMPP to SIP Gateway" are abbreviated as "S2X GW" and "X2S GW", respectively.</t>
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target='RFC2119'/>.</t>
     </section>
 
     <section title="Architectural Assumptions" anchor="arch">
       <t>The fundamental architectural assumptions underlying SIP-XMPP interworking are described in <xref target='RFC7247'/>.</t>
-      <t>In SIP, there are two ways that presence services are deployed on the server side:</t>
+      <t>Note that, in SIP, there are two ways that presence services can be deployed on the server side:</t>
       <t>
-        <list style='symbols'>
-          <t>Under the first model, described most fully in <xref target='RFC3857'/>, a dedicated SIP Presence Server handles subscriptions to the presence event package.  Instead of forwarding a SUBSCRIBE message to the SIP user, the Presence Server would act on the basis of a policy set by the SIP User Agent using the 'presence.winfo' event package, to which the SIP user would be subscribed.  The SIP User Agent would then authorize the subscriber through some interaction with the Presence Server (for instance using XCAP <xref target='RFC4825'/>).  Therefore, presence updates from the SIP User Agent would not be sent as NOTIFY messages to the XMPP user but as PUBLISH messages to the Presence Server, which would then generate NOTIFY messages to all active subscribers.</t>
-          <t>Under the second model, a SIP Presence Server acts in proxy mode and merely passes through the SUBSCRIBE and NOTIFY messages to the SIP User Agent.</t>
+        <list style='numbers'>
+          <t>Under this model, described most fully in <xref target='RFC3857'/>, a dedicated SIP Presence Server handles events related to the presence event package.  Instead of forwarding a SUBSCRIBE message to the SIP user, the Presence Server would act on the basis of a policy set by the SIP User Agent using the 'presence.winfo' event package, for which the SIP user would receive events.  The SIP User Agent would then authorize the subscribing contact through some interaction with the Presence Server (for instance using XCAP <xref target='RFC4825'/>).  Therefore, presence updates from the SIP User Agent would not be sent as NOTIFY messages to the XMPP user but as PUBLISH messages to the Presence Server, which would then generate NOTIFY messages to all active subscribers.</t>
+          <t>Under this model, a SIP Presence Server acts in proxy mode and merely passes through the SUBSCRIBE and NOTIFY messages to the SIP User Agent.</t>
         </list>
       </t>
       <t>Because the behavior of the XMPP-to-SIP gateway is not changed by the SIP architectural model that is used, the diagrams and protocol flows in this document cover both options by labeling the end entity a "SIP User Agent or Presence Server".</t>
     </section>
 
-    <section title="Subscriptions to Presence Information" anchor="sub">
-      <section title="Overview" anchor="sub-over">
-        <t>Both XMPP and presence-aware SIP systems enable entities (often, but not necessarily, human users) to subscribe to the presence of other entities.  XMPP presence subscriptions are specified in <xref target="RFC6121"/>.  Presence subscriptions using a SIP event package for presence are specified in <xref target="RFC3856"/>.</t>
-        <t>As described in <xref target="RFC6121"/>, XMPP presence subscriptions are managed using XMPP &lt;presence/&gt; stanzas of type "subscribe", "subscribed", "unsubscribe", and "unsubscribed".  The main subscription states are:</t>
+    <section title="Presence Authorizations" anchor="auth">
+      <section title="Overview" anchor="auth-over">
+        <t>Both XMPP and presence-aware SIP systems enable entities (often, but not necessarily, human users) to subscribe to the presence of other entities.  XMPP presence is specified in <xref target="RFC6121"/>.  Presence using a SIP event package is specified in <xref target="RFC3856"/>.</t>
+        <t>As described in <xref target="RFC6121"/>, XMPP presence authorizations are managed using XMPP &lt;presence/&gt; stanzas of type "subscribe", "subscribed", "unsubscribe", and "unsubscribed".  The main states are:</t>
         <t>
           <list style='symbols'>
             <t>"none" (neither the user nor the contact is subscribed to the other's presence information)</t>
-            <t>"from" (the user has a subscription from the contact)</t>
-            <t>"to" (the user has a subscription to the contact's presence information)</t>
-            <t>"both" (both user and contact are subscribed to each other's presence information)</t>
+            <t>"from" (the contact will receive presence notifications from the user)</t>
+            <t>"to" (the contact will send presence notifications to the user)</t>
+            <t>"both" (both user and contact will receive each other's presence notifications)</t>
           </list>
         </t>
-        <t>As described in <xref target="RFC3856"/>, SIP presence subscriptions are managed through the use of SIP SUBSCRIBE events sent from a SIP User Agent or Presence Server to an intended recipient who is most generally referenced by a Presence URI of the form &lt;pres:user@domain&gt; but who might be referenced by a SIP or SIPS ((Session Initiation Protocol Secure) URI of the form &lt;sip:user@domain&gt; or &lt;sips:user@domain&gt;.  In practice, 'pres' URIs are rarely used, which is why the examples in this document use 'sip' URIs.</t>
-        <t>The subscription models underlying XMPP and SIP differ mainly in the fact that XMPP presence subscriptions are long-lived (indeed permanent if not explicitly cancelled, so that a subscription need never be refreshed during any given presence session <xref target='RFC6121'/>), whereas SIP presence subscriptions are short-lived (the default time-to-live of a SIP presence subscription is 3600 seconds, as specified in Section 6.4 of <xref target="RFC3856"/>, so that a subscription needs to be explicitly refreshed if it will have the appearance of being permanent or even of lasting as long as the duration of a presence session).  This disparity has implications for the handling of subscription cancellations in either direction and, from the SIP side, subscription refreshes.</t>
+        <t>As described in <xref target="RFC3856"/>, SIP notification dialogs and presence authorizations are managed through the use of SIP SUBSCRIBE events sent from a SIP User Agent or Presence Server to an intended recipient who is most generally referenced by a Presence URI of the form &lt;pres:user@domain&gt; but who might be referenced by a SIP or SIPS (Session Initiation Protocol Secure) URI of the form &lt;sip:user@domain&gt; or &lt;sips:user@domain&gt;.  In practice, 'pres' URIs are rarely used, which is why the examples in this document use 'sip' URIs.</t>
+        <t>In both SIP and XMPP, presence authorizations are long-lived (indeed permanent if not explicitly cancelled).  In SIP, notification dialogs are short-lived (the default time-to-live of a SIP notification dialog is 3600 seconds, as specified in Section 6.4 of <xref target="RFC3856"/>, so that a notification dialog needs to be explicitly refreshed if it will have the appearance of being permanent or even of lasting as long as the duration of a presence session).  In XMPP, the equivalent of notification dialogs are automatically generated and handled by servers.</t>
       </section>
       <section title="XMPP to SIP" anchor="sub-xmpp">
-        <section title="Establishing a Presence Subscription" anchor="sub-xmpp-establish">
-          <t>The following diagram illustrates the protocol flow for establishing a presence subscription from an XMPP user to a SIP contact, as further explained in the text and examples after the diagram.</t>
+        <section title="Requesting a Presence Authorization" anchor="auth-xmpp-establish">
+          <t>The following diagram illustrates the protocol flow for establishing a presence authorization from an XMPP user to a SIP contact, as further explained in the text and examples after the diagram.</t>
           <figure>
             <artwork><![CDATA[
 XMPP         XMPP         SIP        SIP UA or
@@ -151,7 +160,7 @@ Client      Server       Proxy    Presence Server
  |            |            |            |
             ]]></artwork>
           </figure>
-          <t>An XMPP user (e.g., juliet@example.com) initiates a subscription by sending a subscription request to a SIP contact (e.g., romeo@example.net), and the contact either accepts or declines the request.  If the SIP contact accepts the request, the XMPP user will have a subscription to the SIP contact's presence information until (1) the XMPP user unsubscribes or (2) the SIP contact cancels the subscription.  The subscription request is encapsulated in a &lt;presence/&gt; stanza of type "subscribe":</t>
+          <t>An XMPP user (e.g., juliet@example.com) asks for a presence authorization by sending a request to a SIP contact (e.g., romeo@example.net), and the contact either accepts or declines the request.  If the SIP contact accepts the request, the XMPP user will have a long-lived authorization to receive the SIP contact's presence information until (1) the XMPP user unsubscribes or (2) the SIP contact cancels the authorization.  The request is encapsulated in a &lt;presence/&gt; stanza of type "subscribe":</t>
           <figure>
             <preamble>Example 1: XMPP User Subscribes to SIP Contact (F1)</preamble>
             <artwork><![CDATA[
@@ -161,9 +170,9 @@ Client      Server       Proxy    Presence Server
             ]]></artwork>
           </figure>
           <t>Upon receiving such a &lt;presence/&gt; stanza, the XMPP server to which Juliet has connected needs to determine the identity of the domainpart in the 'to' address, which it does by following the procedures explained in Section 5 of <xref target='RFC7247'/>.  If the domain is a SIP domain, the XMPP server will hand off the &lt;presence/&gt; stanza to an associated XMPP-to-SIP gateway or connection manager that natively communicates with presence-aware SIP proxies.</t>
-          <t>The XMPP-to-SIP gateway is then responsible for translating the XMPP subscription request into a SIP SUBSCRIBE request addressed from the XMPP user to the SIP contact:</t>
+          <t>The XMPP-to-SIP gateway is then responsible for translating the XMPP request into a SIP SUBSCRIBE request addressed from the XMPP user to the SIP contact:</t>
           <figure>
-            <preamble>Example 2: SIP Transformation of XMPP Subscription Request (F2)</preamble>
+            <preamble>Example 2: SIP Transformation of XMPP Presence Authorization Request (F2)</preamble>
             <artwork><![CDATA[
 |  SUBSCRIBE sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bKna998sk
@@ -178,9 +187,9 @@ Client      Server       Proxy    Presence Server
 |  Content-Length: 0
             ]]></artwork>
           </figure>
-          <t>Once the SIP proxy has delivered the SIP SUBSCRIBE to the SIP User Agent or Presence Server (F3, no example shown), the SIP User Agent then would send a response indicating acceptance of the subscription request:</t>
+          <t>Once the SIP proxy has delivered the SIP SUBSCRIBE to the SIP User Agent or Presence Server (F3, no example shown), the SIP User Agent then would send a response indicating acceptance of the request:</t>
           <figure>
-            <preamble>Example 3: SIP User Accepts Subscription Request (F4)</preamble>
+            <preamble>Example 3: SIP User Accepts Presence Authorization Request (F4)</preamble>
             <artwork><![CDATA[
 |  SIP/2.0 200 OK
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
@@ -193,7 +202,7 @@ Client      Server       Proxy    Presence Server
 |  Content-Length: 0
             ]]></artwork>
           </figure>
-          <t>In accordance with Section 6.7 of <xref target='RFC3856'/>, the XMPP-to-SIP gateway needs to consider the subscription state to be "neutral" until it receives a NOTIFY message with a Subscription-State header <xref target='RFC6665'/> whose value is "active".  Therefore, the SIP User Agent or Presence Server SHOULD immediately send such a NOTIFY message (see <xref target="pres"/> below).  In case the XMPP-to-SIP gateway initially receives one or more NOTIFY messages with Subscription-State header whose value is "pending" (F6), it MUST respond to them on the SIP side but not generate any presence stanzas towards the XMPP User.</t>
+          <t>In accordance with Section 6.7 of <xref target='RFC3856'/>, the XMPP-to-SIP gateway needs to consider the state to be "neutral" until it receives a NOTIFY message with a Subscription-State header <xref target='RFC6665'/> whose value is "active".  Therefore, the SIP User Agent or Presence Server SHOULD immediately send such a NOTIFY message (see <xref target="pres"/> below).  In case the XMPP-to-SIP gateway initially receives one or more NOTIFY messages with Subscription-State header whose value is "pending" (F6), it MUST respond to them on the SIP side but not generate any presence stanzas towards the XMPP User.</t>
           <figure>
             <preamble>Example 4: SIP User Agent or Presence Server Sends Presence Notification (F10)</preamble>
             <artwork><![CDATA[
@@ -221,7 +230,7 @@ Client      Server       Proxy    Presence Server
 |  </presence>
             ]]></artwork>
           </figure>
-          <t>Upon receiving the first NOTIFY with a subscription state of active, the XMPP-to-SIP gateway returns a 200 OK to the SIP User Agent or Presence Server (F12, no example shown).</t>
+          <t>Upon receiving the first NOTIFY with a state of active, the XMPP-to-SIP gateway returns a 200 OK to the SIP User Agent or Presence Server (F12, no example shown).</t>
           <t>The XMPP-to-SIP gateway also generates a &lt;presence/&gt; stanza of type "subscribed":</t>
           <figure>
             <preamble>Example 5: XMPP User Receives Acknowledgement from SIP Contact (F14)</preamble>
@@ -240,13 +249,13 @@ Client      Server       Proxy    Presence Server
             ]]></artwork>
           </figure>
         </section>
-        <section title="Refreshing a Presence Subscription" anchor="sub-xmpp-refresh">
-          <t>It is the responsibility of the XMPP-to-SIP gateway to set the value of the Expires header and to periodically renew the subscription on the SIMPLE side of the gateway so that the subscription appears to be permanent to the XMPP user.  For example, the XMPP-to-SIP gateway SHOULD send a new SUBSCRIBE request to the SIP contact whenever the XMPP user initiates a presence session with the XMPP server by sending initial presence to its XMPP server.  The XMPP-to-SIP gateway also SHOULD send a new SUBSCRIBE request to the SIP contact whenever the SIP presence subscription is scheduled to expire during the XMPP user's active presence session.</t>
-          <t>The rules regarding SIP SUBSCRIBE requests for the purpose of establishing and refreshing a presence subscription are provided in <xref target='RFC6665'/>.  Those rules also apply to XMPP-to-SIP gateways.  Furthermore, an XMPP-to-SIP gateway MUST consider the XMPP subscription to be permanently cancelled (and so inform the XMPP user) if it receives a SIP response of 403, 489, or 603.  By contrast, it is appropriate to consider a SIP response of 423 or 481 to be a transient error and to honor the long-lived XMPP presence subscription.  <xref target='RFC6665'/> explains more detailed considerations about the handling of SIP responses in relation to subscription requests and refreshes.</t>
-          <t>Finally, see the security considerations section (<xref target='sec'/>) of this document for important information and requirements regarding the security implications of subscription refreshes.</t>
+        <section title="Refreshing a Notification Dialog" anchor="auth-xmpp-refresh">
+          <t>It is the responsibility of the XMPP-to-SIP gateway to set the value of the Expires header and to periodically renew the notification dialog on the SIMPLE side of the gateway.  For example, the XMPP-to-SIP gateway SHOULD send a new SUBSCRIBE request to the SIP contact whenever the XMPP user initiates a presence session with the XMPP server by sending initial presence to its XMPP server (this is functionally equivalent to sending an XMPP presence probe).  The XMPP-to-SIP gateway also SHOULD send a new SUBSCRIBE request to the SIP contact whenever the SIP notification dialog is scheduled to expire during the XMPP user's active presence session.</t>
+          <t>The rules regarding SIP SUBSCRIBE requests for the purpose of establishing and refreshing a notification dialog are provided in <xref target='RFC6665'/>.  Those rules also apply to XMPP-to-SIP gateways.  Furthermore, an XMPP-to-SIP gateway MUST consider the XMPP presence authorization to be permanently cancelled (and so inform the XMPP user) if it receives a SIP response of 403, 489, or 603.  By contrast, it is appropriate to consider a SIP response of 423 or 481 to be a transient error and to honor the long-lived XMPP presence authorization.  <xref target='RFC6665'/> explains more detailed considerations about the handling of SIP responses in relation to notification dialogs and refreshes.</t>
+          <t>Finally, see the security considerations section (<xref target='sec'/>) of this document for important information and requirements regarding the security implications of notification refreshes.</t>
         </section>
-        <section title="Cancelling a Presence Subscription" anchor="sub-xmpp-cancel">
-          <t>The following diagram illustrates the protocol flow for cancelling an XMPP user's presence subscription to a SIP contact, as further explained in the text and examples after the diagram.</t>
+        <section title="Cancelling a Presence Authorization" anchor="auth-xmpp-cancel">
+          <t>The following diagram illustrates the protocol flow for cancelling an XMPP user's presence authorization to a SIP contact, as further explained in the text and examples after the diagram.</t>
           <figure>
             <artwork><![CDATA[
 XMPP         XMPP         SIP        SIP UA or
@@ -326,9 +335,9 @@ Client      Server       Proxy    Presence Server
 |            type='unsubscribed'/>
             ]]></artwork>
           </figure>
-          <t>In accordance with Section 4.4.1 of <xref target='RFC6665'/>, the XMPP-to-SIP gateway is then responsible for sending a NOTIFY with a "Subscription-State" of "terminated" in order to formally end the subscription and the associated SIP dialog.</t>
+          <t>In accordance with Section 4.4.1 of <xref target='RFC6665'/>, the XMPP-to-SIP gateway is then responsible for sending a NOTIFY with a "Subscription-State" of "terminated" in order to formally end the presence authorization and the associated SIP dialog.</t>
           <figure>
-            <preamble>Example 10: XMPP-to-SIP Gateway Sends Presence Notification to Terminate Subscription (F25)</preamble>
+            <preamble>Example 10: XMPP-to-SIP Gateway Sends Presence Notification to Terminate Authorization (F25)</preamble>
             <artwork><![CDATA[
 |  NOTIFY sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP simple.example.net;branch=z9hG4bKna998sk
@@ -345,9 +354,9 @@ Client      Server       Proxy    Presence Server
           </figure>
         </section>
       </section>
-      <section title="SIP to XMPP" anchor="sub-sip">
-        <section title="Establishing a Presence Subscription" anchor="sub-sip-establish">
-          <t>The following diagram illustrates the protocol flow for establishing a presence subscription from a SIP user to an XMPP contact, as further explained in the text and examples after the diagram.</t>
+      <section title="SIP to XMPP" anchor="auth-sip">
+        <section title="Requesting a Presence Authorization" anchor="auth-sip-establish">
+          <t>The following diagram illustrates the protocol flow for establishing a presence authorization from a SIP user to an XMPP contact, as further explained in the text and examples after the diagram.</t>
           <figure>
             <artwork><![CDATA[
 SIP         SIP         XMPP         XMPP
@@ -383,7 +392,7 @@ UA         Proxy       Server        Client
 
             ]]></artwork>
           </figure>
-          <t>A SIP User Agent initiates a subscription to a contact's presence information by sending a SIP SUBSCRIBE request to the contact.  The following is an example of such a request:</t>
+          <t>A SIP User Agent initiates a presence authorization to a contact's presence information by sending a SIP SUBSCRIBE request to the contact.  The following is an example of such a request:</t>
           <figure>
             <preamble>Example 11: SIP User Subscribes to XMPP Contact (F26)</preamble>
             <artwork><![CDATA[
@@ -402,7 +411,7 @@ UA         Proxy       Server        Client
           </figure>
           <t>Notice that the Expires header was not included in the SUBSCRIBE request; this means that the default value of 3600 (i.e., 3600 seconds = 1 hour) applies.</t>
           <t>Upon receiving the SUBSCRIBE, the SIP proxy needs to determine the identity of the domain portion of the Request-URI, which it does by following the procedures explained in Section 5 of <xref target='RFC7247'/>.  If the domain is an XMPP domain, the SIP proxy will hand off the SUBSCRIBE to an associated SIP-to-XMPP gateway or connection manager that natively communicates with XMPP servers.</t>
-          <t>The SIP-to-XMPP gateway is then responsible for translating the SUBSCRIBE into an XMPP subscription request addressed from the SIP user to the XMPP contact:</t>
+          <t>The SIP-to-XMPP gateway is then responsible for translating the SUBSCRIBE into an XMPP authorization request addressed from the SIP user to the XMPP contact:</t>
           <figure>
             <preamble>Example 12: XMPP Transformation of SIP SUBSCRIBE (F28)</preamble>
             <artwork><![CDATA[
@@ -411,10 +420,10 @@ UA         Proxy       Server        Client
 |            type='subscribe'/>
             ]]></artwork>
           </figure>
-          <t>In accordance with <xref target='RFC6121'/>, the XMPP user's server delivers the presence subscription request to the XMPP user (or, if a subscription already exists in the XMPP user's roster, the XMPP server SHOULD auto-reply with a &lt;presence/&gt; stanza of type 'subscribed').</t>
-          <t>The "happy path" is for the XMPP user to approve the subscription request by generating a &lt;presence/&gt; stanza of type "subscribed" (F30).  The XMPP server then stamps that presence stanza with the 'from' address of the XMPP contact and sends it to the SIP user (F31).  Upon receiving the stanza, the SIP-to-XMPP gateway generates an empty SIP NOTIFY message with a Subscription-State header <xref target='RFC6665'/> of "active", which serves to inform the SIP user that the subscription request has been approved (F32).</t>
+          <t>In accordance with <xref target='RFC6121'/>, the XMPP user's server delivers the presence authorization request to the XMPP user (or, if an authorization already exists in the XMPP user's roster, the XMPP server SHOULD auto-reply with a &lt;presence/&gt; stanza of type 'subscribed').</t>
+          <t>The "happy path" is for the XMPP user to approve the presence authorization request by generating a &lt;presence/&gt; stanza of type "subscribed" (F30).  The XMPP server then stamps that presence stanza with the 'from' address of the XMPP contact and sends it to the SIP user (F31).  Upon receiving the stanza, the SIP-to-XMPP gateway generates an empty SIP NOTIFY message with a Subscription-State header <xref target='RFC6665'/> of "active", which serves to inform the SIP user that the presence authorization request has been approved (F32).</t>
           <figure>
-            <preamble>Example 13: XMPP User Approves Subscription Request (F31)</preamble>
+            <preamble>Example 13: XMPP User Approves Presence Authorization Request (F31)</preamble>
             <artwork><![CDATA[
 |  <presence from='juliet@example.com'
 |            to='romeo@example.net'
@@ -422,7 +431,7 @@ UA         Proxy       Server        Client
             ]]></artwork>
           </figure>
           <figure>
-            <preamble>Example 14: Subscription Request Approved (F32)</preamble>
+            <preamble>Example 14: Presence Authorization Request Approved (F32)</preamble>
             <artwork><![CDATA[
 |  NOTIFY sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
@@ -436,9 +445,9 @@ UA         Proxy       Server        Client
 |  Content-Length: 0
             ]]></artwork>
           </figure>
-          <t>As an alternative to the "happy path", the XMPP user could decline the subscription request by generating a &lt;presence/&gt; stanza of type "unsubscribed".  The XMPP server would stamp that presence stanza with the 'from' address of the XMPP contact and would send it to the SIP user.  The SIP-to-XMPP gateway then transforms that stanza into an empty SIP NOTIFY message with a Subscription-State header <xref target='RFC6665'/> of "terminated" and a reason of "rejected":</t>
+          <t>As an alternative to the "happy path", the XMPP user could decline the presence authorization request by generating a &lt;presence/&gt; stanza of type "unsubscribed".  The XMPP server would stamp that presence stanza with the 'from' address of the XMPP contact and would send it to the SIP user.  The SIP-to-XMPP gateway then transforms that stanza into an empty SIP NOTIFY message with a Subscription-State header <xref target='RFC6665'/> of "terminated" and a reason of "rejected":</t>
           <figure>
-            <preamble>Example 15: XMPP User Rejects Subscription Request</preamble>
+            <preamble>Example 15: XMPP User Rejects Presence Authorization Request</preamble>
             <artwork><![CDATA[
 |  <presence from='juliet@example.com'
 |            to='romeo@example.net'
@@ -446,7 +455,7 @@ UA         Proxy       Server        Client
             ]]></artwork>
           </figure>
           <figure>
-            <preamble>Example 16: Subscription Request Rejected</preamble>
+            <preamble>Example 16: Presence Authorization Request Rejected</preamble>
             <artwork><![CDATA[
 |  NOTIFY sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
@@ -461,69 +470,13 @@ UA         Proxy       Server        Client
             ]]></artwork>
           </figure>
         </section>
-        <section title="Refreshing a Presence Subscription" anchor="sub-sip-refresh">
-          <t>For as long as a SIP user is online and interested in receiving presence notifications from the XMPP contact, the user's SIP User Agent is responsible for periodically refreshing the subscription by sending an updated SUBSCRIBE request with an appropriate value for the Expires header.  In response, the presence-aware SIP-to-XMPP gateway sends a SIP NOTIFY to the user agent (per <xref target='RFC6665'/>); if the SIP-to-XMPP gateway has meaningful information about the availability state of the XMPP user (e.g., obtained from the core presence session in the XMPP server or learned by sending a presence probe as described under <xref target='req'/>) then the NOTIFY communicates that information (e.g., by including a PIDF body <xref target='RFC3863'/> with the relevant data), whereas if the SIP-to-XMPP gateway does not have meaningful information about the availability state of the XMPP user then the NOTIFY MUST be empty as allowed by <xref target='RFC6665'/>.</t>
-          <t>Note: In SIP there is no necessary connection between a presence session and an outbound subscription to a contact's presence; for example, a SIP user agent could end its subscription to the contact's presence yet still keep sending presence notifications to the contact, or it could send a presence notification indicating that it is offline (i.e., by sending a PIDF document with a basic status of "closed") while still maintaining a subscription to the contact's presence.  However, to simplify the description of handling notifications and subscriptions this document assumes that if a SIP user goes offline it will also terminate its outbound subscriptions.</t>
-          <t>When the SIP user ends its presence session by going offline (e.g., by sending a basic status of "closed") and terminating its outbound subscriptions, it is the responsibility of the presence-aware SIP-to-XMPP gateway to properly handle the difference between short-lived SIP presence subscriptions and long-lived XMPP presence subscriptions.  The SIP-to-XMPP gateway has two options when the SIP user's subscription expires:</t>
-          <t><list style='symbols'>
-            <t>Cancel the subscription (i.e., treat it as temporary) and send an XMPP &lt;presence/&gt; stanza of type "unsubscribe" to the XMPP contact; this honors the SIP semantic but will seem strange to the XMPP contact (because it will appear that the SIP user has cancelled a long-lived subscription).</t>
-            <t>Treat the SIP subscription as if it were long-lived and:
-              <list style='numbers'>
-                <t>send a SIP NOTIFY request to the SIP User Agent containing a PIDF document specifying that the XMPP contact now has a basic status of "closed", including a Subscription-State header <xref target='RFC6665'/> of "terminated" with a reason of "timeout"</t>
-                <t>send an XMPP &lt;presence/&gt; stanza of type "unavailable" to the XMPP contact; this will seem more natural to the XMPP contact</t>
-              </list>
-            </t>
-          </list></t>
-          <t>Which of these options a presence-aware SIP-to-XMPP gateway chooses is up to the implementation.</t>
-          <t>If the implementation chooses the first option, the protocol generated would be as follows:</t>
-          <figure>
-            <preamble>Example 17: XMPP Handling of Temporary Subscription Expiry</preamble>
-            <artwork><![CDATA[
-|  <presence from='romeo@example.net'
-|            to='juliet@example.com'
-|            type='unsubscribe'/>
-            ]]></artwork>
-          </figure>
-          <t>If the implementation chooses the second option, the protocol generated would be as follows:</t>
-          <figure>
-            <preamble>Example 18: SIP Handling of Long-Lived Subscription Expiry</preamble>
-            <artwork><![CDATA[
-|  NOTIFY sip:romeo@example.net SIP/2.0
-|  Via: SIP/2.0/TCP s2x.example.net;branch=z9hG4bKna998sk
-|  From: <sip:romeo@example.net>;tag=xfg9
-|  To: <sip:juliet@example.com>;tag=ur93
-|  Call-ID: AA5A8BE5-CBB7-42B9-8181-6230012B1E11
-|  Event: presence
-|  Subscription-State: terminated;reason=timeout
-|  Max-Forwards: 70
-|  CSeq: 6 NOTIFY
-|  Content-Type: application/pidf+xml
-|  Content-Length: 194
-|
-|  <?xml version='1.0' encoding='UTF-8'?>
-|  <presence xmlns='urn:ietf:params:xml:ns:pidf'
-|            entity='pres:juliet@example.com'>
-|    <tuple id='ID-yn0cl4bnw0yr3vym'>
-|      <status>
-|        <basic>closed</basic>
-|      </status>
-|    </tuple>
-|  </presence>
-            ]]></artwork>
-          </figure>
-          <figure>
-            <preamble>Example 19: XMPP Handling of Long-Lived Subscription Expiry</preamble>
-            <artwork><![CDATA[
-|  <presence from='romeo@example.net'
-|            to='juliet@example.com'
-|            type='unavailable'/>
-            ]]></artwork>
-          </figure>
+        <section title="Refreshing a Notification Dialog" anchor="auth-sip-refresh">
+          <t>For as long as a SIP user is online and interested in receiving presence notifications from the XMPP contact, the user's SIP User Agent is responsible for periodically refreshing the notification dialog by sending an updated SUBSCRIBE request with an appropriate value for the Expires header.  In response, the presence-aware SIP-to-XMPP gateway sends a SIP NOTIFY to the user agent (per <xref target='RFC6665'/>); if the SIP-to-XMPP gateway has meaningful information about the availability state of the XMPP user (e.g., obtained from the core presence session in the XMPP server or learned by sending a presence probe as described under <xref target='req'/>) then the NOTIFY communicates that information (e.g., by including a PIDF body <xref target='RFC3863'/> with the relevant data), whereas if the SIP-to-XMPP gateway does not have meaningful information about the availability state of the XMPP user then the NOTIFY MUST be empty as allowed by <xref target='RFC6665'/>.</t>
         </section>
-        <section title="Cancelling a Presence Subscription" anchor="sub-sip-cancel">
-          <t>At any time, the SIP User Agent can cancel the subscription by sending a SUBSCRIBE message whose Expires header is set to a value of zero ("0"):</t>
+        <section title="Cancelling a Presence Authorization" anchor="auth-sip-cancel">
+          <t>At any time, the SIP User Agent can cancel the presence authorization by sending a SUBSCRIBE message whose Expires header is set to a value of zero ("0"):</t>
           <figure>
-            <preamble>Example 20: SIP User Cancels Subscription</preamble>
+            <preamble>Example 17: SIP User Cancels Presence Authorization</preamble>
             <artwork><![CDATA[
 |  SUBSCRIBE sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP simple.example.net;branch=z9hG4bKna998sk
@@ -538,16 +491,7 @@ UA         Proxy       Server        Client
 |  Content-Length: 0
             ]]></artwork>
           </figure>
-          <t>As above, upon receiving such a request, a presence-aware SIP-to-XMPP gateway is responsible for doing one of the following:</t>
-          <t><list style='symbols'>
-            <t>Cancel the subscription (i.e., treat it as temporary) and send an XMPP &lt;presence/&gt; stanza of type "unsubscribe" to the XMPP contact.</t>
-            <t>Treat the SIP subscription as it were long-lived and 
-              <list style='numbers'>
-                <t>send a SIP NOTIFY request to the SIP User Agent containing a PIDF document specifying that the XMPP contact now has a basic status of "closed", including a Subscription-State header <xref target='RFC6665'/> of "terminated" with a reason of "timeout"</t>
-                <t>send an XMPP &lt;presence/&gt; stanza of type "unavailable" to the XMPP contact</t>
-              </list>
-            </t>
-          </list></t>
+          <t>A presence-aware SIP-to-XMPP gateway is then responsible for sending a SIP NOTIFY request to the SIP User Agent containing a PIDF document specifying that the XMPP contact now has a basic status of "closed", including a Subscription-State header <xref target='RFC6665'/> of "terminated" with a reason of "timeout"; and sending an XMPP &lt;presence/&gt; stanza of type "unavailable" to the XMPP contact</t>
         </section>
       </section>
     </section>
@@ -563,7 +507,7 @@ UA         Proxy       Server        Client
       <section title="XMPP to SIP" anchor="pres-xmpp">
         <t>When Juliet interacts with her XMPP client to modify her presence information (or when her client automatically updates her presence information, e.g., via an "auto-away" feature), her client generates an XMPP &lt;presence/&gt; stanza.  The syntax of the &lt;presence/&gt; stanza, including required and optional elements and attributes, is defined in <xref target="RFC6121"/>.  The following is an example of such a stanza:</t>
         <figure>
-          <preamble>Example 21: XMPP User Sends Presence Notification</preamble>
+          <preamble>Example 18: XMPP User Sends Presence Notification</preamble>
           <artwork><![CDATA[
 |  <presence from='juliet@example.com/yn0cl4bnw0yr3vym'/>
           ]]></artwork>
@@ -571,7 +515,7 @@ UA         Proxy       Server        Client
         <t>Upon receiving such a stanza, the XMPP server to which Juliet has connected broadcasts it to all subscribers who are authorized to receive presence notifications from Juliet (this is similar to the SIP NOTIFY method).  For each subscriber, broadcasting the presence notification involves adding the 'to' address of the subscriber and then either delivering the notification to a local recipient (if the hostname in the subscriber's address matches one of the hostnames serviced by the XMPP server) or attempting to route it to the foreign domain that services the hostname in the subscriber's address.  If the notification is bound for an address at a foreign domain, the XMPP server needs to determine the identity of the domainpart in the 'to' address, which it does by following the procedures discussed in <xref target='RFC7247'/>.  If the domain is a SIP domain, the XMPP server will hand off the &lt;presence/&gt; stanza to an associated XMPP-to-SIP gateway or connection manager that natively communicates with presence-aware SIP proxy (no example shown).</t>
         <t>The XMPP-to-SIP gateway is then responsible for translating the XMPP &lt;presence/&gt; stanza into a SIP NOTIFY request and included PIDF document from the XMPP user to the SIP contact.</t>
         <figure>
-          <preamble>Example 22: SIP Transformation of XMPP Presence Notification</preamble>
+          <preamble>Example 19: SIP Transformation of XMPP Presence Notification</preamble>
           <artwork><![CDATA[
 |  NOTIFY sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bKna998sk
@@ -642,9 +586,9 @@ UA         Proxy       Server        Client
         <t>In XMPP, a user can connect with multiple devices at the same time <xref target='RFC6120'/>; for presence notification purposes <xref target='RFC6121'/>, each device is associated with a distinct resourcepart <xref target='RFC7622'/> and a contact's user agent will receive a separate presence notification from each of the user's devices.  Although the interpretation of multiple presence notifications from a single user is a matter of implementation by the contact's user agent, typically the user agent will show the "most available" status for the contact (e.g., if the user is online with three devices, one of which is away, one of which is in do not disturb mode, and one of which is available with no qualifications, then the status shown will simply be available.  In SIP, it is reasonable for a user agent to model multiple presence notifications from an XMPP user in the same way that it would handle multiple tuples from a SIP user.</t>
       </section>
       <section title="SIP to XMPP" anchor="pres-sip">
-        <t>When Romeo changes his presence, his SIP User Agent generates a SIP NOTIFY request for any active subscriptions.  The syntax of the NOTIFY request is defined in <xref target="RFC3856"/>.  The following is an example of such a request:</t>
+        <t>When Romeo changes his presence, his SIP User Agent generates a SIP NOTIFY request for any active subscription authorizations.  The syntax of the NOTIFY request is defined in <xref target="RFC3856"/>.  The following is an example of such a request:</t>
         <figure>
-          <preamble>Example 23: SIP User Sends Presence Notification</preamble>
+          <preamble>Example 20: SIP User Sends Presence Notification</preamble>
           <artwork><![CDATA[
 |  NOTIFY sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP simple.example.net;branch=z9hG4bKna998sk
@@ -673,7 +617,7 @@ UA         Proxy       Server        Client
         <t>Upon receiving the NOTIFY, the SIP proxy needs to determine the identity of the domain portion of the Request-URI, which it does by following the procedures discussed in <xref target='RFC7247'/>.  If the domain is an XMPP domain, the SIP proxy will hand off the NOTIFY to an associated SIP-to-XMPP gateway or connection manager that natively communicates with XMPP servers.</t>
         <t>The SIP-to-XMPP gateway is then responsible for translating the NOTIFY into an XMPP &lt;presence/&gt; stanza addressed from the SIP user to the XMPP contact:</t>
         <figure>
-          <preamble>Example 24: XMPP Transformation of SIP Presence Notification</preamble>
+          <preamble>Example 21: XMPP Transformation of SIP Presence Notification</preamble>
           <artwork><![CDATA[
 |  <presence from='romeo@example.net'
 |            to='juliet@example.com/yn0cl4bnw0yr3vym'
@@ -713,11 +657,11 @@ UA         Proxy       Server        Client
     </section>
 
     <section title="Polling for Presence Information" anchor="req">
-      <t>Both SIP and XMPP provide methods for explicitly requesting one-time information about the current presence status of another entity.  These are "polling" methods as opposed to the standing subscription methods described in the rest of this document.</t>
+      <t>Both SIP and XMPP provide methods for explicitly requesting one-time information about the current presence status of another entity.  These are "polling" methods as opposed to the subscribing methods described in the rest of this document.</t>
       <section title="XMPP to SIP" anchor="req-xmpp">
         <t>In XMPP, an explicit request for information about current presence status is completed by sending a &lt;presence/&gt; stanza of type "probe":</t>
         <figure>
-          <preamble>Example 25: XMPP Server Sends Presence Probe on Behalf of XMPP User</preamble>
+          <preamble>Example 22: XMPP Server Sends Presence Probe on Behalf of XMPP User</preamble>
           <artwork><![CDATA[
 |  <presence from='juliet@example.com/chamber'
 |            to='romeo@example.net'
@@ -727,7 +671,7 @@ UA         Proxy       Server        Client
         <t>Note: As described in <xref target='RFC6121'/>, presence probes are used by XMPP servers to request presence on behalf of XMPP users; XMPP clients are discouraged from sending presence probes, because retrieving presence is a service that servers provide.</t>
         <t>A SIP-to-XMPP gateway would transform the presence probe into its SIP equivalent, which is a SUBSCRIBE request with an Expires header value of zero:</t>
         <figure>
-          <preamble>Example 26: SIP Transformation of XMPP Presence Probe</preamble>
+          <preamble>Example 23: SIP Transformation of XMPP Presence Probe</preamble>
           <artwork><![CDATA[
 |  SUBSCRIBE sip:romeo@example.net SIP/2.0
 |  Via: SIP/2.0/TCP x2s.example.com;branch=z9hG4bKna998sk
@@ -742,12 +686,12 @@ UA         Proxy       Server        Client
 |  Content-Length: 0
           ]]></artwork>
         </figure>
-        <t>As described in <xref target='RFC3856'/>, this cancels any subscription but causes a NOTIFY to be sent to the subscriber, just as a presence probe does (the transformation rules for presence notifications have been previously described in <xref target='pres-xmpp'/> of this document).</t>
+        <t>As described in <xref target='RFC3856'/>, this cancels any notification dialog but causes a NOTIFY to be sent to the subscriber, just as a presence probe does (the transformation rules for presence notifications have been previously described in <xref target='pres-xmpp'/> of this document).</t>
       </section>
       <section title="SIP to XMPP" anchor="req-sip">
         <t>In SIP, an explicit request for information about current presence status is effectively completed by sending a SUBSCRIBE with an Expires header value of zero:</t>
         <figure>
-          <preamble>Example 27: SIP User Sends Presence Request</preamble>
+          <preamble>Example 24: SIP User Sends Presence Request</preamble>
           <artwork><![CDATA[
 |  SUBSCRIBE sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP simple.example.net;branch=z9hG4bKna998sk
@@ -761,9 +705,9 @@ UA         Proxy       Server        Client
 |  Content-Length: 0
           ]]></artwork>
         </figure>
-        <t>When honoring the long-lived semantics of an XMPP presence subscription, a presence-aware SIP-to-XMPP gateway translates such a SIP request into a &lt;presence/&gt; stanza of type "probe" if it does not already have presence information about the contact:</t>
+        <t>A presence-aware SIP-to-XMPP gateway translates such a SIP request into a &lt;presence/&gt; stanza of type "probe" if it does not already have presence information about the contact:</t>
         <figure>
-          <preamble>Example 28: XMPP Transformation of SIP Presence Request</preamble>
+          <preamble>Example 25: XMPP Transformation of SIP Presence Request</preamble>
           <artwork><![CDATA[
 |  <presence from='romeo@example.net' 
 |            to='juliet@example.com' 
@@ -780,14 +724,14 @@ UA         Proxy       Server        Client
     <section title='Privacy and Security Considerations' anchor="sec">
       <t>Detailed privacy and security considerations for presence protocols are given in <xref target='RFC2779'/>, for SIP-based presence in <xref target="RFC3856"/> (see also <xref target="RFC3261"/>), and for XMPP-based presence in <xref target="RFC6121"/> (see also <xref target="RFC6120"/>).</t>
       <section title='Amplification Attacks' anchor="sec-amp">
-        <t>The mismatch between long-lived XMPP presence subscriptions and short-lived SIP presence subscriptions introduces the possibility of an amplification attack launched from the XMPP network against a SIP presence server (because each long-lived XMPP presence subscription would typically result in multiple subscription refresh requests on the SIP side of an XMPP-to-SIP gateway).  Therefore, access to an XMPP-to-SIP gateway SHOULD be restricted in various ways; for example:</t>
+        <t>There exists the possibility of an amplification attack launched from the XMPP network against a SIP presence server, because each long-lived XMPP presence authorization would typically result in multiple notification dialog refreshes on the SIP side of an XMPP-to-SIP gateway.  Therefore, access to an XMPP-to-SIP gateway SHOULD be restricted in various ways; for example:</t>
         <t>
           <list style='symbols'>
             <t>Only an XMPP service that carefully controls account provisioning and provides effective methods for the administrators to control the behavior of registered users ought to host an XMPP-to-SIP gateway (e.g., not a service that offers open account registration).</t>
             <t>An XMPP-to-SIP gateway ought to be associated only with a single domain or trust realm.  For example, an XMPP-to-SIP gateway hosted at simple.example.com ought to allow only users within the example.com domain to access the XMPP-to-SIP gateway, not users within example.org, example.net, or any other domain (unless they are part of the same multi-tenanted environment as example.com).  This helps to prevent the gateway equivalent of open relays that are shared across XMPP domains from different trust realms.</t>
           </list>
         </t>
-        <t>If a SIP presence server receives communications through an XMPP-to-SIP gateway from users who are not associated with a domain that is so related to the hostname of the XMPP-to-SIP gateway, it SHOULD (based on local service provisioning) refuse to service such users or refuse to receive traffic from the XMPP-to-SIP gateway.  As a further check, whenever an XMPP-to-SIP gateway seeks to refresh an XMPP user's long-lived subscription to a SIP user's presence, it first sends an XMPP &lt;presence/&gt; stanza of type "probe" from the address of the XMPP-to-SIP gateway to the "bare JID" (user@domain.tld) of the XMPP user, to which the user's XMPP server responds in accordance with <xref target='RFC6121'/>; this puts an equal burden on the XMPP server and the SIP proxy.</t>
+        <t>If a SIP presence server receives communications through an XMPP-to-SIP gateway from users who are not associated with a domain that is so related to the hostname of the XMPP-to-SIP gateway, it SHOULD (based on local service provisioning) refuse to service such users or refuse to receive traffic from the XMPP-to-SIP gateway.  As a further check, whenever an XMPP-to-SIP gateway seeks to refresh an XMPP user's long-lived authorization to a SIP user's presence, it first sends an XMPP &lt;presence/&gt; stanza of type "probe" from the address of the XMPP-to-SIP gateway to the "bare JID" (user@domain.tld) of the XMPP user, to which the user's XMPP server responds in accordance with <xref target='RFC6121'/>; this puts an equal burden on the XMPP server and the SIP proxy.</t>
       </section>
       <section title='Presence Leaks' anchor="sec-leaks">
         <t>Presence notifications can contain sensitive information (e.g., about network availability).  In addition, it is possible in both SIP and XMPP for an entity to send different presence notifications to different subscribers.  Therefore, a gateway MUST honor data about the intended recipient of a presence notification (as represented by the 'to' address for XMPP and by the Request-URI for SIP) and it MUST NOT route or deliver a presence notification to any other entities, because it does not possess information about authorization to receive presence notifications for such entities - that information resides at the user's home service, not at the receiving gateway).</t>
