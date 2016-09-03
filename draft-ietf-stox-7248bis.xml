@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="3"?>
-<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-09' ipr='trust200902'>
+<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-10' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Presence">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Presence</title>
@@ -99,7 +99,7 @@
             <t>"both" (both user and contact will receive each other's presence notifications)</t>
           </list>
         </t>
-        <t>As described in <xref target="RFC3856"/>, SIP notification dialogs and presence authorizations are managed through the use of SIP SUBSCRIBE events sent from a SIP User Agent or Presence Server to an intended recipient who is most generally referenced by a Presence URI of the form &lt;pres:user@domain&gt; but who might be referenced by a SIP or SIPS (Session Initiation Protocol Secure) URI of the form &lt;sip:user@domain&gt; or &lt;sips:user@domain&gt;.  In practice, 'pres' URIs are rarely used, which is why the examples in this document use 'sip' URIs.</t>
+        <t>As described in <xref target="RFC3856"/>, SIP presence authorizations are effectively implicit: when a SIP user receives an initial SIP SUBSCRIBE event from a contact, the recipient's SIP User Agent will prompt the user to approve or deny the request.  This decision is recorded in the User Agent or in a Presence Server, so that in the future any notification dialogs from the contact are automatically approved.  (Note that addresses for SIP users and contacts are most generally referenced by a Presence URI of the form &lt;pres:user@domain&gt; but might be referenced by a SIP or SIPS (Session Initiation Protocol Secure) URI of the form &lt;sip:user@domain&gt; or &lt;sips:user@domain&gt;; because in practice 'pres' URIs are rarely used, the examples in this document use 'sip' URIs.)</t>
         <t>In both SIP and XMPP, presence authorizations are long-lived (indeed permanent if not explicitly cancelled).  In SIP, by default a notification session is typically short-lived unless explicitly extended (the default time-to-live of a SIP notification dialog is 3600 seconds, as specified in Section 6.4 of <xref target="RFC3856"/>, so that a notification dialog needs to be explicitly refreshed in order for a user's notification session to last as long as the contact's presence session).  In XMPP, a user's notification session with a contact is almost always automatically handled by the user's server based on the user's presence state (see <xref target="RFC6121"/> for details).</t>
       </section>
       <section title="XMPP to SIP" anchor="sub-xmpp">
@@ -256,7 +256,7 @@ Client      Server       Proxy    Presence Server
           <t>Finally, see the security considerations section (<xref target='sec'/>) of this document for important information and requirements regarding the security implications of notification refreshes.</t>
         </section>
         <section title="Cancelling a Presence Authorization" anchor="auth-xmpp-cancel">
-          <t>The following diagram illustrates the protocol flow by which an XMPP user cancels her outbound presence authorization to a SIP contact (i.e., indicates that she no longer wishes to be authorized to see the SIP contact's presence), as further explained in the text and examples after the diagram.</t>
+          <t>The following diagram illustrates the protocol flow by which an XMPP user cancels her outbound presence authorization to a SIP contact (i.e., indicates that she no longer wishes to be authorized to see the SIP contact's presence).  As can be seen, because SIMPLE does not have a construct that enables a contact to cancel her presence authorization, this flow instead results in cancellation of the contact's notification dialog (with the implication on the XMPP side that the contact will not request a subsequent notification dialog).  Additional details are explained in the text and examples after the diagram.</t>
           <figure>
             <artwork><![CDATA[
 XMPP         XMPP         SIP        SIP UA or
@@ -476,9 +476,9 @@ UA         Proxy       Server        Client
           <t>For as long as a SIP user is online and wishes to maintain a notification session (i.e., receive presence notifications from the XMPP contact), the user's SIP User Agent is responsible for periodically refreshing the notification dialog by sending an updated SUBSCRIBE request with an appropriate value for the Expires header.  In response, the presence-aware SIP-to-XMPP gateway sends a SIP NOTIFY to the user agent (per <xref target='RFC6665'/>); if the SIP-to-XMPP gateway has meaningful information about the availability state of the XMPP user (e.g., obtained from the core presence session in the XMPP server or learned by sending a presence probe as described under <xref target='req'/>) then the NOTIFY communicates that information (e.g., by including a PIDF body <xref target='RFC3863'/> with the relevant data), whereas if the SIP-to-XMPP gateway does not have meaningful information about the availability state of the XMPP user then the NOTIFY MUST be empty as allowed by <xref target='RFC6665'/>.</t>
         </section>
         <section title="Cancelling a Presence Authorization" anchor="auth-sip-cancel">
-          <t>At any time, the SIP user can cancel his outbound presence authorization to the XMPP contact (i.e., indicate that he no longer wishes to be authorized to receive presence notifications from the XMPP contact) by sending a SUBSCRIBE message whose Expires header is set to a value of zero ("0"):</t>
+          <t>SIP does not directly have a construct for cancelling an outbound presence authorization.  Instead, the SIP user would terminate his outbound notification dialog by sending a SUBSCRIBE message whose Expires header is set to a value of zero ("0"), and then never renew it:</t>
           <figure>
-            <preamble>Example 17: SIP User Cancels Presence Authorization</preamble>
+            <preamble>Example 17: SIP User Terminates Notification Dialog</preamble>
             <artwork><![CDATA[
 |  SUBSCRIBE sip:juliet@example.com SIP/2.0
 |  Via: SIP/2.0/TCP simple.example.net;branch=z9hG4bKna998sk
