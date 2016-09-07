@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="3"?>
-<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-10' ipr='trust200902'>
+<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-11' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Presence">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Presence</title>
@@ -80,7 +80,7 @@
       <t>Note that, in SIP, there are two ways that presence services can be deployed on the server side:</t>
       <t>
         <list style='numbers'>
-          <t>Under this model, described most fully in <xref target='RFC3857'/>, a dedicated SIP Presence Server handles events related to the presence event package.  Instead of forwarding a SUBSCRIBE message to the SIP user, the Presence Server would act on the basis of a policy set by the SIP User Agent using the 'presence.winfo' event package, for which the SIP user would receive events.  The SIP User Agent would then authorize the subscribing contact through some interaction with the Presence Server (for instance using XCAP <xref target='RFC4825'/>).  Therefore, presence updates from the SIP User Agent would not be sent as NOTIFY messages to the XMPP user but as PUBLISH messages to the Presence Server, which would then generate NOTIFY messages to all active subscribers.</t>
+          <t>Under this model, described most fully in <xref target='RFC3857'/>, a dedicated SIP Presence Server handles events related to the presence event package.  Instead of forwarding a SUBSCRIBE message to the SIP user, the Presence Server would inform the user of subscription activity using the 'presence.winfo' event package.  The SIP User Agent would then authorize the subscribing contact through some interaction with the Presence Server (for instance using XCAP <xref target='RFC4825'/>).  Therefore, presence updates from the SIP User Agent would not be sent as NOTIFY messages to the XMPP user but as PUBLISH messages to the Presence Server, which would then generate NOTIFY messages to all active subscribers.</t>
           <t>Under this model, a SIP Presence Server acts in proxy mode and merely passes through the SUBSCRIBE and NOTIFY messages to the SIP User Agent.</t>
         </list>
       </t>
@@ -99,7 +99,7 @@
             <t>"both" (both user and contact will receive each other's presence notifications)</t>
           </list>
         </t>
-        <t>As described in <xref target="RFC3856"/>, SIP presence authorizations are effectively implicit: when a SIP user receives an initial SIP SUBSCRIBE event from a contact, the recipient's SIP User Agent will prompt the user to approve or deny the request.  This decision is recorded in the User Agent or in a Presence Server, so that in the future any notification dialogs from the contact are automatically approved.  (Note that addresses for SIP users and contacts are most generally referenced by a Presence URI of the form &lt;pres:user@domain&gt; but might be referenced by a SIP or SIPS (Session Initiation Protocol Secure) URI of the form &lt;sip:user@domain&gt; or &lt;sips:user@domain&gt;; because in practice 'pres' URIs are rarely used, the examples in this document use 'sip' URIs.)</t>
+        <t>As described in <xref target="RFC3856"/>, in SIP the subscriber does not explicitly request the creation or removal of presence authorizations. Rather, the authorizations are triggered by subscription activity. When a SIP user receives an initial SIP SUBSCRIBE event from a contact, the recipient’s SIP User Agent or presence server notifies the user to make an authorization policy decision.  This decision is recorded in the User Agent or in a Presence Server, so that in the future any notification dialogs from the contact are automatically approved.  (Note that addresses for SIP users and contacts are most generally referenced by a Presence URI of the form &lt;pres:user@domain&gt; but might be referenced by a SIP or SIPS (Session Initiation Protocol Secure) URI of the form &lt;sip:user@domain&gt; or &lt;sips:user@domain&gt;; because in practice 'pres' URIs are rarely used, the examples in this document use 'sip' URIs.)</t>
         <t>In both SIP and XMPP, presence authorizations are long-lived (indeed permanent if not explicitly cancelled).  In SIP, by default a notification session is typically short-lived unless explicitly extended (the default time-to-live of a SIP notification dialog is 3600 seconds, as specified in Section 6.4 of <xref target="RFC3856"/>, so that a notification dialog needs to be explicitly refreshed in order for a user's notification session to last as long as the contact's presence session).  In XMPP, a user's notification session with a contact is almost always automatically handled by the user's server based on the user's presence state (see <xref target="RFC6121"/> for details).</t>
       </section>
       <section title="XMPP to SIP" anchor="sub-xmpp">
