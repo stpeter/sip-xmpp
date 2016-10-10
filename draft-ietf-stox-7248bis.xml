@@ -6,7 +6,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="3"?>
-<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-12' ipr='trust200902'>
+<rfc obsoletes='7248' category='std' docName='draft-ietf-stox-7248bis-13' ipr='trust200902'>
 
   <front>
     <title abbrev="SIP-XMPP Interworking: Presence">Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Presence</title>
@@ -1035,6 +1035,19 @@ UA         Proxy       Server        Client
 <format type='TXT' octets='166627' target='http://www.rfc-editor.org/rfc/rfc4825.txt' />
 </reference>
 
+<reference  anchor='RFC7702' target='http://www.rfc-editor.org/info/rfc7702'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Groupchat</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'><organization /></author>
+<author initials='S.' surname='Ibarra' fullname='S. Ibarra'><organization /></author>
+<author initials='S.' surname='Loreto' fullname='S. Loreto'><organization /></author>
+<date year='2015' month='December' />
+<abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a multi-party chat session among users of the Session Initiation Protocol (SIP) and users of the Extensible Messaging and Presence Protocol (XMPP). Specifically, this document defines a mapping between the SIP-based Message Session Relay Protocol (MSRP) and the XMPP Multi-User Chat (MUC) extension.</t></abstract>
+</front>
+<seriesInfo name='RFC' value='7702'/>
+<seriesInfo name='DOI' value='10.17487/RFC7702'/>
+</reference>
+
 <reference anchor="XEP-0107" target="http://xmpp.org/extensions/xep-0107.html">
   <front>
     <title>User Mood</title>
@@ -1078,6 +1091,23 @@ UA         Proxy       Server        Client
 </reference>
 
     </references>
+
+    <section title="Changes from RFC 7248" anchor="changes">
+      <t>RFC 7248 had already been published when the STOX WG discovered that a related document (since published as <xref target='RFC7702'/>) contained problems that also applied to RFC 7248.  Specifically, the diagrams and protocol flows in RFC 7248 contained errors that reflected an incorrect architecture with gateways on both sides of the protocol exchange; in theory and in practice, presence traffic from an XMPP system would be translated by an XMPP-to-SIMPLE gateway on the XMPP side and received by a normal SIP/SIMPLE system directly (without a receiving gateway on the SIP/SIMPLE side), and traffic from a SIP system would be translated by a SIMPLE-to-XMPP gateway on the SIP side and received by a normal XMPP system (without a receiving gateway on the XMPP side).</t>
+      <t>Therefore, this document makes the following substantive changes from RFC 7248:</t>
+      <t>
+        <list style='symbols'>
+          <t>Corrects the architectural assumptions, diagrams, and protocol flows to reflect a single-gateway model in each direction.</t>
+          <t>Adjusts terminology to replace the term "SIP Server" with the term "SIP Proxy" or "SIP resence Server" as appropriate, to use the term "notification dialog" for a SIP subscription and the term "presence authorization" for an XMPP subscription instead of the generic term "subscription" in both contexts, etc.</t>
+          <t>Clarifies that SIP notification dialogs are used to handle presence authorizations in SIP (e.g., there is no dedicated way to signal outbound cancellation of an authorization as there is in XMPP).</t>
+          <t>Clarifies the use of the 'presence.winfo' event package, of the Subscription-State headers (specifically with values of "pending", "active", "closed", or "terminated"), of NOTIFY messages with no body, etc.</t>
+          <t>Clarifies the durations of notification dialogs and presence authorizations, and how they are extended in SIP and handled in XMPP.</t>
+          <t>Removes the mapping of the XMPP 'id' attribute to the SIP "CSeq" header.</t>
+          <t>Describes the handling of multiple connected resources in XMPP.</t>
+          <t>Provides information about mitigations for leaks of presence information.</t>
+        </list>
+      </t>
+    </section>
 
     <section title="Acknowledgements" anchor="ack">
       <t>Thanks to the authors, contributors, and other individuals acknowledged in RFC 7248. </t>
