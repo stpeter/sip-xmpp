@@ -1098,7 +1098,7 @@ UA         Proxy       Server        Client
       <t>
         <list style='symbols'>
           <t>Corrects the architectural assumptions, diagrams, and protocol flows to reflect a single-gateway model in each direction.</t>
-          <t>Adjusts terminology to replace the term "SIP Server" with the term "SIP Proxy" or "SIP resence Server" as appropriate, to use the term "notification dialog" for a SIP subscription and the term "presence authorization" for an XMPP subscription instead of the generic term "subscription" in both contexts, etc.</t>
+          <t>Adjusts terminology to replace the term "SIP Server" with the term "SIP Proxy" or "SIP Presence Server" as appropriate, to use the term "notification dialog" for a SIP subscription and the term "presence authorization" for an XMPP subscription instead of the generic term "subscription" in both contexts, etc.</t>
           <t>Clarifies that SIP notification dialogs are used to handle presence authorizations in SIP (e.g., there is no dedicated way to signal outbound cancellation of an authorization as there is in XMPP).</t>
           <t>Clarifies the use of the 'presence.winfo' event package, of the Subscription-State headers (specifically with values of "pending", "active", "closed", or "terminated"), of NOTIFY messages with no body, etc.</t>
           <t>Clarifies the durations of notification dialogs and presence authorizations, and how they are extended in SIP and handled in XMPP.</t>
