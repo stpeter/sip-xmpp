@@ -58,7 +58,7 @@
     </section>
 
     <section title="Intended Audience" anchor="audience">
-      <t>The documents in this series are intended for use by software developers who have an existing system based on one of these technologies (e.g., SIP) and would like to enable communication from that existing system to systems based on the other technology (e.g., XMPP).  We assume that readers are familiar with the core specifications for both SIP <xref target='RFC3261'/> and XMPP <xref target='RFC6120'/>, with the base document for this series <xref target='RFC7247'/>, and with the following presence-related specifications:</t>
+      <t>The documents in this series (which include <xref target='RFC7247'/>, <xref target='RFC7572'/>, <xref target='RFC7573'/>, and <xref target='RFC7702'/>) are intended for use by software developers who have an existing system based on one of these technologies (e.g., SIP) and would like to enable communication from that existing system to systems based on the other technology (e.g., XMPP).  We assume that readers are familiar with the core specifications for both SIP <xref target='RFC3261'/> and XMPP <xref target='RFC6120'/>, with the base document for this series <xref target='RFC7247'/>, and with the following presence-related specifications:</t>
       <t>
         <list style='symbols'>
           <t>"A Presence Event Package for the Session Initiation Protocol" <xref target='RFC3856'/></t>
@@ -1035,6 +1035,31 @@ UA         Proxy       Server        Client
 <format type='TXT' octets='166627' target='http://www.rfc-editor.org/rfc/rfc4825.txt' />
 </reference>
 
+<reference  anchor='RFC7572' target='http://www.rfc-editor.org/info/rfc7572'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Instant Messaging</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'><organization /></author>
+<author initials='A.' surname='Houri' fullname='A. Houri'><organization /></author>
+<author initials='J.' surname='Hildebrand' fullname='J. Hildebrand'><organization /></author>
+<date year='2015' month='June' />
+<abstract><t>This document defines a bidirectional protocol mapping for the exchange of single instant messages between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP).</t></abstract>
+</front>
+<seriesInfo name='RFC' value='7572'/>
+<seriesInfo name='DOI' value='10.17487/RFC7572'/>
+</reference>
+
+<reference  anchor='RFC7573' target='http://www.rfc-editor.org/info/rfc7573'>
+<front>
+<title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): One-to-One Text Chat Sessions</title>
+<author initials='P.' surname='Saint-Andre' fullname='P. Saint-Andre'><organization /></author>
+<author initials='S.' surname='Loreto' fullname='S. Loreto'><organization /></author>
+<date year='2015' month='June' />
+<abstract><t>This document defines a bidirectional protocol mapping for the exchange of instant messages in the context of a one-to-one chat session between a user of the Session Initiation Protocol (SIP) and a user of the Extensible Messaging and Presence Protocol (XMPP). Specifically for SIP text chat, this document specifies a mapping to the Message Session Relay Protocol (MSRP).</t></abstract>
+</front>
+<seriesInfo name='RFC' value='7573'/>
+<seriesInfo name='DOI' value='10.17487/RFC7573'/>
+</reference>
+
 <reference  anchor='RFC7702' target='http://www.rfc-editor.org/info/rfc7702'>
 <front>
 <title>Interworking between the Session Initiation Protocol (SIP) and the Extensible Messaging and Presence Protocol (XMPP): Groupchat</title>
@@ -1098,9 +1123,9 @@ UA         Proxy       Server        Client
       <t>
         <list style='symbols'>
           <t>Corrects the architectural assumptions, diagrams, and protocol flows to reflect a single-gateway model in each direction.</t>
-          <t>Adjusts terminology to replace the term "SIP Server" with the term "SIP Proxy" or "SIP Presence Server" as appropriate, to use the term "notification dialog" for a SIP subscription and the term "presence authorization" for an XMPP subscription instead of the generic term "subscription" in both contexts, etc.</t>
+          <t>Adjusts terminology to replace the term "SIP Server" with the term "SIP Proxy" or "SIP Presence Server" as appropriate, and to use the term "notification dialog" for a SIP subscription and the term "presence authorization" for an XMPP subscription instead of the generic term "subscription" in both contexts.</t>
           <t>Clarifies that SIP notification dialogs are used to handle presence authorizations in SIP (e.g., there is no dedicated way to signal outbound cancellation of an authorization as there is in XMPP).</t>
-          <t>Clarifies the use of the 'presence.winfo' event package, of the Subscription-State headers (specifically with values of "pending", "active", "closed", or "terminated"), of NOTIFY messages with no body, etc.</t>
+          <t>Clarifies the use of the 'presence.winfo' event package, of the Subscription-State headers (specifically with values of "pending", "active", "closed", or "terminated"), and of NOTIFY messages with no body.</t>
           <t>Clarifies the durations of notification dialogs and presence authorizations, and how they are extended in SIP and handled in XMPP.</t>
           <t>Removes the mapping of the XMPP 'id' attribute to the SIP "CSeq" header.</t>
           <t>Describes the handling of multiple connected resources in XMPP.</t>
